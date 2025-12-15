@@ -101,6 +101,44 @@
                 <li><a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues/new?template=guest-list.yml" target="_blank">Submit guest information</a> via GitHub Issues</li>
             </ul>
         </div>
+
+        <div class="card">
+            <h2>👥 Guest List Submission Options</h2>
+            <p>There are two ways to submit guest information for the bridal party:</p>
+            
+            <div class="grid grid-2" style="margin-top: 20px;">
+                <div class="card" style="background: linear-gradient(135deg, var(--forest-emerald), var(--dark-wood)); color: white;">
+                    <h3 style="color: var(--gold);">Option 1: GitHub Issue Form</h3>
+                    <p>Submit guest details directly through our GitHub issue tracker. Best for organizers with GitHub accounts.</p>
+                    <ul style="margin: 15px 0;">
+                        <li>Navigate to repository Issues</li>
+                        <li>Select "Guest List Submission" template</li>
+                        <li>Fill in guest details in the format provided</li>
+                        <li>Creates tracked record for review</li>
+                    </ul>
+                    <a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues/new?template=guest-list.yml" class="btn btn-secondary" target="_blank">Submit via GitHub</a>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, var(--deep-cherry-red), var(--dark-wood)); color: white;">
+                    <h3 style="color: var(--gold);">Option 2: Google Form</h3>
+                    <p>Alternative option for guests and organizers who prefer a simple web form interface.</p>
+                    <ul style="margin: 15px 0;">
+                        <li>Fill out a user-friendly Google Form</li>
+                        <li>Responses collected in Google Sheets</li>
+                        <li>Easy to share with multiple people</li>
+                        <li>Export as JSON for data/guests.json</li>
+                    </ul>
+                    <div class="alert alert-info" style="background: rgba(255,255,255,0.2); border-color: var(--gold); color: white;">
+                        <strong>Coming Soon:</strong> Google Form link will be added here. For now, use the GitHub Issue option above.
+                    </div>
+                    <!-- <a href="[GOOGLE_FORM_URL]" class="btn btn-secondary" target="_blank">Submit via Google Form</a> -->
+                </div>
+            </div>
+            
+            <div class="alert alert-info" style="margin-top: 20px;">
+                <strong>💡 Pro Tip:</strong> After collecting guest information through either method, the data needs to be manually added to <code>data/guests.json</code> in the repository. The portal will then automatically display and work with the updated guest list!
+            </div>
+        </div>
     </div>
 
     <script src="./assets/app.js"></script>

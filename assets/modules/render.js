@@ -42,10 +42,33 @@ const Render = {
         <ul>
           ${mood.items.map(item => `<li>${item}</li>`).join('')}
         </ul>
+        <div class="item-controls">
+          <button class="favorite-btn ${AppData.decorFavorites.has(mood.id) ? 'active' : ''}" 
+                  onclick="handleDecorFavorite('${mood.id}')">
+            ${AppData.decorFavorites.has(mood.id) ? '❤️ Favorited' : '🤍 Favorite'}
+          </button>
+          <button class="add-to-list-btn ${AppData.decorShoppingList.has(mood.id) ? 'active' : ''}" 
+                  onclick="handleDecorShoppingList('${mood.id}')">
+            ${AppData.decorShoppingList.has(mood.id) ? '✓ In Shopping List' : '+ Add to Shopping List'}
+          </button>
+        </div>
       </div>
     `).join('');
     
     document.getElementById('mood-board').innerHTML = moodHtml;
+    
+    // Add export button
+    const exportSection = `
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="export-btn" onclick="exportDecorJSON()">
+          📥 Export Decor Selections
+        </button>
+        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+          Downloads your favorited items and shopping list as decor.json
+        </p>
+      </div>
+    `;
+    document.getElementById('mood-board').innerHTML += exportSection;
     
     // Render shopping list
     const shoppingHtml = AppData.decor.shoppingList.map(category => `
@@ -92,6 +115,20 @@ const Render = {
   
   // Render food page
   food: function() {
+    // Helper function to generate dietary badges
+    const generateDietaryBadges = (item) => {
+      const badges = [];
+      const dietaryOptions = item.dietaryOptions || [];
+      const description = (item.description + ' ' + dietaryOptions.join(' ')).toLowerCase();
+      
+      if (description.includes('vegan')) badges.push('<span class="dietary-badge vegan">🌱 Vegan</span>');
+      if (description.includes('vegetarian')) badges.push('<span class="dietary-badge vegetarian">🥗 Vegetarian</span>');
+      if (description.includes('gluten-free')) badges.push('<span class="dietary-badge gluten-free">🌾 Gluten-Free</span>');
+      if (description.includes('dairy-free')) badges.push('<span class="dietary-badge dairy-free">🥛 Dairy-Free</span>');
+      
+      return badges.join(' ');
+    };
+    
     // Render menu items by category
     const categories = ['Dessert', 'Beverage', 'Main', 'Side', 'Appetizer'];
     const menuHtml = categories.map(category => {
@@ -102,12 +139,26 @@ const Render = {
         <div class="card">
           <h3>${category}</h3>
           ${items.map(item => `
-            <div style="padding: 15px; margin: 10px 0; background: var(--cream); border-radius: 8px;">
+            <div style="padding: 15px; margin: 10px 0; background: var(--cream); border-radius: 8px; ${AppData.menuFeatured.has(item.id) ? 'border: 3px solid var(--gold);' : ''}">
               <h4 style="color: var(--deep-cherry-red);">${item.name}</h4>
               <p>${item.description}</p>
               <p><strong>Serves:</strong> ${item.serves} | <strong>Prep Time:</strong> ${item.prepTime}</p>
               ${item.allergens.length > 0 ? `<p><strong>Allergens:</strong> ${item.allergens.join(', ')}</p>` : ''}
               ${item.dietaryOptions.length > 0 ? `<p><em>${item.dietaryOptions.join(', ')}</em></p>` : ''}
+              <div style="margin: 10px 0;">
+                ${generateDietaryBadges(item)}
+              </div>
+              <div class="item-controls">
+                <button class="favorite-btn ${AppData.menuFavorites.has(item.id) ? 'active' : ''}" 
+                        onclick="handleMenuFavorite('${item.id}')">
+                  ${AppData.menuFavorites.has(item.id) ? '⭐ Starred' : '☆ Star'}
+                </button>
+                <button class="favorite-btn ${AppData.menuFeatured.has(item.id) ? 'active' : ''}" 
+                        onclick="handleMenuFeatured('${item.id}')"
+                        style="background: ${AppData.menuFeatured.has(item.id) ? 'var(--gold)' : 'transparent'}; border-color: var(--gold);">
+                  ${AppData.menuFeatured.has(item.id) ? '🏆 Featured' : '🏆 Feature on Menu'}
+                </button>
+              </div>
             </div>
           `).join('')}
         </div>
@@ -115,6 +166,19 @@ const Render = {
     }).join('');
     
     document.getElementById('menu-items').innerHTML = menuHtml;
+    
+    // Add export button
+    const exportSection = `
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="export-btn" onclick="exportMenuJSON()">
+          📥 Export Menu Selections
+        </button>
+        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+          Downloads your starred and featured menu items as menu.json
+        </p>
+      </div>
+    `;
+    document.getElementById('menu-items').innerHTML += exportSection;
     
     // Render prep timeline
     const timelineHtml = AppData.menu.prepTimeline.map(phase => `
@@ -160,19 +224,41 @@ const Render = {
       </div>
     `;
     
-    // Render character list
-    const charactersHtml = AppData.characters.map(char => `
+    // Render character list with role assignment controls
+    const unassignedCount = AppData.guests.filter(g => !g.assignedCharacter).length;
+    const assignmentStatus = `
+      <div class="alert ${unassignedCount === 0 ? 'alert-success' : 'alert-warning'}" style="margin-bottom: 20px;">
+        <strong>Assignment Status:</strong> ${AppData.guests.filter(g => g.assignedCharacter).length} of ${AppData.guests.length} guests assigned
+        ${unassignedCount > 0 ? `<br><em>${unassignedCount} guest(s) still need role assignments</em>` : ''}
+      </div>
+      ${unassignedCount > 0 ? `
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="handleSuggestAssignments()">
+            🎭 Suggest Role Assignments
+          </button>
+          <p style="margin-top: 10px; font-size: 14px; color: #666;">
+            Automatically assigns unassigned guests to available roles
+          </p>
+        </div>
+      ` : ''}
+    `;
+    
+    const charactersHtml = AppData.characters.map(char => {
+      const assignedGuest = AppData.guests.find(g => g.assignedCharacter === char.id);
+      return `
       <div class="character-card">
         <h4>${char.name}</h4>
         <span class="role">${char.role}</span>
+        ${assignedGuest ? `<p style="color: var(--forest-emerald); font-weight: bold;">✓ Assigned to: ${assignedGuest.name}</p>` : '<p style="color: #999;">Available</p>'}
         <p><strong>Briefing:</strong> ${char.briefing}</p>
         <p><strong>Costume:</strong> ${char.costume}</p>
         <p><strong>Personality:</strong> ${char.personality}</p>
         <button class="btn btn-secondary" onclick="printCharacterPacket('${char.id}')">Print Packet</button>
       </div>
-    `).join('');
+    `;
+    }).join('');
     
-    document.getElementById('character-list').innerHTML = charactersHtml;
+    document.getElementById('character-list').innerHTML = assignmentStatus + charactersHtml;
   },
   
   // Render schedule page
@@ -246,13 +332,82 @@ const Render = {
     
     document.getElementById('validation-results').innerHTML = validationHtml;
     
+    // Decision Mode Section
+    const progress = calculateDecisionProgress();
+    const decisionModeHtml = `
+      <div class="card">
+        <h2>🎯 Decision Mode - Guided Planning Flow</h2>
+        <p>Follow this step-by-step guide to make all your planning decisions. Track your progress and export when ready!</p>
+        
+        <div class="decision-step ${progress.decorFavorited >= 33 ? 'completed' : ''}">
+          <h3>Step 1: Decor Selection</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress.decorFavorited}%;">
+              ${progress.decorFavorited}% Favorited
+            </div>
+          </div>
+          <p><strong>Status:</strong> ${progress.decorFavorited >= 33 ? '✓ Complete' : `${AppData.decorFavorites.size} of ${AppData.decor.moodBoard ? AppData.decor.moodBoard.length : 0} mood boards favorited`}</p>
+          <p>Choose your favorite decor themes and add items to your shopping list.</p>
+          <a href="decor.html" class="btn">Go to Decor Planning</a>
+        </div>
+        
+        <div class="decision-step ${progress.menuFeatured >= 25 ? 'completed' : ''}">
+          <h3>Step 2: Menu Curation</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress.menuFeatured}%;">
+              ${progress.menuFeatured}% Featured
+            </div>
+          </div>
+          <p><strong>Status:</strong> ${progress.menuFeatured >= 25 ? '✓ Complete' : `${AppData.menuFeatured.size} menu items featured`}</p>
+          <p>Star your favorites and feature the items you want on the final menu.</p>
+          <a href="food.html" class="btn">Go to Menu Planning</a>
+        </div>
+        
+        <div class="decision-step ${progress.rolesAssigned >= 80 ? 'completed' : ''}">
+          <h3>Step 3: Character Assignments</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress.rolesAssigned}%;">
+              ${progress.rolesAssigned}% Assigned
+            </div>
+          </div>
+          <p><strong>Status:</strong> ${progress.rolesAssigned >= 80 ? '✓ Complete' : `${progress.totalAssigned} of ${AppData.guests.length} guests assigned`}</p>
+          <p>Assign mystery character roles to your guests.</p>
+          <a href="mystery.html" class="btn">Go to Mystery Planning</a>
+          <a href="guests.html" class="btn btn-secondary">Manage Guests</a>
+        </div>
+        
+        <div class="decision-step">
+          <h3>Step 4: Review Schedule</h3>
+          <p>Finalize your 2-hour timeline and make any necessary adjustments.</p>
+          <a href="schedule.html" class="btn">View Schedule</a>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, var(--deep-cherry-red), var(--dark-wood)); border-radius: 10px;">
+          <h3 style="color: var(--gold); margin-bottom: 15px;">📦 Export Complete Plan</h3>
+          <p style="color: white; margin-bottom: 15px;">Download all your decisions and data as a ZIP file</p>
+          <button class="btn btn-secondary" onclick="downloadAllDataAsZip()" style="font-size: 18px;">
+            ⬇️ Download Current Plan (ZIP)
+          </button>
+          <p style="color: var(--cream); margin-top: 10px; font-size: 14px;">
+            Includes all JSON files with your favorites, featured items, and assignments
+          </p>
+        </div>
+      </div>
+    `;
+    
+    // Insert decision mode before validation results
+    const container = document.getElementById('validation-results').parentElement;
+    const decisionDiv = document.createElement('div');
+    decisionDiv.innerHTML = decisionModeHtml;
+    container.insertBefore(decisionDiv.firstElementChild, container.firstElementChild);
+    
     // Data links
     document.getElementById('data-links').innerHTML = `
       <ul class="item-list">
         <li><a href="./data/guests.json" target="_blank">guests.json</a> <span>${AppData.guests.length} guests</span></li>
         <li><a href="./data/characters.json" target="_blank">characters.json</a> <span>${AppData.characters.length} characters</span></li>
         <li><a href="./data/decor.json" target="_blank">decor.json</a></li>
-        <li><a href="./data/menu.json" target="_blank">menu.json</a> <span>${AppData.menu.menuItems.length} items</span></li>
+        <li><a href="./data/menu.json" target="_blank">menu.json</a> <span>${AppData.menu.menuItems ? AppData.menu.menuItems.length : 0} items</span></li>
         <li><a href="./data/schedule.json" target="_blank">schedule.json</a></li>
         <li><a href="./data/story.json" target="_blank">story.json</a></li>
       </ul>
@@ -330,4 +485,37 @@ window.autoAssignAll = function() {
   if (window.renderPage) {
     window.renderPage('guests');
   }
+};
+
+// Decor interaction handlers
+window.handleDecorFavorite = function(itemId) {
+  toggleDecorFavorite(itemId);
+  window.renderPage('decor');
+};
+
+window.handleDecorShoppingList = function(itemId) {
+  toggleDecorShoppingList(itemId);
+  window.renderPage('decor');
+};
+
+// Menu interaction handlers
+window.handleMenuFavorite = function(itemId) {
+  toggleMenuFavorite(itemId);
+  window.renderPage('food');
+};
+
+window.handleMenuFeatured = function(itemId) {
+  toggleMenuFeatured(itemId);
+  window.renderPage('food');
+};
+
+// Mystery/Role assignment handler
+window.handleSuggestAssignments = function() {
+  const unassigned = suggestAssignments();
+  if (unassigned === 0) {
+    alert('All guests have been assigned roles!');
+  } else {
+    alert(`Assignments suggested! ${unassigned} guest(s) could not be assigned (not enough available roles).`);
+  }
+  window.renderPage('mystery');
 };
