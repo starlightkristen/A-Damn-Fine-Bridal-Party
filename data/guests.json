@@ -3,15 +3,49 @@
     "id": 1,
     "name": "Sarah Johnson",
     "email": "sarah.j@example.com",
+    "phone": "555-0100",
+    "address": {
+      "street": "456 Oak Avenue",
+      "city": "Twin Peaks",
+      "state": "WA",
+      "zip": "98765",
+      "country": "USA"
+    },
     "dietary": "Vegetarian",
+    "dietarySeverity": "preference",
+    "accessibility": "None",
+    "roleVibe": "warm and friendly",
+    "seatingPreferences": "Sit with Emily",
+    "notes": "Loves outdoor activities",
     "assignedCharacter": null,
-    "rsvp": "pending"
+    "rsvp": "confirmed"
   },
   {
     "id": 2,
     "name": "Emily Chen",
     "email": "emily.chen@example.com",
+    "phone": null,
+    "address": {
+      "street": "789 Pine Street",
+      "city": "Twin Peaks",
+      "state": "WA",
+      "zip": "98765",
+      "country": "USA"
+    },
     "dietary": "Gluten-free",
+    "dietarySeverity": "allergy",
+    "accessibility": "Wheelchair accessible seating required",
+    "roleVibe": "intelligent and analytical",
+    "seatingPreferences": null,
+    "notes": "Arrives early",
+    "assignedCharacter": null,
+    "rsvp": "confirmed"
+  },
+  {
+    "id": 3,
+    "name": "Legacy Guest",
+    "email": "legacy@example.com",
+    "dietary": "None",
     "assignedCharacter": null,
     "rsvp": "pending"
   }

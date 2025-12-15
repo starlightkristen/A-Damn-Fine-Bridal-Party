@@ -100,15 +100,37 @@ function formatDate(dateString) {
 
 // Helper function to calculate stats
 function calculateStats() {
+  // Helper to check if guest has a valid address
+  const hasValidAddress = (guest) => {
+    return guest.address && 
+           guest.address.street && 
+           guest.address.street !== 'TBD' &&
+           guest.address.city &&
+           guest.address.state;
+  };
+  
+  // Helper to check if guest has RSVP status (not pending/invited)
+  const hasRsvp = (guest) => {
+    const rsvpLower = (guest.rsvp || 'pending').toLowerCase();
+    return rsvpLower === 'confirmed' || rsvpLower === 'tentative' || rsvpLower === 'not attending';
+  };
+  
+  const guestsWithAddress = AppData.guests.filter(hasValidAddress).length;
+  const guestsWithRsvp = AppData.guests.filter(hasRsvp).length;
+  
   return {
     totalGuests: AppData.guests.length,
     confirmedGuests: AppData.guests.filter(g => g.rsvp === 'confirmed').length,
-    pendingGuests: AppData.guests.filter(g => g.rsvp === 'pending').length,
+    pendingGuests: AppData.guests.filter(g => g.rsvp === 'pending' || g.rsvp === 'invited').length,
     assignedCharacters: AppData.guests.filter(g => g.assignedCharacter).length,
     availableCharacters: AppData.characters.length,
     menuItems: AppData.menu.menuItems ? AppData.menu.menuItems.length : 0,
     decorItems: AppData.decor.shoppingList ? 
-      AppData.decor.shoppingList.reduce((sum, cat) => sum + cat.items.length, 0) : 0
+      AppData.decor.shoppingList.reduce((sum, cat) => sum + cat.items.length, 0) : 0,
+    guestsWithAddress: guestsWithAddress,
+    guestsWithRsvp: guestsWithRsvp,
+    percentWithAddress: AppData.guests.length > 0 ? Math.round((guestsWithAddress / AppData.guests.length) * 100) : 0,
+    percentWithRsvp: AppData.guests.length > 0 ? Math.round((guestsWithRsvp / AppData.guests.length) * 100) : 0
   };
 }
 
@@ -270,6 +292,28 @@ function suggestAssignments() {
   const assignedCharacters = new Set(AppData.guests.filter(g => g.assignedCharacter).map(g => g.assignedCharacter));
   const availableCharacters = AppData.characters.filter(c => !assignedCharacters.has(c.id));
   
+  // Helper function to score character match based on roleVibe
+  const scoreMatch = (guest, character) => {
+    if (!guest.roleVibe) return 0;
+    
+    const guestVibe = guest.roleVibe.toLowerCase();
+    const charPersonality = (character.personality || '').toLowerCase();
+    const charBriefing = (character.briefing || '').toLowerCase();
+    const charRole = (character.role || '').toLowerCase();
+    
+    let score = 0;
+    
+    // Check for keyword matches in personality, briefing, and role
+    const vibeWords = guestVibe.split(/\s+/);
+    vibeWords.forEach(word => {
+      if (charPersonality.includes(word)) score += 3;
+      if (charBriefing.includes(word)) score += 2;
+      if (charRole.includes(word)) score += 2;
+    });
+    
+    return score;
+  };
+  
   unassignedGuests.forEach(guest => {
     // Try to match with preferred roles first
     const preferences = AppData.rolePreferences[guest.id] || [];
@@ -282,11 +326,20 @@ function suggestAssignments() {
       assignedCharacters.add(preferredAvailable);
       availableCharacters.splice(availableCharacters.findIndex(c => c.id === preferredAvailable), 1);
     } else if (availableCharacters.length > 0) {
-      // Assign random available character
-      const randomChar = availableCharacters[0];
-      guest.assignedCharacter = randomChar.id;
-      assignedCharacters.add(randomChar.id);
-      availableCharacters.shift();
+      // Use roleVibe to rank available characters
+      const scoredCharacters = availableCharacters.map(char => ({
+        character: char,
+        score: scoreMatch(guest, char)
+      }));
+      
+      // Sort by score (highest first), avoiding duplicates
+      scoredCharacters.sort((a, b) => b.score - a.score);
+      
+      // Assign best match
+      const bestMatch = scoredCharacters[0].character;
+      guest.assignedCharacter = bestMatch.id;
+      assignedCharacters.add(bestMatch.id);
+      availableCharacters.splice(availableCharacters.findIndex(c => c.id === bestMatch.id), 1);
     }
   });
   

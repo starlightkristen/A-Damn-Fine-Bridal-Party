@@ -1,4 +1,4 @@
-name: Guest List Submission
+name: Guest List Submission (Marlena)
 description: Submit guest information for Marlena's bridal party
 title: "[GUEST LIST] Guest Submissions"
 labels: ["guest-list", "planning"]
@@ -6,34 +6,65 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 👥 Guest List Submission
-        Use this form to submit guest details for "A Damn Fine Bridal Party" for Marlena.
-        You can submit multiple guests at once using the format below.
+        ## 👥 Guest List Submission (Marlena)
+        
+        Hi Marlena! 👋
+        
+        Use this form to submit guest details for "A Damn Fine Bridal Party". You can submit multiple guests at once using the copy/paste format below.
+        
+        **Format (one guest per line):**
+        ```
+        Name | Email | Phone (optional) | Address (street, city, state, zip, country) | RSVP (invited|confirmed|tentative|not attending) | Dietary (comma-separated) | Severity (allergy|intolerance|preference) | Accessibility needs | Role vibe | Sit with / Avoid (optional) | Notes
+        ```
+        
+        **Example:**
+        ```
+        Donna Hayward | donna.h@example.com | 555-0123 | 123 Twin Peaks Ln, Twin Peaks, WA, 98765, USA | confirmed | vegetarian, gluten-free | allergy | None | curious and observant | Sit with James | She loves cherry pie
+        ```
+        
+        **Field Guidelines:**
+        - **Name**: Full name of the guest
+        - **Email**: Contact email address
+        - **Phone**: Optional phone number
+        - **Address**: Full mailing address (street, city, state, zip, country) - use "TBD" if not yet available
+        - **RSVP**: Current status (invited, confirmed, tentative, not attending)
+        - **Dietary**: Any dietary restrictions, comma-separated
+        - **Severity**: Classification (allergy, intolerance, preference) - use "none" if no dietary needs
+        - **Accessibility**: Any accessibility needs - use "None" if not applicable
+        - **Role vibe**: Personality/character vibe for mystery role assignment
+        - **Sit with / Avoid**: Optional seating preferences
+        - **Notes**: Any other relevant information
         
   - type: textarea
     id: guests
     attributes:
       label: Guest Information
-      description: |
-        Please provide guest details in the following format (one guest per line):
-        Name | Email | Dietary Restrictions
-        
-        Example:
-        Sarah Johnson | sarah.j@example.com | Vegetarian
-        Emily Chen | emily.chen@example.com | Gluten-free
-        Michael Davis | m.davis@example.com | None
+      description: Paste your guest list here using the format shown above. One guest per line.
       placeholder: |
-        Jane Doe | jane.doe@example.com | Vegan
-        John Smith | john.smith@example.com | None
+        Donna Hayward | donna.h@example.com | 555-0123 | 123 Twin Peaks Ln, Twin Peaks, WA, 98765, USA | confirmed | vegetarian, gluten-free | allergy | None | curious and observant | Sit with James | She loves cherry pie
+        James Hurley | james.h@example.com | 555-0124 | TBD | invited | none | none | None | mysterious and protective | | Rides a motorcycle
     validations:
       required: true
       
-  - type: textarea
-    id: additional-notes
+  - type: dropdown
+    id: default-rsvp
     attributes:
-      label: Additional Notes
-      description: Any special considerations, seating preferences, or other information about the guests
-      placeholder: Jane prefers to sit with Emily. John is bringing his partner.
+      label: Default RSVP Status
+      description: Optional - If a guest line doesn't specify an RSVP status, what should be the default?
+      options:
+        - invited
+        - confirmed
+        - tentative
+        - not attending
+    validations:
+      required: false
+      
+  - type: textarea
+    id: overall-notes
+    attributes:
+      label: Overall Notes
+      description: Any general notes about the guest list, seating arrangements, or other considerations
+      placeholder: Most guests prefer vegetarian options. Consider a kids' table for guests with children.
     validations:
       required: false
       

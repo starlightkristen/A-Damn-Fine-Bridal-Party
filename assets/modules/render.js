@@ -282,15 +282,38 @@ const Render = {
   
   // Render guests page
   guests: function() {
+    // Helper function to generate RSVP badge
+    const getRsvpBadge = (rsvp) => {
+      const rsvpLower = (rsvp || 'pending').toLowerCase();
+      const badges = {
+        'confirmed': '<span class="badge badge-success">✓ Confirmed</span>',
+        'invited': '<span class="badge badge-info">✉️ Invited</span>',
+        'tentative': '<span class="badge badge-warning">? Tentative</span>',
+        'not attending': '<span class="badge badge-danger">✗ Not Attending</span>',
+        'pending': '<span class="badge badge-secondary">⏳ Pending</span>'
+      };
+      return badges[rsvpLower] || badges['pending'];
+    };
+    
+    // Helper function to check if address is on file
+    const hasAddress = (guest) => {
+      return guest.address && 
+             guest.address.street && 
+             guest.address.street !== 'TBD' &&
+             guest.address.city &&
+             guest.address.state;
+    };
+    
     const tableHtml = `
       <table>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Email</th>
-            <th>Dietary</th>
-            <th>Character</th>
+            <th>Contact</th>
             <th>RSVP</th>
+            <th>Dietary</th>
+            <th>Accessibility</th>
+            <th>Character</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -299,13 +322,34 @@ const Render = {
             const character = guest.assignedCharacter ? 
               AppData.characters.find(c => c.id === guest.assignedCharacter) : null;
             
+            const addressIndicator = hasAddress(guest) ? 
+              '<span class="badge badge-success" style="font-size: 11px; margin-left: 5px;">📬 Address on file</span>' : 
+              '<span class="badge badge-warning" style="font-size: 11px; margin-left: 5px;">📭 No address</span>';
+            
+            const phoneDisplay = guest.phone ? `<br><small>📞 ${guest.phone}</small>` : '';
+            
+            const accessibilityDisplay = guest.accessibility && guest.accessibility !== 'None' ?
+              `<strong style="color: var(--deep-cherry-red);">♿ ${guest.accessibility}</strong>` :
+              '<span style="color: #999;">None</span>';
+            
+            const dietaryInfo = guest.dietary && guest.dietary !== 'None' ?
+              `${guest.dietary}${guest.dietarySeverity ? ` <em>(${guest.dietarySeverity})</em>` : ''}` :
+              'None';
+            
             return `
               <tr>
-                <td>${guest.name}</td>
-                <td>${guest.email}</td>
-                <td>${guest.dietary}</td>
-                <td>${character ? character.name : 'Not assigned'}</td>
-                <td>${guest.rsvp}</td>
+                <td>
+                  <strong>${guest.name}</strong>
+                  ${addressIndicator}
+                  ${guest.roleVibe ? `<br><small style="color: #666;">🎭 ${guest.roleVibe}</small>` : ''}
+                </td>
+                <td>
+                  ${guest.email}${phoneDisplay}
+                </td>
+                <td>${getRsvpBadge(guest.rsvp)}</td>
+                <td>${dietaryInfo}</td>
+                <td>${accessibilityDisplay}</td>
+                <td>${character ? character.name : '<span style="color: #999;">Not assigned</span>'}</td>
                 <td>
                   <button class="btn" onclick="copyInvite(${guest.id})">Copy Invite</button>
                 </td>
@@ -334,6 +378,7 @@ const Render = {
     
     // Decision Mode Section
     const progress = calculateDecisionProgress();
+    const stats = calculateStats();
     const decisionModeHtml = `
       <div class="card">
         <h2>🎯 Decision Mode - Guided Planning Flow</h2>
@@ -376,8 +421,32 @@ const Render = {
           <a href="guests.html" class="btn btn-secondary">Manage Guests</a>
         </div>
         
+        <div class="decision-step ${stats.percentWithRsvp >= 80 ? 'completed' : ''}">
+          <h3>Step 4: Guest RSVP Tracking</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${stats.percentWithRsvp}%;">
+              ${stats.percentWithRsvp}% with RSVP
+            </div>
+          </div>
+          <p><strong>Status:</strong> ${stats.percentWithRsvp >= 80 ? '✓ Complete' : `${stats.guestsWithRsvp} of ${stats.totalGuests} guests have responded`}</p>
+          <p>Track guest responses and confirm attendance.</p>
+          <a href="guests.html" class="btn">Manage Guest List</a>
+        </div>
+        
+        <div class="decision-step ${stats.percentWithAddress >= 80 ? 'completed' : ''}">
+          <h3>Step 5: Guest Address Collection</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${stats.percentWithAddress}%;">
+              ${stats.percentWithAddress}% with Address
+            </div>
+          </div>
+          <p><strong>Status:</strong> ${stats.percentWithAddress >= 80 ? '✓ Complete' : `${stats.guestsWithAddress} of ${stats.totalGuests} guests have address on file`}</p>
+          <p>Collect mailing addresses for invitations and thank you cards.</p>
+          <a href="guests.html" class="btn">Update Guest Info</a>
+        </div>
+        
         <div class="decision-step">
-          <h3>Step 4: Review Schedule</h3>
+          <h3>Step 6: Review Schedule</h3>
           <p>Finalize your 2-hour timeline and make any necessary adjustments.</p>
           <a href="schedule.html" class="btn">View Schedule</a>
         </div>
