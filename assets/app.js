@@ -7,7 +7,13 @@ const AppData = {
   decor: {},
   menu: {},
   schedule: {},
-  story: {}
+  story: {},
+  // In-memory state for interactive features
+  decorFavorites: new Set(),
+  decorShoppingList: new Set(),
+  menuFavorites: new Set(),
+  menuFeatured: new Set(),
+  rolePreferences: {} // guestId -> characterId mapping
 };
 
 // Load all data on page initialization
@@ -148,17 +154,37 @@ function generateInviteText(guestId) {
     AppData.characters.find(c => c.id === guest.assignedCharacter) : null;
   
   let invite = `Dear ${guest.name},\n\n`;
-  invite += `You're invited to "A Damn Fine Bridal Party" for Marlena!\n\n`;
-  invite += `Join us for coffee, pie, mystery & celebration.\n\n`;
+  invite += `🌲 You're Invited to "A Damn Fine Bridal Party" 🌲\n`;
+  invite += `A Twin Peaks Mystery Celebration for Marlena\n\n`;
+  invite += `"The owls are not what they seem..."\n\n`;
   
   if (character) {
-    invite += `Your character: ${character.name} - ${character.role}\n`;
-    invite += `Come prepared to solve a mystery!\n\n`;
+    invite += `🎭 YOUR SECRET CHARACTER ASSIGNMENT:\n`;
+    invite += `${character.name} - ${character.role}\n`;
+    invite += `Come prepared to solve a mystery and stay in character!\n\n`;
   }
   
-  invite += `"The owls are not what they seem..."\n\n`;
-  invite += `RSVP by [DATE]\n`;
-  invite += `Location: [TO BE ANNOUNCED]\n`;
+  invite += `Join us for:\n`;
+  invite += `☕ Damn fine coffee and cherry pie\n`;
+  invite += `🔍 An immersive murder mystery experience\n`;
+  invite += `🎉 Celebration, secrets, and surprises\n`;
+  invite += `🌲 Twin Peaks atmosphere and Pacific Northwest charm\n\n`;
+  
+  invite += `📅 Date & Time: [TO BE ANNOUNCED]\n`;
+  invite += `📍 Location: [TO BE ANNOUNCED]\n`;
+  invite += `🔗 RSVP: [LINK TO BE PROVIDED]\n\n`;
+  
+  if (guest.dietary && guest.dietary !== 'None') {
+    invite += `We have your dietary needs noted: ${guest.dietary}\n\n`;
+  }
+  
+  invite += `Dress Code: Channel your inner Twin Peaks character!\n`;
+  invite += `Think 1950s Pacific Northwest - plaid, vintage, mysterious elegance.\n\n`;
+  
+  invite += `"Every day, once a day, give yourself a present."\n`;
+  invite += `- Special Agent Dale Cooper\n\n`;
+  
+  invite += `See you in the woods! 🌲🦉\n`;
   
   return invite;
 }
@@ -191,6 +217,188 @@ function validateData() {
   return errors;
 }
 
+// Decor functions
+function toggleDecorFavorite(itemId) {
+  if (AppData.decorFavorites.has(itemId)) {
+    AppData.decorFavorites.delete(itemId);
+  } else {
+    AppData.decorFavorites.add(itemId);
+  }
+}
+
+function toggleDecorShoppingList(itemId) {
+  if (AppData.decorShoppingList.has(itemId)) {
+    AppData.decorShoppingList.delete(itemId);
+  } else {
+    AppData.decorShoppingList.add(itemId);
+  }
+}
+
+// Menu functions
+function toggleMenuFavorite(itemId) {
+  if (AppData.menuFavorites.has(itemId)) {
+    AppData.menuFavorites.delete(itemId);
+  } else {
+    AppData.menuFavorites.add(itemId);
+  }
+}
+
+function toggleMenuFeatured(itemId) {
+  if (AppData.menuFeatured.has(itemId)) {
+    AppData.menuFeatured.delete(itemId);
+  } else {
+    AppData.menuFeatured.add(itemId);
+  }
+}
+
+// Role preference functions
+function setRolePreference(guestId, characterId) {
+  if (!AppData.rolePreferences[guestId]) {
+    AppData.rolePreferences[guestId] = [];
+  }
+  const index = AppData.rolePreferences[guestId].indexOf(characterId);
+  if (index > -1) {
+    AppData.rolePreferences[guestId].splice(index, 1);
+  } else {
+    AppData.rolePreferences[guestId].push(characterId);
+  }
+}
+
+// Suggest character assignments based on preferences and availability
+function suggestAssignments() {
+  const unassignedGuests = AppData.guests.filter(g => !g.assignedCharacter);
+  const assignedCharacters = new Set(AppData.guests.filter(g => g.assignedCharacter).map(g => g.assignedCharacter));
+  const availableCharacters = AppData.characters.filter(c => !assignedCharacters.has(c.id));
+  
+  unassignedGuests.forEach(guest => {
+    // Try to match with preferred roles first
+    const preferences = AppData.rolePreferences[guest.id] || [];
+    const preferredAvailable = preferences.find(charId => 
+      !assignedCharacters.has(charId) && availableCharacters.some(c => c.id === charId)
+    );
+    
+    if (preferredAvailable) {
+      guest.assignedCharacter = preferredAvailable;
+      assignedCharacters.add(preferredAvailable);
+      availableCharacters.splice(availableCharacters.findIndex(c => c.id === preferredAvailable), 1);
+    } else if (availableCharacters.length > 0) {
+      // Assign random available character
+      const randomChar = availableCharacters[0];
+      guest.assignedCharacter = randomChar.id;
+      assignedCharacters.add(randomChar.id);
+      availableCharacters.shift();
+    }
+  });
+  
+  return unassignedGuests.length - assignedCharacters.size;
+}
+
+// Export functions
+function downloadJSON(data, filename) {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function exportDecorJSON() {
+  const decorWithState = {
+    ...AppData.decor,
+    favorites: Array.from(AppData.decorFavorites),
+    customShoppingList: Array.from(AppData.decorShoppingList)
+  };
+  downloadJSON(decorWithState, 'decor.json');
+  alert('Decor data exported! Check your downloads folder.');
+}
+
+function exportMenuJSON() {
+  const menuWithState = {
+    ...AppData.menu,
+    favorites: Array.from(AppData.menuFavorites),
+    featured: Array.from(AppData.menuFeatured)
+  };
+  downloadJSON(menuWithState, 'menu.json');
+  alert('Menu data exported! Check your downloads folder.');
+}
+
+function exportGuestsJSON() {
+  downloadJSON(AppData.guests, 'guests.json');
+  alert('Guests data exported! Check your downloads folder.');
+}
+
+function exportCharactersJSON() {
+  const charactersWithPrefs = {
+    characters: AppData.characters,
+    rolePreferences: AppData.rolePreferences
+  };
+  downloadJSON(charactersWithPrefs, 'characters.json');
+  alert('Characters data exported! Check your downloads folder.');
+}
+
+// Export all data as ZIP using JSZip (loaded via CDN)
+async function downloadAllDataAsZip() {
+  if (typeof JSZip === 'undefined') {
+    alert('ZIP library not loaded. Please try again.');
+    return;
+  }
+  
+  const zip = new JSZip();
+  const dataFolder = zip.folder('data');
+  
+  // Add all JSON files with current state
+  dataFolder.file('guests.json', JSON.stringify(AppData.guests, null, 2));
+  dataFolder.file('characters.json', JSON.stringify({
+    characters: AppData.characters,
+    rolePreferences: AppData.rolePreferences
+  }, null, 2));
+  dataFolder.file('decor.json', JSON.stringify({
+    ...AppData.decor,
+    favorites: Array.from(AppData.decorFavorites),
+    customShoppingList: Array.from(AppData.decorShoppingList)
+  }, null, 2));
+  dataFolder.file('menu.json', JSON.stringify({
+    ...AppData.menu,
+    favorites: Array.from(AppData.menuFavorites),
+    featured: Array.from(AppData.menuFeatured)
+  }, null, 2));
+  dataFolder.file('schedule.json', JSON.stringify(AppData.schedule, null, 2));
+  dataFolder.file('story.json', JSON.stringify(AppData.story, null, 2));
+  
+  // Generate and download
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'bridal-party-plan-' + new Date().toISOString().split('T')[0] + '.zip';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  alert('Complete plan exported as ZIP! Check your downloads folder.');
+}
+
+// Calculate decision progress
+function calculateDecisionProgress() {
+  const totalMoodBoards = AppData.decor.moodBoard ? AppData.decor.moodBoard.length : 0;
+  const totalMenuItems = AppData.menu.menuItems ? AppData.menu.menuItems.length : 0;
+  const totalGuests = AppData.guests.length;
+  
+  return {
+    decorFavorited: totalMoodBoards > 0 ? Math.round((AppData.decorFavorites.size / totalMoodBoards) * 100) : 0,
+    menuFeatured: totalMenuItems > 0 ? Math.round((AppData.menuFeatured.size / totalMenuItems) * 100) : 0,
+    rolesAssigned: totalGuests > 0 ? Math.round((AppData.guests.filter(g => g.assignedCharacter).length / totalGuests) * 100) : 0,
+    totalFavorites: AppData.decorFavorites.size + AppData.menuFavorites.size,
+    totalFeatured: AppData.menuFeatured.size,
+    totalAssigned: AppData.guests.filter(g => g.assignedCharacter).length
+  };
+}
+
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -202,6 +410,19 @@ if (typeof module !== 'undefined' && module.exports) {
     generateCharacterPacket,
     generateInviteText,
     validateData,
-    formatDate
+    formatDate,
+    toggleDecorFavorite,
+    toggleDecorShoppingList,
+    toggleMenuFavorite,
+    toggleMenuFeatured,
+    setRolePreference,
+    suggestAssignments,
+    downloadJSON,
+    exportDecorJSON,
+    exportMenuJSON,
+    exportGuestsJSON,
+    exportCharactersJSON,
+    downloadAllDataAsZip,
+    calculateDecisionProgress
   };
 }
