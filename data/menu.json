@@ -1,0 +1,132 @@
+{
+  "menuItems": [
+    {
+      "id": "cherry-pie",
+      "name": "Cherry Pie Bites",
+      "category": "Dessert",
+      "description": "Mini cherry pies served warm with a flaky crust - the most iconic Twin Peaks treat",
+      "serves": 40,
+      "prepTime": "90 minutes",
+      "allergens": ["Gluten", "Dairy"],
+      "dietaryOptions": ["Can be made gluten-free with alternative crust"]
+    },
+    {
+      "id": "damn-fine-coffee",
+      "name": "Damn Fine Coffee Station",
+      "category": "Beverage",
+      "description": "Premium dark roast coffee bar with cream, sugar, and flavored syrups",
+      "serves": "unlimited",
+      "prepTime": "30 minutes",
+      "allergens": ["Dairy (in cream)"],
+      "dietaryOptions": ["Dairy-free milk alternatives available"]
+    },
+    {
+      "id": "donut-bar",
+      "name": "Donut Holes Bar",
+      "category": "Dessert",
+      "description": "Assorted donut holes with coffee glaze, powdered sugar, and chocolate drizzle",
+      "serves": 50,
+      "prepTime": "20 minutes (purchased)",
+      "allergens": ["Gluten", "Dairy", "Eggs"],
+      "dietaryOptions": ["Gluten-free options available"]
+    },
+    {
+      "id": "diner-sandwiches",
+      "name": "Classic Diner Sandwiches",
+      "category": "Main",
+      "description": "Assorted finger sandwiches: turkey club, BLT, grilled cheese, veggie",
+      "serves": 35,
+      "prepTime": "60 minutes",
+      "allergens": ["Gluten", "Dairy"],
+      "dietaryOptions": ["Vegetarian and gluten-free options included"]
+    },
+    {
+      "id": "lodge-salad",
+      "name": "Great Northern Lodge Salad",
+      "category": "Side",
+      "description": "Mixed greens with candied pecans, dried cherries, goat cheese, and cherry vinaigrette",
+      "serves": 35,
+      "prepTime": "30 minutes",
+      "allergens": ["Dairy", "Tree Nuts"],
+      "dietaryOptions": ["Vegan option without cheese"]
+    },
+    {
+      "id": "cheese-board",
+      "name": "Pacific Northwest Cheese Board",
+      "category": "Appetizer",
+      "description": "Local cheeses, crackers, fresh fruit, honey, and nuts",
+      "serves": 35,
+      "prepTime": "45 minutes",
+      "allergens": ["Dairy", "Gluten", "Tree Nuts"],
+      "dietaryOptions": ["Can accommodate dairy-free guests"]
+    },
+    {
+      "id": "forest-fruits",
+      "name": "Forest Fruit Display",
+      "category": "Appetizer",
+      "description": "Seasonal fresh fruit with emphasis on berries and cherries",
+      "serves": 35,
+      "prepTime": "30 minutes",
+      "allergens": [],
+      "dietaryOptions": ["Vegan, gluten-free, allergy-friendly"]
+    },
+    {
+      "id": "hot-chocolate",
+      "name": "Spiked Hot Chocolate Bar",
+      "category": "Beverage",
+      "description": "Rich hot chocolate with optional liqueur additions and whipped cream",
+      "serves": "unlimited",
+      "prepTime": "20 minutes",
+      "allergens": ["Dairy"],
+      "dietaryOptions": ["Non-alcoholic and dairy-free options available"]
+    }
+  ],
+  "allergyMap": {
+    "Gluten": ["Sarah Johnson"],
+    "Dairy": [],
+    "Tree Nuts": [],
+    "None": ["Emily Chen"]
+  },
+  "prepTimeline": [
+    {
+      "time": "Day Before",
+      "tasks": [
+        "Shop for all ingredients and supplies",
+        "Prepare pie dough and refrigerate",
+        "Make cherry filling for pies",
+        "Prep sandwich ingredients (wash lettuce, slice tomatoes, etc.)",
+        "Arrange cheese board (cover and refrigerate)"
+      ]
+    },
+    {
+      "time": "Morning of Event (6-8 AM)",
+      "tasks": [
+        "Bake cherry pie bites",
+        "Wash and arrange fruit display",
+        "Prepare salad ingredients (don't dress yet)",
+        "Set up coffee station",
+        "Set up hot chocolate bar"
+      ]
+    },
+    {
+      "time": "2 Hours Before Event",
+      "tasks": [
+        "Assemble sandwiches and cut into quarters",
+        "Pick up fresh donuts",
+        "Dress salad",
+        "Remove cheese board from fridge to come to room temperature",
+        "Warm pie bites"
+      ]
+    },
+    {
+      "time": "30 Minutes Before Event",
+      "tasks": [
+        "Final check on coffee station supplies",
+        "Arrange all food on serving tables",
+        "Add garnishes and labels",
+        "Light Sterno or warming trays for hot items",
+        "Set out serving utensils"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food & Menu - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>"Damn fine coffee and cherry pie!"</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>☕ Twin Peaks Themed Menu</h2>
+            <p>A collection of dishes inspired by the iconic foods and locations from Twin Peaks:</p>
+            <div id="menu-items">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading menu...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🍽️ Allergy Map</h2>
+            <p>Track dietary restrictions and allergies for all guests:</p>
+            <div class="alert alert-warning">
+                <strong>Current Dietary Needs:</strong>
+                <ul>
+                    <li><strong>Gluten-free:</strong> Emily Chen</li>
+                    <li><strong>Vegetarian:</strong> Sarah Johnson</li>
+                </ul>
+                <p><em>Update this list as more RSVPs come in. All menu items indicate allergens and dietary options.</em></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⏱️ Prep Timeline</h2>
+            <p>Step-by-step preparation schedule to ensure everything is ready on time:</p>
+            <div id="prep-timeline">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading prep timeline...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🍒 Menu Planning Tips</h2>
+            <div class="alert alert-info">
+                <strong>Twin Peaks Food Philosophy:</strong>
+                <ul>
+                    <li><strong>Cherry Pie is Essential:</strong> The most iconic Twin Peaks food - must be included!</li>
+                    <li><strong>Coffee Bar:</strong> Set up a "Damn Fine Coffee" station with premium roast</li>
+                    <li><strong>Diner-Style Elegance:</strong> Classic comfort foods elevated with quality ingredients</li>
+                    <li><strong>Pacific Northwest:</strong> Include local-inspired items like berries and nuts</li>
+                    <li><strong>Dietary Accommodations:</strong> Ensure options for all dietary restrictions</li>
+                    <li><strong>Presentation:</strong> Use vintage diner-style serving pieces and Double R Diner aesthetic</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

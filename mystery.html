@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Details - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>"A Toast to Secrets" - The Murder Mystery</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="alert alert-danger">
+            <strong>⚠️ WARNING - HOST ONLY PAGE!</strong>
+            <p>This page contains the complete mystery plot including the solution. Keep this away from guests to preserve the surprise!</p>
+        </div>
+
+        <div id="story-overview">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading mystery details...</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎭 Character List</h2>
+            <p>Available character roles for guests. Each character has a unique briefing, costume suggestion, secret, and objective.</p>
+            <div class="alert alert-info">
+                <strong>How It Works:</strong> Each guest receives a character card with their role, briefing, secret, and objective. They must stay in character, interact with other guests, and use clues to solve the murder mystery!
+            </div>
+            <div id="character-list" class="grid grid-2">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading characters...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📄 Printable Character Packets</h2>
+            <p>Use the "Print Packet" buttons above to generate individual character briefings. Each packet includes:</p>
+            <ul class="item-list">
+                <li>Character name and role</li>
+                <li>Detailed character briefing</li>
+                <li>Costume suggestions</li>
+                <li>Secret information</li>
+                <li>Character objective</li>
+                <li>Personality traits</li>
+            </ul>
+            <div class="alert alert-warning">
+                <strong>Preparation Tip:</strong> Print character packets 1-2 weeks before the event and place them under chairs or in sealed envelopes for dramatic reveal!
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Running the Mystery</h2>
+            <h3>Host Checklist:</h3>
+            <ul class="item-list">
+                <li>Print all character packets and seal them</li>
+                <li>Place character cards under guests' seats before they arrive</li>
+                <li>Prepare the mystery playlist (Twin Peaks soundtrack)</li>
+                <li>Have kitchen torch ready for cupcake reveal</li>
+                <li>Keep solution notes handy but hidden</li>
+                <li>Prepare backup clues in case guests get stuck</li>
+                <li>Have props ready (magnifying glasses, fake evidence, etc.)</li>
+                <li>Designate a signal for the "murder announcement" moment</li>
+            </ul>
+            
+            <h3 style="margin-top: 30px;">If Guests Get Stuck:</h3>
+            <div class="alert alert-info">
+                <p><strong>Anonymous Tip #1:</strong> "Someone was seen purchasing a whole cherry pie the morning of the murder..."</p>
+                <p><strong>Anonymous Tip #2:</strong> "The Log Lady's log has been warning about elegance hiding darkness..."</p>
+                <p><strong>Anonymous Tip #3:</strong> "Check Laura's phone messages - she was meeting someone important..."</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

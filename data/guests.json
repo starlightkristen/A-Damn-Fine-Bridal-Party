@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "name": "Sarah Johnson",
+    "email": "sarah.j@example.com",
+    "dietary": "Vegetarian",
+    "assignedCharacter": null,
+    "rsvp": "pending"
+  },
+  {
+    "id": 2,
+    "name": "Emily Chen",
+    "email": "emily.chen@example.com",
+    "dietary": "Gluten-free",
+    "assignedCharacter": null,
+    "rsvp": "pending"
+  }
+]

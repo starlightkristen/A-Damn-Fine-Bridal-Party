@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decor - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>"The owls are not what they seem..."</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>🎨 Mood Board</h2>
+            <p>Three distinct Twin Peaks inspired color palettes and decor themes to choose from or combine:</p>
+            <div id="mood-board" class="grid grid-3">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading mood board...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Shopping List</h2>
+            <p>Complete list of items needed for the Twin Peaks themed decor:</p>
+            <div id="shopping-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading shopping list...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📞 Vendors</h2>
+            <p>Recommended vendors for decor, flowers, and rentals:</p>
+            <div id="vendors" class="grid grid-2">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading vendors...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💡 Decor Tips</h2>
+            <div class="alert alert-info">
+                <strong>Twin Peaks Atmosphere:</strong>
+                <ul>
+                    <li>Use dim lighting with candles for mystery ambiance</li>
+                    <li>Hang burgundy velvet curtains or fabric as backdrops</li>
+                    <li>Place owl figurines and log sections as centerpieces</li>
+                    <li>Create a coffee station styled like the Double R Diner</li>
+                    <li>Use plaid patterns for napkins and table runners</li>
+                    <li>Add evergreen garlands for Pacific Northwest forest vibes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

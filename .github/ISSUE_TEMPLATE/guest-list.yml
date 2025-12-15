@@ -1,0 +1,46 @@
+name: Guest List Submission
+description: Submit guest information for Marlena's bridal party
+title: "[GUEST LIST] Guest Submissions"
+labels: ["guest-list", "planning"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 👥 Guest List Submission
+        Use this form to submit guest details for "A Damn Fine Bridal Party" for Marlena.
+        You can submit multiple guests at once using the format below.
+        
+  - type: textarea
+    id: guests
+    attributes:
+      label: Guest Information
+      description: |
+        Please provide guest details in the following format (one guest per line):
+        Name | Email | Dietary Restrictions
+        
+        Example:
+        Sarah Johnson | sarah.j@example.com | Vegetarian
+        Emily Chen | emily.chen@example.com | Gluten-free
+        Michael Davis | m.davis@example.com | None
+      placeholder: |
+        Jane Doe | jane.doe@example.com | Vegan
+        John Smith | john.smith@example.com | None
+    validations:
+      required: true
+      
+  - type: textarea
+    id: additional-notes
+    attributes:
+      label: Additional Notes
+      description: Any special considerations, seating preferences, or other information about the guests
+      placeholder: Jane prefers to sit with Emily. John is bringing his partner.
+    validations:
+      required: false
+      
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have checked the guest information for accuracy
+          required: true

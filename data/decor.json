@@ -1,0 +1,94 @@
+{
+  "moodBoard": [
+    {
+      "id": "velvet-gold",
+      "name": "Velvet & Gold",
+      "description": "Rich burgundy velvet drapes paired with gold accents and candlelight",
+      "colors": ["#8B0000", "#C79810", "#2C1810"],
+      "items": ["Burgundy velvet curtains", "Gold candelabras", "Brass picture frames", "Deep red roses"]
+    },
+    {
+      "id": "forest-emerald",
+      "name": "Forest Emerald",
+      "description": "Deep forest greens with natural wood elements and emerald accents",
+      "colors": ["#0B4F3F", "#1B5E20", "#8B4513"],
+      "items": ["Evergreen garlands", "Wood slice chargers", "Emerald table runners", "Pine cone accents"]
+    },
+    {
+      "id": "cherry-cream",
+      "name": "Cherry & Cream",
+      "description": "Classic cherry red mixed with cream and touches of black",
+      "colors": ["#8B0000", "#F5F5DC", "#000000"],
+      "items": ["Cherry-themed centerpieces", "Cream tablecloths", "Black place cards", "Red gingham napkins"]
+    }
+  ],
+  "shoppingList": [
+    {
+      "category": "Linens",
+      "items": [
+        {"item": "Burgundy velvet table runners", "quantity": 4, "estimated": 80, "purchased": false},
+        {"item": "Cream tablecloths", "quantity": 4, "estimated": 60, "purchased": false},
+        {"item": "Black napkins", "quantity": 40, "estimated": 30, "purchased": false}
+      ]
+    },
+    {
+      "category": "Lighting",
+      "items": [
+        {"item": "Gold string lights", "quantity": 3, "estimated": 45, "purchased": false},
+        {"item": "Pillar candles (burgundy)", "quantity": 20, "estimated": 40, "purchased": false},
+        {"item": "Gold candelabras", "quantity": 4, "estimated": 120, "purchased": false}
+      ]
+    },
+    {
+      "category": "Centerpieces",
+      "items": [
+        {"item": "Deep red roses", "quantity": 40, "estimated": 120, "purchased": false},
+        {"item": "Evergreen sprigs", "quantity": "bulk", "estimated": 30, "purchased": false},
+        {"item": "Wood slice bases", "quantity": 8, "estimated": 40, "purchased": false}
+      ]
+    },
+    {
+      "category": "Props & Accents",
+      "items": [
+        {"item": "Owl figurines", "quantity": 6, "estimated": 48, "purchased": false},
+        {"item": "Vintage coffee cups", "quantity": 12, "estimated": 60, "purchased": false},
+        {"item": "Plaid fabric (accent pieces)", "quantity": "5 yards", "estimated": 35, "purchased": false},
+        {"item": "Log sections (decor)", "quantity": 4, "estimated": 0, "purchased": false}
+      ]
+    },
+    {
+      "category": "Signage",
+      "items": [
+        {"item": "Welcome to Twin Peaks sign", "quantity": 1, "estimated": 25, "purchased": false},
+        {"item": "Double R Diner menu boards", "quantity": 2, "estimated": 40, "purchased": false},
+        {"item": "Character name cards", "quantity": 35, "estimated": 20, "purchased": false}
+      ]
+    }
+  ],
+  "vendors": [
+    {
+      "name": "Pacific Northwest Party Supply",
+      "type": "Decorations",
+      "contact": "contact@pnwparty.com",
+      "phone": "(555) 555-0100",
+      "notes": "Specializes in rustic and lodge-themed decor",
+      "website": "https://example.com"
+    },
+    {
+      "name": "Twin Peaks Floral",
+      "type": "Flowers",
+      "contact": "flowers@twinpeaks.com",
+      "phone": "(555) 555-0101",
+      "notes": "Can source deep red roses and evergreen arrangements",
+      "website": "https://example.com"
+    },
+    {
+      "name": "Great Northern Rentals",
+      "type": "Furniture & Linens",
+      "contact": "rentals@greatnorthern.com",
+      "phone": "(555) 555-0102",
+      "notes": "Elegant furniture and high-quality linens",
+      "website": "https://example.com"
+    }
+  ]
+}
