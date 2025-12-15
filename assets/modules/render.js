@@ -701,7 +701,10 @@ const Render = {
     const container = document.getElementById('validation-results').parentElement;
     const decisionDiv = document.createElement('div');
     decisionDiv.innerHTML = decisionModeHtml;
-    container.insertBefore(decisionDiv.firstElementChild, container.firstElementChild);
+    // Insert all children (both Decision Mode and Director's Notes cards)
+    while (decisionDiv.firstChild) {
+      container.insertBefore(decisionDiv.firstChild, container.firstElementChild);
+    }
     
     // Data links
     document.getElementById('data-links').innerHTML = `
