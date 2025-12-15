@@ -1,0 +1,62 @@
+[
+  {
+    "id": "socialite",
+    "name": "Audrey Horne",
+    "role": "Socialite",
+    "briefing": "You're the sophisticated daughter of a wealthy family, known for your mysterious charm and impeccable taste. You know everyone's secrets but keep your own close to your chest. You've been planning the perfect gift for Marlena.",
+    "costume": "Elegant 1950s-inspired outfit, saddle shoes, cherry red lipstick",
+    "secret": "You were secretly dating someone from the wrong side of town, and they've recently returned to Twin Peaks with information that could change everything.",
+    "personality": "Confident, mysterious, playful",
+    "objective": "Find out who knows about your secret relationship before they reveal it to everyone"
+  },
+  {
+    "id": "detective",
+    "name": "Special Agent Dale Cooper",
+    "role": "Detective",
+    "briefing": "You're an FBI agent with an unusual investigative style - you believe in following your intuition and the signs the universe provides. You're here to celebrate Marlena but can't help noticing suspicious behavior among the guests.",
+    "costume": "Black suit, white shirt, skinny black tie, FBI badge, notepad",
+    "secret": "You've been investigating a case that involves someone at this party, but you can't reveal your true purpose for being here.",
+    "personality": "Earnest, quirky, observant",
+    "objective": "Gather information about the other guests while maintaining your cover as a normal party attendee"
+  },
+  {
+    "id": "waitress",
+    "name": "Shelly Johnson",
+    "role": "Diner Waitress",
+    "briefing": "You work at the Double R Diner and know everything that happens in town. You're sweet and kind-hearted, but you've been keeping a secret about one of the guests that could ruin the party.",
+    "costume": "Classic diner uniform with apron, name tag, comfortable shoes",
+    "secret": "You overheard a conversation at the diner about someone planning to object at Marlena's wedding.",
+    "personality": "Warm, observant, protective",
+    "objective": "Decide whether to reveal what you know or protect the secret"
+  },
+  {
+    "id": "log-lady",
+    "name": "The Log Lady",
+    "role": "Mystic",
+    "briefing": "You carry a log everywhere and claim it communicates with you. While others think you're eccentric, your 'log' has never been wrong. It's been giving you warnings about this party.",
+    "costume": "Flannel shirt, long skirt, glasses, and of course - a log",
+    "secret": "Your log predicted something terrible will happen at this party, but it hasn't told you what yet.",
+    "personality": "Mysterious, prophetic, earnest",
+    "objective": "Listen to your log and warn others of impending danger without seeming crazy"
+  },
+  {
+    "id": "owner",
+    "name": "Josie Packard",
+    "role": "Business Owner",
+    "briefing": "You're the elegant owner of the local mill and have connections throughout town. You always get what you want, one way or another.",
+    "costume": "Sophisticated business attire, pearls, elegant updo",
+    "secret": "You're in financial trouble and have been secretly meeting with someone at the party about a business deal.",
+    "personality": "Elegant, cunning, ambitious",
+    "objective": "Secure the business deal without revealing your desperate situation"
+  },
+  {
+    "id": "deputy",
+    "name": "Andy Brennan",
+    "role": "Deputy Sheriff",
+    "briefing": "You're a sweet, emotional deputy who means well but often makes mistakes. You're here to make sure everyone has a good time and stays safe.",
+    "costume": "Sheriff's deputy uniform, badge",
+    "secret": "You accidentally destroyed some evidence related to another guest's past.",
+    "personality": "Kind-hearted, emotional, clumsy",
+    "objective": "Keep the party running smoothly while hiding your mistake"
+  }
+]

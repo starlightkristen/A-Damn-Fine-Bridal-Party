@@ -1,0 +1,80 @@
+{
+  "title": "A Toast to Secrets",
+  "subtitle": "A Twin Peaks Mystery Tailored for Marlena's Celebration",
+  "setting": "The celebration is taking place at a cozy mountain lodge that bears a striking resemblance to the Great Northern Hotel. The guests have gathered to honor Marlena, but beneath the celebratory atmosphere, dark secrets simmer.",
+  "overview": "In the mysterious town of Twin Peaks, everyone has secrets. Today's celebration for Marlena seems perfect on the surface, but when a shocking 'murder' is announced mid-party, guests discover that someone among them has a deadly secret. Was it jealousy? Revenge? A business deal gone wrong? Each guest must use their wits, their character's unique knowledge, and their detective skills to uncover the truth.",
+  "theMurder": {
+    "victim": "Laura Palmerson (fictional character created for this mystery)",
+    "victimDescription": "A local socialite who was supposed to attend Marlena's party but never arrived. Her body was just discovered near the Double R Diner.",
+    "causeOfDeath": "Poisoned cherry pie (with a Twin Peaks twist!)",
+    "timeOfDeath": "Approximately 2 hours before the party began",
+    "location": "Behind the Double R Diner, wrapped in plastic (a chilling Twin Peaks reference)"
+  },
+  "theMurderer": {
+    "character": "Josie Packard (Business Owner)",
+    "motive": "Laura discovered that Josie was embezzling money from the mill and threatened to expose her at Marlena's party. Josie couldn't let her business empire crumble, so she poisoned Laura with a 'gift' cherry pie.",
+    "method": "Poisoned cherry filling in a pie she gave Laura as an 'early party gift'",
+    "coverUp": "Josie has been acting normally at the party, expressing concern about Laura's absence"
+  },
+  "keyClues": [
+    {
+      "clue": "Coffee cup with special lipstick shade",
+      "location": "Crime scene description",
+      "significance": "Matches Josie's signature lipstick"
+    },
+    {
+      "clue": "Receipt from Double R Diner",
+      "location": "Found in Shelly's character info",
+      "significance": "Shows Josie purchased a whole cherry pie the morning of the murder"
+    },
+    {
+      "clue": "Business documents",
+      "location": "Mentioned by Agent Cooper's investigation notes",
+      "significance": "Laura was investigating financial irregularities at the mill"
+    },
+    {
+      "clue": "Text message on 'Laura's phone'",
+      "location": "Revealed mid-investigation",
+      "significance": "Laura texted a friend: 'Meeting Josie. She says she has something important to tell me.'"
+    },
+    {
+      "clue": "The Log Lady's prophecy",
+      "location": "Log Lady's character knows",
+      "significance": "Her log warned that 'the most elegant person hides the darkest secret'"
+    }
+  ],
+  "redHerrings": [
+    {
+      "character": "Audrey Horne",
+      "suspiciousBehavior": "Acting secretive about a forbidden relationship",
+      "reality": "Just worried about her own reputation, completely unrelated to murder"
+    },
+    {
+      "character": "Agent Cooper",
+      "suspiciousBehavior": "Constantly taking notes and asking probing questions",
+      "reality": "Actually investigating a different case, but his detective nature makes him seem suspicious"
+    },
+    {
+      "character": "Deputy Andy",
+      "suspiciousBehavior": "Nervous and acting guilty",
+      "reality": "Just upset that he destroyed unrelated evidence accidentally"
+    }
+  ],
+  "solution": "Josie Packard murdered Laura Palmerson with poisoned cherry pie to prevent her from exposing financial crimes. The clues point to Josie: her lipstick at the scene, the pie purchase receipt, Laura's text about meeting Josie, and the Log Lady's warning about elegance hiding darkness. When confronted during the cupcake reveal, the hidden message spells out J-O-S-I-E.",
+  "hostNotes": "This mystery is designed to be flexible. You can add or remove characters based on your final guest count. If someone solves it early, have backup revelations ready. If no one is close, drop the text message clue. The cupcake reveal should be the climax regardless of whether guests have solved it - it's about the dramatic reveal! Most importantly, keep the energy fun and celebratory for Marlena.",
+  "tieToMarlena": "The mystery theme honors Marlena's love of Twin Peaks, particularly her favorite character Audrey Horne's mysterious sophistication. The elegant lodge setting, the damn fine coffee, and the cherry pie all reflect elements Marlena loves from the show. The murder mystery adds excitement and interactive fun that will make this a memorable celebration she'll never forget.",
+  "alternateEndings": [
+    {
+      "option": "Cooperative Win",
+      "description": "If multiple guests work together to solve it, they all share the prize and celebrate teamwork"
+    },
+    {
+      "option": "Plot Twist",
+      "description": "Reveal that there's a second accomplice (can be assigned to another character) for extra drama"
+    },
+    {
+      "option": "Bride Involvement",
+      "description": "Marlena could be given the role of 'Laura's best friend' who helps solve the mystery of her friend's death"
+    }
+  ]
+}

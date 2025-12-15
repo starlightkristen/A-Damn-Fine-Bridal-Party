@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Damn Fine Bridal Party - Home</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>"The owls are not what they seem..."</p>
+            <p>A Twin Peaks Mystery Celebration for Marlena</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>Welcome to the Planning Portal</h2>
+            <p>This portal contains everything you need to plan and execute a memorable Twin Peaks themed bridal party for Marlena. Navigate through the sections to explore decor, food, the murder mystery, schedule, guest management, and more.</p>
+            
+            <div class="alert alert-info">
+                <strong>🎭 Mystery Theme:</strong> "A Toast to Secrets" - A murder mystery set in the world of Twin Peaks where guests become characters and solve a crime while celebrating Marlena!
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Dashboard Overview</h2>
+            <div id="dashboard-stats" class="stats-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading stats...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔗 Quick Links</h2>
+            <div class="grid grid-3">
+                <div class="card" style="background: linear-gradient(135deg, var(--deep-cherry-red), var(--dark-wood)); color: white;">
+                    <h3 style="color: var(--gold);">Submit Guest Info</h3>
+                    <p>Use the GitHub issue form to submit guest details</p>
+                    <a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues/new?template=guest-list.yml" class="btn btn-secondary" target="_blank">Submit Guests</a>
+                </div>
+                
+                <div class="card" style="background: var(--forest-emerald); color: white;">
+                    <h3 style="color: var(--gold);">View Schedule</h3>
+                    <p>See the 2-hour run-of-show timeline</p>
+                    <a href="schedule.html" class="btn">View Schedule</a>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, var(--gold), var(--dark-wood)); color: white;">
+                    <h3>Mystery Details</h3>
+                    <p>Learn about the murder mystery plot</p>
+                    <a href="mystery.html" class="btn">View Mystery</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎨 Theme Colors</h2>
+            <p>The Twin Peaks color palette for this celebration:</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
+                <div style="flex: 1; min-width: 150px; text-align: center;">
+                    <div style="width: 100%; height: 100px; background: #8B0000; border-radius: 10px; margin-bottom: 10px;"></div>
+                    <strong>Deep Cherry Red</strong>
+                    <p style="font-family: monospace; font-size: 0.9em;">#8B0000</p>
+                </div>
+                <div style="flex: 1; min-width: 150px; text-align: center;">
+                    <div style="width: 100%; height: 100px; background: #C79810; border-radius: 10px; margin-bottom: 10px;"></div>
+                    <strong>Gold</strong>
+                    <p style="font-family: monospace; font-size: 0.9em;">#C79810</p>
+                </div>
+                <div style="flex: 1; min-width: 150px; text-align: center;">
+                    <div style="width: 100%; height: 100px; background: #0B4F3F; border-radius: 10px; margin-bottom: 10px;"></div>
+                    <strong>Forest Emerald Green</strong>
+                    <p style="font-family: monospace; font-size: 0.9em;">#0B4F3F</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📝 Next Steps</h2>
+            <ul class="item-list">
+                <li>Review the <a href="mystery.html">mystery story and characters</a></li>
+                <li>Check the <a href="schedule.html">2-hour timeline</a></li>
+                <li>Browse <a href="decor.html">decor ideas and shopping lists</a></li>
+                <li>Plan the <a href="food.html">menu and prep timeline</a></li>
+                <li>Manage <a href="guests.html">guest list and character assignments</a></li>
+                <li><a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues/new?template=guest-list.yml" target="_blank">Submit guest information</a> via GitHub Issues</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        // Initialize the app when DOM is ready
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
