@@ -8,24 +8,29 @@ const AppData = {
   menu: {},
   schedule: {},
   story: {},
+  clues: [],
+  packets: [],
   // In-memory state for interactive features
   decorFavorites: new Set(),
   decorShoppingList: new Set(),
   menuFavorites: new Set(),
   menuFeatured: new Set(),
-  rolePreferences: {} // guestId -> characterId mapping
+  rolePreferences: {}, // guestId -> characterId mapping
+  currentPhase: 'intro' // Track current mystery phase
 };
 
 // Load all data on page initialization
 async function loadData() {
   try {
-    const [guests, characters, decor, menu, schedule, story] = await Promise.all([
+    const [guests, characters, decor, menu, schedule, story, clues, packets] = await Promise.all([
       fetch('./data/guests.json').then(r => r.json()),
       fetch('./data/characters.json').then(r => r.json()),
       fetch('./data/decor.json').then(r => r.json()),
       fetch('./data/menu.json').then(r => r.json()),
       fetch('./data/schedule.json').then(r => r.json()),
-      fetch('./data/story.json').then(r => r.json())
+      fetch('./data/story.json').then(r => r.json()),
+      fetch('./data/clues.json').then(r => r.json()),
+      fetch('./data/packets.json').then(r => r.json())
     ]);
     
     AppData.guests = guests;
@@ -34,6 +39,8 @@ async function loadData() {
     AppData.menu = menu;
     AppData.schedule = schedule;
     AppData.story = story;
+    AppData.clues = clues;
+    AppData.packets = packets;
     
     return true;
   } catch (error) {
@@ -181,9 +188,19 @@ function generateInviteText(guestId) {
   invite += `"The owls are not what they seem..."\n\n`;
   
   if (character) {
-    invite += `🎭 YOUR SECRET CHARACTER ASSIGNMENT:\n`;
-    invite += `${character.name} - ${character.role}\n`;
-    invite += `Come prepared to solve a mystery and stay in character!\n\n`;
+    const packet = getPacketForCharacter(character.id);
+    if (packet && packet.intro_profile) {
+      invite += `🎭 YOUR SECRET CHARACTER ASSIGNMENT:\n`;
+      invite += `${packet.intro_profile.name} - ${packet.intro_profile.role}\n`;
+      invite += `"${packet.intro_profile.tagline}"\n\n`;
+      invite += `${packet.intro_profile.overview}\n\n`;
+      invite += `Costume Essentials: ${packet.intro_profile.costume_essentials.join(', ')}\n\n`;
+      invite += `Come prepared to solve a mystery and stay in character!\n\n`;
+    } else {
+      invite += `🎭 YOUR SECRET CHARACTER ASSIGNMENT:\n`;
+      invite += `${character.name} - ${character.role}\n`;
+      invite += `Come prepared to solve a mystery and stay in character!\n\n`;
+    }
   }
   
   invite += `Join us for:\n`;
@@ -422,6 +439,8 @@ async function downloadAllDataAsZip() {
   }, null, 2));
   dataFolder.file('schedule.json', JSON.stringify(AppData.schedule, null, 2));
   dataFolder.file('story.json', JSON.stringify(AppData.story, null, 2));
+  dataFolder.file('clues.json', JSON.stringify(AppData.clues, null, 2));
+  dataFolder.file('packets.json', JSON.stringify(AppData.packets, null, 2));
   
   // Generate and download
   const blob = await zip.generateAsync({ type: 'blob' });
@@ -436,19 +455,271 @@ async function downloadAllDataAsZip() {
   alert('Complete plan exported as ZIP! Check your downloads folder.');
 }
 
+// Mystery phase management functions
+function advancePhase() {
+  const phases = ['intro', 'mid', 'pre-final', 'final'];
+  const currentIndex = phases.indexOf(AppData.currentPhase);
+  if (currentIndex < phases.length - 1) {
+    AppData.currentPhase = phases[currentIndex + 1];
+    return true;
+  }
+  return false;
+}
+
+function setPhase(phase) {
+  const validPhases = ['intro', 'mid', 'pre-final', 'final'];
+  if (validPhases.includes(phase)) {
+    AppData.currentPhase = phase;
+    return true;
+  }
+  return false;
+}
+
+function getCluesByPhase(phase) {
+  return AppData.clues.filter(clue => clue.reveal_phase === phase);
+}
+
+function getPacketForCharacter(characterId) {
+  return AppData.packets.find(p => p.character_id === characterId);
+}
+
+// Generate printable character packet HTML
+function generatePrintablePacket(characterId) {
+  const packet = getPacketForCharacter(characterId);
+  if (!packet) return null;
+  
+  const character = AppData.characters.find(c => c.id === characterId);
+  if (!character) return null;
+  
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${packet.intro_profile.name} - Character Packet</title>
+    <style>
+        @page { margin: 1in; }
+        body { font-family: 'Georgia', serif; line-height: 1.6; color: #333; }
+        .header { text-align: center; border-bottom: 3px solid #8B0000; padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: #8B0000; margin: 0; font-size: 2.5em; }
+        .header h2 { color: #C79810; margin: 5px 0; font-style: italic; }
+        .profile { background: #f9f9f9; border: 2px solid #0B4F3F; padding: 20px; margin: 20px 0; page-break-inside: avoid; }
+        .profile h3 { color: #0B4F3F; margin-top: 0; }
+        .envelope { border: 3px solid #8B0000; padding: 20px; margin: 30px 0; page-break-inside: avoid; }
+        .envelope h3 { color: #8B0000; margin-top: 0; border-bottom: 1px solid #C79810; padding-bottom: 10px; }
+        .phase-badge { background: #C79810; color: white; padding: 5px 15px; border-radius: 5px; display: inline-block; font-weight: bold; }
+        ul { margin: 10px 0; padding-left: 20px; }
+        .instructions { background: #fff9e6; border-left: 4px solid #C79810; padding: 15px; margin: 15px 0; font-style: italic; }
+        @media print {
+            .envelope { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+        <h2>Character Packet</h2>
+        <p style="font-style: italic;">"The owls are not what they seem..."</p>
+    </div>
+    
+    <div class="profile">
+        <h3>${packet.intro_profile.name}</h3>
+        <p><strong>Role:</strong> ${packet.intro_profile.role}</p>
+        <p><em>${packet.intro_profile.tagline}</em></p>
+        <p>${packet.intro_profile.overview}</p>
+        
+        <h4>Costume Essentials:</h4>
+        <ul>
+            ${packet.intro_profile.costume_essentials.map(item => `<li>${item}</li>`).join('')}
+        </ul>
+        
+        <p><strong>Personality Notes:</strong> ${packet.intro_profile.personality_notes}</p>
+        <p><strong>Secret Preview:</strong> ${packet.intro_profile.secret_preview}</p>
+    </div>
+    
+    ${packet.envelopes.map((env, index) => `
+        <div class="envelope">
+            <h3>
+                <span class="phase-badge">${env.phase.toUpperCase()}</span>
+                ${env.title}
+            </h3>
+            <p>${env.contents}</p>
+            <div class="instructions">
+                <strong>📋 Instructions:</strong> ${env.instructions}
+            </div>
+        </div>
+    `).join('')}
+    
+    <div style="text-align: center; margin-top: 50px; padding-top: 20px; border-top: 2px solid #8B0000;">
+        <p style="font-style: italic; color: #666;">
+            "Every day, once a day, give yourself a present." - Agent Cooper
+        </p>
+    </div>
+</body>
+</html>
+  `;
+  
+  return html;
+}
+
+// Print character packet
+function printCharacterPacket(characterId) {
+  const html = generatePrintablePacket(characterId);
+  if (!html) {
+    alert('Character packet not found!');
+    return;
+  }
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+}
+
+// Generate clue kit ZIP
+async function downloadClueKitZip() {
+  if (typeof JSZip === 'undefined') {
+    alert('ZIP library not loaded. Please try again.');
+    return;
+  }
+  
+  const zip = new JSZip();
+  const envelopesFolder = zip.folder('envelopes');
+  
+  // Generate envelope files for each character
+  AppData.packets.forEach(packet => {
+    const character = AppData.characters.find(c => c.id === packet.character_id);
+    if (!character) return;
+    
+    packet.envelopes.forEach((env, index) => {
+      const filename = `envelope-${packet.character_id}-${index + 1}-${env.phase}.txt`;
+      const content = `
+=== ${env.title} ===
+Phase: ${env.phase.toUpperCase()}
+Character: ${packet.intro_profile.name}
+
+${env.contents}
+
+--- Instructions ---
+${env.instructions}
+`;
+      envelopesFolder.file(filename, content);
+    });
+  });
+  
+  // Add clues reference file
+  const cluesContent = AppData.clues.map(clue => 
+    `[${clue.id}] Phase: ${clue.reveal_phase} | Type: ${clue.type}
+Holder: ${clue.holder_id}
+${clue.text}
+Trade Hint: ${clue.trade_hint}
+---`
+  ).join('\n\n');
+  
+  zip.file('clues-reference.txt', cluesContent);
+  
+  // Add director's guide
+  const directorsGuide = `
+=== DIRECTOR'S GUIDE ===
+Mystery Phase Management for "A Damn Fine Bridal Party"
+
+PHASES:
+1. INTRO - Character introductions and initial clues
+2. MID - Investigation deepens, more clues revealed
+3. PRE-FINAL - Critical evidence emerges
+4. FINAL - Truth revealed before solution
+
+TIMING (from schedule.json):
+- 0:50-1:00 - Character Introduction (INTRO phase, Envelope 1)
+- 1:00-1:10 - Initial Investigation (INTRO continues)
+- 1:10-1:25 - Mid Investigation (MID phase, Envelope 2)
+- 1:25-1:35 - Final Investigation (PRE-FINAL phase, Envelope 3)
+- 1:35-1:45 - Cupcake Reveal (FINAL phase, Envelope 4)
+
+ENVELOPE DISTRIBUTION:
+Print and seal all envelopes before the party. Label each envelope clearly with:
+- Character name
+- Envelope number (1-4)
+- Phase (INTRO/MID/PRE-FINAL/FINAL)
+- "DO NOT OPEN UNTIL INSTRUCTED"
+
+PREPARATION CHECKLIST:
+☐ Print all character packets
+☐ Print and cut individual envelope contents
+☐ Seal envelopes and label clearly
+☐ Prepare clue reference sheet (this file)
+☐ Review timing and phase transitions
+☐ Test kitchen torch for cupcake reveal
+
+TROUBLESHOOTING:
+- If guests are stuck, drop hints from clues they haven't discovered yet
+- If moving too fast, extend investigation phases
+- If moving too slow, prompt envelope openings
+- Keep the murderer (Josie Packard/owner) engaged but not obvious
+
+Good luck, Director! 🌲
+  `;
+  
+  zip.file('DIRECTORS-GUIDE.txt', directorsGuide);
+  
+  // Generate and download
+  const blob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'mystery-clue-kit.zip';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  alert('Clue Kit ZIP downloaded! Contains all envelopes and director\'s guide.');
+}
+
+// Generate character profile for invite
+function generateCharacterProfile(characterId) {
+  const packet = getPacketForCharacter(characterId);
+  if (!packet) return '';
+  
+  return `
+📜 YOUR CHARACTER: ${packet.intro_profile.name}
+Role: ${packet.intro_profile.role}
+${packet.intro_profile.tagline}
+
+${packet.intro_profile.overview}
+
+Costume: ${packet.intro_profile.costume_essentials.join(', ')}
+
+Get ready to solve a mystery! 🔍
+  `.trim();
+}
+
 // Calculate decision progress
 function calculateDecisionProgress() {
   const totalMoodBoards = AppData.decor.moodBoard ? AppData.decor.moodBoard.length : 0;
   const totalMenuItems = AppData.menu.menuItems ? AppData.menu.menuItems.length : 0;
   const totalGuests = AppData.guests.length;
+  const assignedGuests = AppData.guests.filter(g => g.assignedCharacter).length;
+  
+  // Calculate envelope readiness (% of guests with assigned roles who have packets)
+  const guestsWithPackets = AppData.guests.filter(g => {
+    if (!g.assignedCharacter) return false;
+    const packet = AppData.packets.find(p => p.character_id === g.assignedCharacter);
+    return packet && packet.envelopes && packet.envelopes.length === 4;
+  }).length;
+  
+  const envelopeReadiness = assignedGuests > 0 ? 
+    Math.round((guestsWithPackets / assignedGuests) * 100) : 0;
   
   return {
     decorFavorited: totalMoodBoards > 0 ? Math.round((AppData.decorFavorites.size / totalMoodBoards) * 100) : 0,
     menuFeatured: totalMenuItems > 0 ? Math.round((AppData.menuFeatured.size / totalMenuItems) * 100) : 0,
-    rolesAssigned: totalGuests > 0 ? Math.round((AppData.guests.filter(g => g.assignedCharacter).length / totalGuests) * 100) : 0,
+    rolesAssigned: totalGuests > 0 ? Math.round((assignedGuests / totalGuests) * 100) : 0,
     totalFavorites: AppData.decorFavorites.size + AppData.menuFavorites.size,
     totalFeatured: AppData.menuFeatured.size,
-    totalAssigned: AppData.guests.filter(g => g.assignedCharacter).length
+    totalAssigned: assignedGuests,
+    envelopeReadiness: envelopeReadiness,
+    guestsWithPackets: guestsWithPackets
   };
 }
 

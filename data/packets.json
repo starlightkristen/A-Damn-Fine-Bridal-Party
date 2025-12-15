@@ -1,0 +1,230 @@
+[
+  {
+    "character_id": "socialite",
+    "intro_profile": {
+      "name": "Audrey Horne",
+      "role": "The Socialite",
+      "tagline": "Sophistication hides many secrets",
+      "overview": "You are Audrey Horne, the daughter of Twin Peaks' wealthiest family. You move through high society with grace and mystery, always knowing more than you let on. Tonight, you're here to celebrate Marlena, but there are whispers of scandal that could threaten your carefully cultivated image.",
+      "costume_essentials": ["1950s-inspired elegant dress", "Saddle shoes", "Cherry red lipstick", "Vintage clutch"],
+      "personality_notes": "Confident, mysterious, playful. You enjoy the game of social manipulation but have a good heart underneath.",
+      "secret_preview": "Someone from your past has returned to Twin Peaks with information that could change everything..."
+    },
+    "envelopes": [
+      {
+        "phase": "intro",
+        "title": "Envelope 1: Your Arrival",
+        "contents": "You arrive at the party looking impeccable as always. As you enter, you notice several familiar faces - and one that makes your heart skip a beat. Someone you thought you'd never see again is here. You must find out what they know before they reveal your secret relationship to everyone.",
+        "instructions": "Mingle with guests. Try to gauge who knows about your secret. You have one clue to trade (receipt from the jeweler). Use it wisely."
+      },
+      {
+        "phase": "mid",
+        "title": "Envelope 2: A Whispered Warning",
+        "contents": "You receive a cryptic note slipped under your champagne glass: 'Not everyone here is who they claim to be. Watch the business owner carefully.' Your instincts tell you this party is about to take a dark turn.",
+        "instructions": "Focus your investigation on Josie Packard. What is she hiding? You now have access to another clue about her financial troubles."
+      },
+      {
+        "phase": "pre-final",
+        "title": "Envelope 3: The Contract",
+        "contents": "You discover a damning piece of evidence: a contract showing significant debt. This could be the motive everyone's been looking for. But revealing it means drawing attention to yourself and your own secrets.",
+        "instructions": "Decide whether to share the contract clue or use it as leverage. Time is running out."
+      },
+      {
+        "phase": "final",
+        "title": "Envelope 4: The Truth Revealed",
+        "contents": "All the pieces come together. You realize that while you were worried about your own scandal, something far more serious was unfolding. The business deal, the threats, the desperation - it all points to one person. You must decide: protect your secret or help solve the mystery?",
+        "instructions": "Share what you know. The truth must come out."
+      }
+    ]
+  },
+  {
+    "character_id": "detective",
+    "intro_profile": {
+      "name": "Special Agent Dale Cooper",
+      "role": "The FBI Detective",
+      "tagline": "Trust your intuition and the signs the universe provides",
+      "overview": "You are Special Agent Dale Cooper, an FBI agent with unconventional methods. You believe in following your intuition and reading the signs around you. While you're here to celebrate, your investigative instincts never rest. You've already noticed several suspicious behaviors among the guests.",
+      "costume_essentials": ["Black suit", "White dress shirt", "Skinny black tie", "FBI badge (prop)", "Small notepad"],
+      "personality_notes": "Earnest, quirky, highly observant. You find meaning in small details that others overlook.",
+      "secret_preview": "You're here on an active case, but you can't reveal your true purpose..."
+    },
+    "envelopes": [
+      {
+        "phase": "intro",
+        "title": "Envelope 1: Initial Observations",
+        "contents": "As you arrive, your trained eye picks up on numerous details others miss. The deputy seems nervous - more than usual. You've already confirmed his alibi for the suspicious activity reported earlier. Your instincts tell you to observe carefully.",
+        "instructions": "Document behaviors. Interview guests casually. You have evidence that eliminates the deputy as a suspect."
+      },
+      {
+        "phase": "mid",
+        "title": "Envelope 2: A Pattern Emerges",
+        "contents": "Your intuition was correct. Several clues are beginning to form a pattern. Someone at this party is desperate, and desperation leads to poor decisions. You recall a similar case from three years ago...",
+        "instructions": "Focus on connecting the clues. Look for patterns in behavior, especially around financial matters."
+      },
+      {
+        "phase": "pre-final",
+        "title": "Envelope 3: The Evidence",
+        "contents": "Your forensic work has paid off. The fingerprints from the suspicious package match someone at this party. This is no longer just a celebration - it's an active investigation.",
+        "instructions": "Share the fingerprint evidence strategically. Build your case."
+      },
+      {
+        "phase": "final",
+        "title": "Envelope 4: Case Closed",
+        "contents": "All the evidence points to one conclusion. Your unconventional methods have once again led to the truth. It's time to make your case and reveal what you know.",
+        "instructions": "Present your findings. Justice must be served, even at a party."
+      }
+    ]
+  },
+  {
+    "character_id": "waitress",
+    "intro_profile": {
+      "name": "Shelly Johnson",
+      "role": "The Diner Waitress",
+      "tagline": "The person who pours coffee hears all the secrets",
+      "overview": "You are Shelly Johnson, a waitress at the Double R Diner. You know everything that happens in Twin Peaks because everyone talks at the diner. You're sweet and kind-hearted, but you're carrying a heavy secret that could ruin this party - and possibly someone's life.",
+      "costume_essentials": ["Classic diner uniform", "White apron", "Name tag", "Comfortable shoes", "Order pad (prop)"],
+      "personality_notes": "Warm, observant, protective. You genuinely care about people but sometimes know too much for your own good.",
+      "secret_preview": "You overheard something at the diner that you wish you hadn't..."
+    },
+    "envelopes": [
+      {
+        "phase": "intro",
+        "title": "Envelope 1: The Morning Shift",
+        "contents": "This morning's shift was unusual. Someone ordered two slices of cherry pie to go at 6:47 AM - who eats pie that early? You kept the order slip without really knowing why. Now you're glad you did.",
+        "instructions": "Observe who seems nervous or is acting differently. You have the order slip as a clue."
+      },
+      {
+        "phase": "mid",
+        "title": "Envelope 2: The Conversation",
+        "contents": "You remember now - three days ago you overheard someone at the diner talking about a business deal gone bad. They said 'someone's going to pay for this.' At the time you thought it was just frustrated venting, but now...",
+        "instructions": "Try to remember more details about that conversation. Who was there? What exactly did they say?"
+      },
+      {
+        "phase": "pre-final",
+        "title": "Envelope 3: The Phone Message",
+        "contents": "The call came to the diner last week. A voice you didn't recognize said: 'Tell her I know what she did. The truth comes out tonight.' You wrote it down but didn't know who 'she' was. Until now.",
+        "instructions": "This is serious. Share this information with someone you trust."
+      },
+      {
+        "phase": "final",
+        "title": "Envelope 4: The Whole Truth",
+        "contents": "All the pieces from your shifts at the diner finally make sense. The early morning pie order, the angry conversation, the threatening phone call - they all connect to the same person. You know what happened.",
+        "instructions": "Tell everyone what you know. The truth has to come out."
+      }
+    ]
+  },
+  {
+    "character_id": "log-lady",
+    "intro_profile": {
+      "name": "The Log Lady",
+      "role": "The Mystic",
+      "tagline": "The log sees what others cannot",
+      "overview": "You are the Log Lady, a mystic who carries a log that communicates truths others cannot perceive. While people think you're eccentric, your log has never been wrong. Tonight, it has been giving you warnings about this party - dark omens that something terrible is coming.",
+      "costume_essentials": ["Flannel shirt", "Long skirt", "Thick-rimmed glasses", "A LOG (crucial prop!)"],
+      "personality_notes": "Mysterious, prophetic, utterly earnest. You genuinely believe the log speaks to you, and in a way, it does.",
+      "secret_preview": "Your log predicted something terrible will happen at this party..."
+    },
+    "envelopes": [
+      {
+        "phase": "intro",
+        "title": "Envelope 1: The First Warning",
+        "contents": "As you enter with your log, it grows heavy in your arms. This is never a good sign. The log whispers of shadows and secrets, of desperation hidden behind elegant facades. You must listen carefully and warn others.",
+        "instructions": "Speak in cryptic warnings. The log knows more than you do - trust it."
+      },
+      {
+        "phase": "mid",
+        "title": "Envelope 2: The Log Speaks",
+        "contents": "The log's message becomes clearer: 'Financial desperation breeds desperate actions. Someone here has nothing left to lose.' You feel the weight of this knowledge.",
+        "instructions": "Share the log's wisdom about financial troubles and desperation. Point toward the business owner."
+      },
+      {
+        "phase": "pre-final",
+        "title": "Envelope 3: Dark Prophecy",
+        "contents": "The log trembles in your arms. It shows you visions of the mill, of late-night meetings, of threats made in desperation. Someone at this party knows what happened to the victim.",
+        "instructions": "Your warnings become more urgent. The log knows the truth is about to be revealed."
+      },
+      {
+        "phase": "final",
+        "title": "Envelope 4: The Log's Final Truth",
+        "contents": "The log reveals its final prophecy: the victim knew about the business deal and threatened to expose the fraud. The murderer had no choice - or so they thought. The log has spoken.",
+        "instructions": "Deliver the log's final message to everyone. The prophecy is complete."
+      }
+    ]
+  },
+  {
+    "character_id": "owner",
+    "intro_profile": {
+      "name": "Josie Packard",
+      "role": "The Business Owner",
+      "tagline": "Elegance and ambition at any cost",
+      "overview": "You are Josie Packard, the elegant owner of the local mill and a prominent business figure in Twin Peaks. You always get what you want, one way or another. But lately, things have been falling apart. You're in serious financial trouble, and you've been taking desperate measures to save your empire.",
+      "costume_essentials": ["Sophisticated business attire", "Pearl necklace", "Elegant updo hairstyle", "Designer handbag"],
+      "personality_notes": "Elegant, cunning, ambitious, desperate. You'll do whatever it takes to survive.",
+      "secret_preview": "Your business is failing, and you've been making deals you shouldn't have..."
+    },
+    "envelopes": [
+      {
+        "phase": "intro",
+        "title": "Envelope 1: Maintaining Appearances",
+        "contents": "You arrive looking as elegant and composed as ever. No one can know about your financial troubles. You must secure the business deal you've been negotiating, no matter what it takes. Smile, be charming, and keep your desperation hidden.",
+        "instructions": "Act confident. Deflect questions about your business. You have a red herring clue to use against the socialite if needed."
+      },
+      {
+        "phase": "mid",
+        "title": "Envelope 2: Cracks in the Facade",
+        "contents": "People are starting to ask questions. Someone knows about your late-night visits to the mill. Someone else is asking about your finances. You need to divert attention. Perhaps that old scandal about the socialite could be useful?",
+        "instructions": "Use the red herring clue about the socialite to divert attention from yourself."
+      },
+      {
+        "phase": "pre-final",
+        "title": "Envelope 3: Desperation Sets In",
+        "contents": "The walls are closing in. The detective is asking pointed questions. The Log Lady is making disturbing pronouncements. They're getting too close to the truth about what you did.",
+        "instructions": "Continue deflecting. Try to implicate the waitress with another red herring about a romantic grudge."
+      },
+      {
+        "phase": "final",
+        "title": "Envelope 4: The Truth Comes Out",
+        "contents": "It's over. The evidence is overwhelming. The victim knew about your fraudulent business deal and threatened to report you to the authorities. In a moment of desperation, you... But perhaps there's still a way to explain, to make them understand you had no choice?",
+        "instructions": "The truth is revealed. Decide whether to confess or continue denying. The mystery is solved."
+      }
+    ]
+  },
+  {
+    "character_id": "deputy",
+    "intro_profile": {
+      "name": "Andy Brennan",
+      "role": "The Deputy Sheriff",
+      "tagline": "Good intentions pave the road to trouble",
+      "overview": "You are Andy Brennan, a deputy sheriff with a heart of gold and a tendency to make mistakes at the worst possible times. You're here to make sure everyone has a good time and stays safe, but you're also carrying the weight of a terrible error - you accidentally destroyed evidence related to another guest's past.",
+      "costume_essentials": ["Sheriff's deputy uniform", "Badge", "Duty belt (no real weapons!)", "Nervous disposition"],
+      "personality_notes": "Kind-hearted, emotional, well-meaning but clumsy. You try so hard but things often go wrong.",
+      "secret_preview": "You destroyed evidence, and now it might matter more than ever..."
+    },
+    "envelopes": [
+      {
+        "phase": "intro",
+        "title": "Envelope 1: Duty Calls",
+        "contents": "You arrive in full uniform, ready to help keep the party safe and fun. But you're nervous - that evidence you accidentally destroyed last week keeps haunting you. What if someone finds out? What if it's important to something happening now?",
+        "instructions": "Be helpful and friendly. Try to be observant despite your nerves. You have a witness statement about late-night activity at the mill."
+      },
+      {
+        "phase": "mid",
+        "title": "Envelope 2: Growing Concerns",
+        "contents": "The party is taking a strange turn. The detective keeps asking questions, and they're getting closer to things you'd rather stay buried. Your destroyed evidence involved the business owner - and now people are asking about her.",
+        "instructions": "Share the witness statement about activity at the mill. Try to be helpful despite your anxiety."
+      },
+      {
+        "phase": "pre-final",
+        "title": "Envelope 3: The Investigation Intensifies",
+        "contents": "This isn't a game anymore. There's real detective work happening here. You check your notes and find something important: security logs from the mill showing unauthorized access to the safe. This could be crucial evidence.",
+        "instructions": "Share the security log evidence. Your mistake with the old evidence might not matter if you can help solve this."
+      },
+      {
+        "phase": "final",
+        "title": "Envelope 4: Deputy's Redemption",
+        "contents": "Despite your earlier mistake, your new evidence has been crucial in solving the case. The security logs prove unauthorized access, and together with the other clues, they tell the whole story. You've redeemed yourself.",
+        "instructions": "Present your evidence proudly. You helped solve the case!"
+      }
+    ]
+  }
+]

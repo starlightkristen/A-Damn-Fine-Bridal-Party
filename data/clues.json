@@ -1,0 +1,122 @@
+[
+  {
+    "id": "clue-001",
+    "holder_id": "socialite",
+    "type": "implicates",
+    "text": "A receipt from the local jeweler showing a purchase made the morning of the party. The item? A silver locket with an unusual engraving.",
+    "reveal_phase": "intro",
+    "target_id": "owner",
+    "proof_level": "weak",
+    "trade_hint": "Will trade for information about the secret meeting"
+  },
+  {
+    "id": "clue-002",
+    "holder_id": "detective",
+    "type": "eliminates",
+    "text": "An alibi confirmed by security footage showing the deputy at the sheriff's station during the estimated time of the incident.",
+    "reveal_phase": "intro",
+    "target_id": "deputy",
+    "proof_level": "strong",
+    "trade_hint": "Will share freely with anyone who asks politely"
+  },
+  {
+    "id": "clue-003",
+    "holder_id": "waitress",
+    "type": "timeline",
+    "text": "A diner order slip timestamped 6:47 AM, showing someone ordered two slices of cherry pie 'to go' - unusual for that early.",
+    "reveal_phase": "intro",
+    "target_id": null,
+    "proof_level": "medium",
+    "trade_hint": "Looking for information about suspicious phone calls"
+  },
+  {
+    "id": "clue-004",
+    "holder_id": "log-lady",
+    "type": "motive",
+    "text": "The log speaks of financial desperation and whispers of a business deal gone wrong. Someone needed money... badly.",
+    "reveal_phase": "mid",
+    "target_id": "owner",
+    "proof_level": "medium",
+    "trade_hint": "The log only speaks to those who believe"
+  },
+  {
+    "id": "clue-005",
+    "holder_id": "owner",
+    "type": "red_herring",
+    "text": "A mysterious letter addressed to the socialite, hinting at an old scandal that could ruin her reputation if revealed.",
+    "reveal_phase": "mid",
+    "target_id": "socialite",
+    "proof_level": "weak",
+    "trade_hint": "Will only trade with someone who has dirt on the detective"
+  },
+  {
+    "id": "clue-006",
+    "holder_id": "deputy",
+    "type": "timeline",
+    "text": "A witness statement claiming they saw someone entering the mill late at night, three days before the party.",
+    "reveal_phase": "mid",
+    "target_id": "owner",
+    "proof_level": "medium",
+    "trade_hint": "Needs evidence to support the investigation"
+  },
+  {
+    "id": "clue-007",
+    "holder_id": "socialite",
+    "type": "motive",
+    "text": "A contract showing a significant debt owed to a local creditor, with payment overdue by three months.",
+    "reveal_phase": "pre-final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "Information is power - will trade for guarantees of silence"
+  },
+  {
+    "id": "clue-008",
+    "holder_id": "detective",
+    "type": "implicates",
+    "text": "Fingerprints found on a suspicious package that match records from a previous investigation.",
+    "reveal_phase": "pre-final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "Official evidence - will only share if necessary for justice"
+  },
+  {
+    "id": "clue-009",
+    "holder_id": "waitress",
+    "type": "twist",
+    "text": "A phone message left at the diner: 'Tell her I know what she did. The truth comes out tonight.' Voice unidentified.",
+    "reveal_phase": "pre-final",
+    "target_id": null,
+    "proof_level": "strong",
+    "trade_hint": "This is serious - will share with trustworthy investigators only"
+  },
+  {
+    "id": "clue-010",
+    "holder_id": "log-lady",
+    "type": "twist",
+    "text": "The log reveals that the victim knew about the business deal and threatened to expose the fraud to authorities.",
+    "reveal_phase": "final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "The log's final prophecy - given freely to all"
+  },
+  {
+    "id": "clue-011",
+    "holder_id": "owner",
+    "type": "red_herring",
+    "text": "A diary entry suggesting the waitress had a grudge against the victim over a past romantic entanglement.",
+    "reveal_phase": "final",
+    "target_id": "waitress",
+    "proof_level": "weak",
+    "trade_hint": "A desperate attempt to divert attention"
+  },
+  {
+    "id": "clue-012",
+    "holder_id": "deputy",
+    "type": "implicates",
+    "text": "Security logs showing unauthorized access to the mill's safe on the night before the party.",
+    "reveal_phase": "final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "Critical evidence - must be preserved for the case"
+  }
+]
