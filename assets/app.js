@@ -697,6 +697,246 @@ function toggleMenuFeatured(itemId) {
   }
 }
 
+// ============================================================================
+// MENU ITEM CRUD FUNCTIONS
+// ============================================================================
+
+// Show add menu item form
+function showAddMenuItemForm() {
+  // Get existing categories for dropdown
+  const categories = [...new Set(AppData.menu.menuItems.map(item => item.category))].sort();
+  
+  const formHtml = `
+    <div id="menu-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Add New Menu Item</h2>
+        <form id="menu-form" onsubmit="handleSaveMenuItem(event, null)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Name *</strong></label>
+              <input type="text" name="name" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Category *</strong></label>
+              <input type="text" name="category" list="category-list" required placeholder="e.g., Appetizer, Main, Dessert" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+              <datalist id="category-list">
+                ${categories.map(cat => `<option value="${cat}">`).join('')}
+                <option value="Appetizer">
+                <option value="Main">
+                <option value="Side">
+                <option value="Dessert">
+                <option value="Beverage">
+              </datalist>
+            </div>
+            <div>
+              <label><strong>Serves</strong></label>
+              <input type="text" name="serves" placeholder="e.g., 35 or unlimited" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Description</strong></label>
+              <textarea name="description" rows="3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+            <div>
+              <label><strong>Prep Time</strong></label>
+              <input type="text" name="prepTime" placeholder="e.g., 30 minutes" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Allergens</strong></label>
+              <input type="text" name="allergens" placeholder="Comma-separated, e.g., Gluten, Dairy" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Dietary Options</strong></label>
+              <input type="text" name="dietaryOptions" placeholder="Comma-separated, e.g., Can be made vegan, Gluten-free available" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeMenuEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Menu Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+// Edit existing menu item
+function editMenuItem(itemId) {
+  const item = AppData.menu.menuItems.find(i => i.id === itemId);
+  if (!item) return;
+  
+  // Get existing categories for dropdown
+  const categories = [...new Set(AppData.menu.menuItems.map(item => item.category))].sort();
+  
+  const formHtml = `
+    <div id="menu-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Edit Menu Item: ${item.name}</h2>
+        <form id="menu-form" onsubmit="handleSaveMenuItem(event, '${itemId}')">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Name *</strong></label>
+              <input type="text" name="name" value="${item.name || ''}" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Category *</strong></label>
+              <input type="text" name="category" value="${item.category || ''}" list="category-list" required placeholder="e.g., Appetizer, Main, Dessert" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+              <datalist id="category-list">
+                ${categories.map(cat => `<option value="${cat}">`).join('')}
+                <option value="Appetizer">
+                <option value="Main">
+                <option value="Side">
+                <option value="Dessert">
+                <option value="Beverage">
+              </datalist>
+            </div>
+            <div>
+              <label><strong>Serves</strong></label>
+              <input type="text" name="serves" value="${item.serves || ''}" placeholder="e.g., 35 or unlimited" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Description</strong></label>
+              <textarea name="description" rows="3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${item.description || ''}</textarea>
+            </div>
+            <div>
+              <label><strong>Prep Time</strong></label>
+              <input type="text" name="prepTime" value="${item.prepTime || ''}" placeholder="e.g., 30 minutes" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Allergens</strong></label>
+              <input type="text" name="allergens" value="${(item.allergens || []).join(', ')}" placeholder="Comma-separated, e.g., Gluten, Dairy" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Dietary Options</strong></label>
+              <input type="text" name="dietaryOptions" value="${(item.dietaryOptions || []).join(', ')}" placeholder="Comma-separated, e.g., Can be made vegan, Gluten-free available" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeMenuEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+// Handle save menu item (add or edit)
+function handleSaveMenuItem(event, itemId) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const itemData = {
+    name: formData.get('name'),
+    category: formData.get('category'),
+    description: formData.get('description') || '',
+    serves: formData.get('serves') || '',
+    prepTime: formData.get('prepTime') || '',
+    allergens: formData.get('allergens') ? formData.get('allergens').split(',').map(s => s.trim()).filter(s => s) : [],
+    dietaryOptions: formData.get('dietaryOptions') ? formData.get('dietaryOptions').split(',').map(s => s.trim()).filter(s => s) : []
+  };
+  
+  if (itemId === null) {
+    // Add new menu item
+    const newId = 'menu-' + Date.now();
+    itemData.id = newId;
+    AppData.menu.menuItems.push(itemData);
+  } else {
+    // Update existing menu item
+    const index = AppData.menu.menuItems.findIndex(i => i.id === itemId);
+    if (index !== -1) {
+      AppData.menu.menuItems[index] = { ...AppData.menu.menuItems[index], ...itemData };
+    }
+  }
+  
+  saveToLocalStorage();
+  closeMenuEditor();
+  
+  // Re-render menu
+  if (window.Render && window.Render.food) {
+    window.Render.food();
+  }
+}
+
+// Delete menu item with confirmation
+function deleteMenuItem(itemId) {
+  const item = AppData.menu.menuItems.find(i => i.id === itemId);
+  if (!item) return;
+  
+  if (confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`)) {
+    AppData.menu.menuItems = AppData.menu.menuItems.filter(i => i.id !== itemId);
+    
+    // Also remove from favorites/featured sets
+    AppData.menuFavorites.delete(itemId);
+    AppData.menuFeatured.delete(itemId);
+    
+    saveToLocalStorage();
+    
+    // Re-render
+    if (window.Render && window.Render.food) {
+      window.Render.food();
+    }
+  }
+}
+
+// Close menu editor modal
+function closeMenuEditor() {
+  const modal = document.getElementById('menu-editor-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Handle import menu
+async function handleImportMenu() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset('menu', file);
+      
+      // Show preview
+      if (confirm(`Import menu with ${data.menuItems ? data.menuItems.length : 0} items? This will replace your current menu.`)) {
+        applyImportedData('menu', data);
+        
+        // Re-render
+        if (window.Render && window.Render.food) {
+          window.Render.food();
+        }
+        
+        alert('Menu imported successfully!');
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+// Handle reset menu
+async function handleResetMenu() {
+  if (confirm('Reset menu to repository defaults? This will discard all changes.')) {
+    await resetToDefaults('menu');
+    
+    // Re-render
+    if (window.Render && window.Render.food) {
+      window.Render.food();
+    }
+    
+    alert('Menu reset to defaults!');
+  }
+}
+
 // Role preference functions
 function setRolePreference(guestId, characterId) {
   if (!AppData.rolePreferences[guestId]) {
@@ -1449,6 +1689,14 @@ if (typeof module !== 'undefined' && module.exports) {
     closeGuestEditor,
     handleAutosaveToggle,
     handleImportGuests,
-    handleResetGuests
+    handleResetGuests,
+    // Menu CRUD functions
+    showAddMenuItemForm,
+    editMenuItem,
+    handleSaveMenuItem,
+    deleteMenuItem,
+    closeMenuEditor,
+    handleImportMenu,
+    handleResetMenu
   };
 }

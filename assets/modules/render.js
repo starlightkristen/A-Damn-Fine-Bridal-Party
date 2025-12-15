@@ -210,6 +210,19 @@ const Render = {
   
   // Render food page
   food: function() {
+    // Check if menu items exist
+    if (!AppData.menu.menuItems || AppData.menu.menuItems.length === 0) {
+      document.getElementById('menu-items').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No menu items yet!</strong> Click "Add Menu Item" below to start building your menu.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
+        </div>
+      `;
+      return;
+    }
+    
     // Helper function to generate dietary badges
     const generateDietaryBadges = (item) => {
       const badges = [];
@@ -224,8 +237,28 @@ const Render = {
       return badges.join(' ');
     };
     
-    // Render menu items by category
-    const categories = ['Dessert', 'Beverage', 'Main', 'Side', 'Appetizer'];
+    // Dynamically get categories from existing menu items
+    const categories = [...new Set(AppData.menu.menuItems.map(item => item.category))].sort();
+    
+    // Controls at the top
+    const controlsHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <input type="checkbox" id="autosave-toggle-menu" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+            <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+          </label>
+          <button class="btn" onclick="handleImportMenu()">📂 Import</button>
+          <button class="btn" onclick="exportMenu()">📥 Export</button>
+          <button class="btn btn-secondary" onclick="handleResetMenu()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    
+    // Render menu items by category (dynamically determined)
     const menuHtml = categories.map(category => {
       const items = AppData.menu.menuItems.filter(item => item.category === category);
       if (items.length === 0) return '';
@@ -235,11 +268,17 @@ const Render = {
           <h3>${category}</h3>
           ${items.map(item => `
             <div style="padding: 15px; margin: 10px 0; background: var(--cream); border-radius: 8px; ${AppData.menuFeatured.has(item.id) ? 'border: 3px solid var(--gold);' : ''}">
-              <h4 style="color: var(--deep-cherry-red);">${item.name}</h4>
+              <div style="display: flex; justify-content: space-between; align-items: start;">
+                <h4 style="color: var(--deep-cherry-red); margin: 0;">${item.name}</h4>
+                <div>
+                  <button class="btn-sm" onclick="editMenuItem('${item.id}')" title="Edit menu item">✏️</button>
+                  <button class="btn-sm" onclick="deleteMenuItem('${item.id}')" title="Delete menu item">🗑️</button>
+                </div>
+              </div>
               <p>${item.description}</p>
               <p><strong>Serves:</strong> ${item.serves} | <strong>Prep Time:</strong> ${item.prepTime}</p>
-              ${item.allergens.length > 0 ? `<p><strong>Allergens:</strong> ${item.allergens.join(', ')}</p>` : ''}
-              ${item.dietaryOptions.length > 0 ? `<p><em>${item.dietaryOptions.join(', ')}</em></p>` : ''}
+              ${item.allergens && item.allergens.length > 0 ? `<p><strong>Allergens:</strong> ${item.allergens.join(', ')}</p>` : ''}
+              ${item.dietaryOptions && item.dietaryOptions.length > 0 ? `<p><em>${item.dietaryOptions.join(', ')}</em></p>` : ''}
               <div style="margin: 10px 0;">
                 ${generateDietaryBadges(item)}
               </div>
@@ -260,32 +299,21 @@ const Render = {
       `;
     }).join('');
     
-    document.getElementById('menu-items').innerHTML = menuHtml;
+    document.getElementById('menu-items').innerHTML = controlsHtml + menuHtml;
     
-    // Add export button
-    const exportSection = `
-      <div style="text-align: center; margin-top: 20px;">
-        <button class="export-btn" onclick="exportMenuJSON()">
-          📥 Export Menu Selections
-        </button>
-        <p style="margin-top: 10px; font-size: 14px; color: #666;">
-          Downloads your starred and featured menu items as menu.json
-        </p>
-      </div>
-    `;
-    document.getElementById('menu-items').innerHTML += exportSection;
-    
-    // Render prep timeline
-    const timelineHtml = AppData.menu.prepTimeline.map(phase => `
-      <div class="card">
-        <h3>${phase.time}</h3>
-        <ul class="item-list">
-          ${phase.tasks.map(task => `<li>${task}</li>`).join('')}
-        </ul>
-      </div>
-    `).join('');
-    
-    document.getElementById('prep-timeline').innerHTML = timelineHtml;
+    // Render prep timeline if it exists
+    if (AppData.menu.prepTimeline && AppData.menu.prepTimeline.length > 0) {
+      const timelineHtml = AppData.menu.prepTimeline.map(phase => `
+        <div class="card">
+          <h3>${phase.time}</h3>
+          <ul class="item-list">
+            ${phase.tasks.map(task => `<li>${task}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+      
+      document.getElementById('prep-timeline').innerHTML = timelineHtml;
+    }
   },
   
   // Render mystery page
