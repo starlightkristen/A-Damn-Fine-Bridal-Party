@@ -137,6 +137,27 @@ nav a.active {
   background: #A07810;
 }
 
+.btn-sm {
+  background: var(--deep-cherry-red);
+  color: var(--white);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: normal;
+  display: inline-block;
+  text-decoration: none;
+  margin: 2px;
+}
+
+.btn-sm:hover {
+  background: var(--forest-emerald);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
 /* Grid Layouts */
 .grid {
   display: grid;

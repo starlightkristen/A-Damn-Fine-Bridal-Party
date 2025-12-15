@@ -460,6 +460,19 @@ const Render = {
   
   // Render guests page
   guests: function() {
+    // Check if guests list is empty
+    if (!AppData.guests || AppData.guests.length === 0) {
+      document.getElementById('guest-table').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No guests yet!</strong> Click "Add Guest" below to start building your guest list.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddGuestForm()">➕ Add Guest</button>
+        </div>
+      `;
+      return;
+    }
+    
     // Helper function to generate RSVP badge
     const getRsvpBadge = (rsvp) => {
       const rsvpLower = (rsvp || 'pending').toLowerCase();
@@ -482,6 +495,25 @@ const Render = {
              guest.address.state;
     };
     
+    // Controls at the top
+    const controlsHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <button class="btn" onclick="showAddGuestForm()">➕ Add Guest</button>
+          <button class="btn btn-secondary" onclick="autoAssignAll()">🎭 Auto-Assign Characters</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <input type="checkbox" id="autosave-toggle-guests" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+            <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+          </label>
+          <button class="btn" onclick="handleImportGuests()">📂 Import</button>
+          <button class="btn" onclick="exportGuests()">📥 Export</button>
+          <button class="btn btn-secondary" onclick="handleResetGuests()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    
     const tableHtml = `
       <table>
         <thead>
@@ -490,7 +522,6 @@ const Render = {
             <th>Contact</th>
             <th>RSVP</th>
             <th>Dietary</th>
-            <th>Accessibility</th>
             <th>Character</th>
             <th>Actions</th>
           </tr>
@@ -501,36 +532,43 @@ const Render = {
               AppData.characters.find(c => c.id === guest.assignedCharacter) : null;
             
             const addressIndicator = hasAddress(guest) ? 
-              '<span class="badge badge-success" style="font-size: 11px; margin-left: 5px;">📬 Address on file</span>' : 
+              '<span class="badge badge-success" style="font-size: 11px; margin-left: 5px;">📬 Address</span>' : 
               '<span class="badge badge-warning" style="font-size: 11px; margin-left: 5px;">📭 No address</span>';
             
             const phoneDisplay = guest.phone ? `<br><small>📞 ${guest.phone}</small>` : '';
             
             const accessibilityDisplay = guest.accessibility && guest.accessibility !== 'None' ?
-              `<strong style="color: var(--deep-cherry-red);">♿ ${guest.accessibility}</strong>` :
-              '<span style="color: #999;">None</span>';
+              `<br><small style="color: var(--deep-cherry-red);">♿ ${guest.accessibility}</small>` :
+              '';
             
             const dietaryInfo = guest.dietary && guest.dietary !== 'None' ?
               `${guest.dietary}${guest.dietarySeverity ? ` <em>(${guest.dietarySeverity})</em>` : ''}` :
               'None';
+            
+            const roleVibeDisplay = guest.roleVibe ? 
+              `<br><small style="color: #666;">🎭 ${guest.roleVibe}</small>` : '';
             
             return `
               <tr>
                 <td>
                   <strong>${guest.name}</strong>
                   ${addressIndicator}
-                  ${guest.roleVibe ? `<br><small style="color: #666;">🎭 ${guest.roleVibe}</small>` : ''}
+                  ${roleVibeDisplay}
                 </td>
                 <td>
-                  ${guest.email}${phoneDisplay}
+                  ${guest.email || '<em style="color: #999;">No email</em>'}${phoneDisplay}
+                  ${accessibilityDisplay}
                 </td>
                 <td>${getRsvpBadge(guest.rsvp)}</td>
-                <td>${dietaryInfo}</td>
-                <td>${accessibilityDisplay}</td>
-                <td>${character ? character.name : '<span style="color: #999;">Not assigned</span>'}</td>
+                <td><small>${dietaryInfo}</small></td>
                 <td>
-                  <button class="btn" onclick="copyInvite(${guest.id})" style="margin: 2px;">Copy Invite</button>
-                  ${character ? `<button class="btn btn-secondary" onclick="printCharacterPacket('${character.id}')" style="margin: 2px;">Print Packet</button>` : ''}
+                  ${character ? `<span style="color: var(--forest-emerald);">${character.name}</span>` : '<span style="color: #999;">Unassigned</span>'}
+                </td>
+                <td>
+                  <button class="btn-sm" onclick="editGuest(${guest.id})" title="Edit guest details">✏️ Edit</button>
+                  <button class="btn-sm" onclick="deleteGuest(${guest.id})" title="Delete guest">🗑️</button>
+                  <button class="btn-sm" onclick="copyInvite(${guest.id})" title="Copy invitation text">✉️</button>
+                  ${character ? `<button class="btn-sm" onclick="printCharacterPacket('${character.id}')" title="Print character packet">🖨️</button>` : ''}
                 </td>
               </tr>
             `;
@@ -539,7 +577,7 @@ const Render = {
       </table>
     `;
     
-    document.getElementById('guest-table').innerHTML = tableHtml;
+    document.getElementById('guest-table').innerHTML = controlsHtml + tableHtml;
   },
   
   // Render admin page

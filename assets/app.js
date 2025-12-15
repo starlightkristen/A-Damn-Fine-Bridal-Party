@@ -309,6 +309,360 @@ function validateData() {
   return errors;
 }
 
+// ============================================================================
+// GUEST CRUD FUNCTIONS
+// ============================================================================
+
+// Show add guest form in a modal/dialog
+function showAddGuestForm() {
+  const formHtml = `
+    <div id="guest-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Add New Guest</h2>
+        <form id="guest-form" onsubmit="handleSaveGuest(event, null)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Name *</strong></label>
+              <input type="text" name="name" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Email</strong></label>
+              <input type="email" name="email" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Phone</strong></label>
+              <input type="tel" name="phone" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Address</strong></label>
+              <input type="text" name="street" placeholder="Street" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-top: 5px;">
+                <input type="text" name="city" placeholder="City" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" name="state" placeholder="State" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" name="zip" placeholder="ZIP" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              </div>
+              <input type="text" name="country" placeholder="Country" value="USA" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>RSVP Status</strong></label>
+              <select name="rsvp" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="pending">Pending</option>
+                <option value="invited">Invited</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="tentative">Tentative</option>
+                <option value="not attending">Not Attending</option>
+              </select>
+            </div>
+            <div>
+              <label><strong>Assigned Character</strong></label>
+              <select name="assignedCharacter" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">None</option>
+                ${AppData.characters.map(c => `<option value="${c.id}">${c.name} (${c.role})</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label><strong>Dietary Restrictions</strong></label>
+              <input type="text" name="dietary" placeholder="e.g., Vegetarian, Gluten-free" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Dietary Severity</strong></label>
+              <select name="dietarySeverity" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">None</option>
+                <option value="allergy">Allergy</option>
+                <option value="intolerance">Intolerance</option>
+                <option value="preference">Preference</option>
+              </select>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Accessibility Needs</strong></label>
+              <input type="text" name="accessibility" placeholder="e.g., Wheelchair accessible seating" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Role Vibe / Personality</strong></label>
+              <input type="text" name="roleVibe" placeholder="e.g., warm and friendly, mysterious and analytical" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Seating Preferences</strong></label>
+              <input type="text" name="seatingPreferences" placeholder="e.g., Sit with Sarah, Avoid Alex" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Notes</strong></label>
+              <textarea name="notes" rows="3" placeholder="Any additional notes" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeGuestEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Guest</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+// Edit existing guest
+function editGuest(guestId) {
+  const guest = AppData.guests.find(g => g.id === guestId);
+  if (!guest) return;
+  
+  const formHtml = `
+    <div id="guest-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Edit Guest: ${guest.name}</h2>
+        <form id="guest-form" onsubmit="handleSaveGuest(event, ${guestId})">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Name *</strong></label>
+              <input type="text" name="name" value="${guest.name || ''}" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Email</strong></label>
+              <input type="email" name="email" value="${guest.email || ''}" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Phone</strong></label>
+              <input type="tel" name="phone" value="${guest.phone || ''}" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Address</strong></label>
+              <input type="text" name="street" placeholder="Street" value="${guest.address?.street || ''}" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-top: 5px;">
+                <input type="text" name="city" placeholder="City" value="${guest.address?.city || ''}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" name="state" placeholder="State" value="${guest.address?.state || ''}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                <input type="text" name="zip" placeholder="ZIP" value="${guest.address?.zip || ''}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+              </div>
+              <input type="text" name="country" placeholder="Country" value="${guest.address?.country || 'USA'}" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>RSVP Status</strong></label>
+              <select name="rsvp" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="pending" ${guest.rsvp === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="invited" ${guest.rsvp === 'invited' ? 'selected' : ''}>Invited</option>
+                <option value="confirmed" ${guest.rsvp === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                <option value="tentative" ${guest.rsvp === 'tentative' ? 'selected' : ''}>Tentative</option>
+                <option value="not attending" ${guest.rsvp === 'not attending' ? 'selected' : ''}>Not Attending</option>
+              </select>
+            </div>
+            <div>
+              <label><strong>Assigned Character</strong></label>
+              <select name="assignedCharacter" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">None</option>
+                ${AppData.characters.map(c => `<option value="${c.id}" ${guest.assignedCharacter === c.id ? 'selected' : ''}>${c.name} (${c.role})</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label><strong>Dietary Restrictions</strong></label>
+              <input type="text" name="dietary" value="${guest.dietary || ''}" placeholder="e.g., Vegetarian, Gluten-free" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Dietary Severity</strong></label>
+              <select name="dietarySeverity" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">None</option>
+                <option value="allergy" ${guest.dietarySeverity === 'allergy' ? 'selected' : ''}>Allergy</option>
+                <option value="intolerance" ${guest.dietarySeverity === 'intolerance' ? 'selected' : ''}>Intolerance</option>
+                <option value="preference" ${guest.dietarySeverity === 'preference' ? 'selected' : ''}>Preference</option>
+              </select>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Accessibility Needs</strong></label>
+              <input type="text" name="accessibility" value="${guest.accessibility || ''}" placeholder="e.g., Wheelchair accessible seating" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Role Vibe / Personality</strong></label>
+              <input type="text" name="roleVibe" value="${guest.roleVibe || ''}" placeholder="e.g., warm and friendly, mysterious and analytical" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Seating Preferences</strong></label>
+              <input type="text" name="seatingPreferences" value="${guest.seatingPreferences || ''}" placeholder="e.g., Sit with Sarah, Avoid Alex" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Notes</strong></label>
+              <textarea name="notes" rows="3" placeholder="Any additional notes" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${guest.notes || ''}</textarea>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeGuestEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+// Handle save guest (add or edit)
+function handleSaveGuest(event, guestId) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const guestData = {
+    name: formData.get('name'),
+    email: formData.get('email') || null,
+    phone: formData.get('phone') || null,
+    address: {
+      street: formData.get('street') || '',
+      city: formData.get('city') || '',
+      state: formData.get('state') || '',
+      zip: formData.get('zip') || '',
+      country: formData.get('country') || 'USA'
+    },
+    rsvp: formData.get('rsvp') || 'pending',
+    dietary: formData.get('dietary') || 'None',
+    dietarySeverity: formData.get('dietarySeverity') || null,
+    accessibility: formData.get('accessibility') || 'None',
+    roleVibe: formData.get('roleVibe') || null,
+    seatingPreferences: formData.get('seatingPreferences') || null,
+    notes: formData.get('notes') || null,
+    assignedCharacter: formData.get('assignedCharacter') || null
+  };
+  
+  if (guestId === null) {
+    // Add new guest
+    const newId = AppData.guests.length > 0 ? Math.max(...AppData.guests.map(g => g.id)) + 1 : 1;
+    guestData.id = newId;
+    AppData.guests.push(guestData);
+  } else {
+    // Update existing guest
+    const index = AppData.guests.findIndex(g => g.id === guestId);
+    if (index !== -1) {
+      AppData.guests[index] = { ...AppData.guests[index], ...guestData };
+    }
+  }
+  
+  saveToLocalStorage();
+  closeGuestEditor();
+  
+  // Re-render guests table
+  if (window.Render && window.Render.guests) {
+    window.Render.guests();
+  }
+  
+  // Update stats if they exist
+  const stats = calculateStats();
+  if (document.getElementById('stat-total')) {
+    document.getElementById('stat-total').textContent = stats.totalGuests;
+    document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
+    document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
+    document.getElementById('stat-pending').textContent = stats.pendingGuests;
+  }
+}
+
+// Delete guest with confirmation
+function deleteGuest(guestId) {
+  const guest = AppData.guests.find(g => g.id === guestId);
+  if (!guest) return;
+  
+  if (confirm(`Are you sure you want to delete ${guest.name}? This cannot be undone.`)) {
+    AppData.guests = AppData.guests.filter(g => g.id !== guestId);
+    saveToLocalStorage();
+    
+    // Re-render
+    if (window.Render && window.Render.guests) {
+      window.Render.guests();
+    }
+    
+    // Update stats
+    const stats = calculateStats();
+    if (document.getElementById('stat-total')) {
+      document.getElementById('stat-total').textContent = stats.totalGuests;
+      document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
+      document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
+      document.getElementById('stat-pending').textContent = stats.pendingGuests;
+    }
+  }
+}
+
+// Close guest editor modal
+function closeGuestEditor() {
+  const modal = document.getElementById('guest-editor-modal');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+// Handle autosave toggle
+function handleAutosaveToggle() {
+  const enabled = toggleAutosave();
+  const toggles = document.querySelectorAll('[id^="autosave-toggle"]');
+  toggles.forEach(toggle => {
+    toggle.checked = enabled;
+  });
+  
+  const message = enabled ? 
+    'Autosave enabled! Your changes will be saved to browser storage.' : 
+    'Autosave disabled. Use Export to save your data.';
+  alert(message);
+}
+
+// Handle import guests
+async function handleImportGuests() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset('guests', file);
+      
+      // Show preview
+      if (confirm(`Import ${data.length} guests? This will replace your current guest list.`)) {
+        applyImportedData('guests', data);
+        
+        // Re-render
+        if (window.Render && window.Render.guests) {
+          window.Render.guests();
+        }
+        
+        // Update stats
+        const stats = calculateStats();
+        if (document.getElementById('stat-total')) {
+          document.getElementById('stat-total').textContent = stats.totalGuests;
+          document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
+          document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
+          document.getElementById('stat-pending').textContent = stats.pendingGuests;
+        }
+        
+        alert('Guests imported successfully!');
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+// Handle reset guests
+async function handleResetGuests() {
+  if (confirm('Reset guests to repository defaults? This will discard all changes.')) {
+    await resetToDefaults('guests');
+    
+    // Re-render
+    if (window.Render && window.Render.guests) {
+      window.Render.guests();
+    }
+    
+    // Update stats
+    const stats = calculateStats();
+    if (document.getElementById('stat-total')) {
+      document.getElementById('stat-total').textContent = stats.totalGuests;
+      document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
+      document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
+      document.getElementById('stat-pending').textContent = stats.pendingGuests;
+    }
+    
+    alert('Guests reset to defaults!');
+  }
+}
+
 // Decor functions
 function toggleDecorFavorite(itemId) {
   if (AppData.decorFavorites.has(itemId)) {
@@ -1086,6 +1440,15 @@ if (typeof module !== 'undefined' && module.exports) {
     exportSchedule,
     exportStory,
     exportClues,
-    exportPackets
+    exportPackets,
+    // Guest CRUD functions
+    showAddGuestForm,
+    editGuest,
+    handleSaveGuest,
+    deleteGuest,
+    closeGuestEditor,
+    handleAutosaveToggle,
+    handleImportGuests,
+    handleResetGuests
   };
 }
