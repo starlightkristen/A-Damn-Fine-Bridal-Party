@@ -50,6 +50,8 @@
       "title": "Character Introduction",
       "duration": "10 minutes",
       "description": "Guests read their character cards and introduce themselves",
+      "phase": "intro",
+      "envelope_instruction": "Open Envelope 1 - Your character introduction and initial clues",
       "activities": [
         "Each guest reads their character card privately",
         "Go around the room - each guest introduces their character in 1 minute",
@@ -64,6 +66,24 @@
       "title": "Investigation Phase",
       "duration": "35 minutes",
       "description": "Free-form mystery solving - guests mingle, interrogate, and search for clues",
+      "phase": "multi",
+      "envelope_instructions": [
+        {
+          "time": "1:00 (Start)",
+          "phase": "intro",
+          "instruction": "Continue with Envelope 1 clues - initial investigation"
+        },
+        {
+          "time": "1:10",
+          "phase": "mid",
+          "instruction": "Open Envelope 2 - New information and clue reveals"
+        },
+        {
+          "time": "1:25",
+          "phase": "pre-final",
+          "instruction": "Open Envelope 3 - Critical evidence emerges"
+        }
+      ],
       "activities": [
         "Guests move freely and interview each other",
         "Host drops additional clues every 10 minutes if needed",
@@ -71,22 +91,25 @@
         "Guests can form alliances or work alone"
       ],
       "music": "Twin Peaks soundtrack - moderate volume for atmosphere",
-      "notes": "This is the heart of the mystery! Watch energy and help if groups get stuck."
+      "notes": "This is the heart of the mystery! Watch energy and help if groups get stuck. Monitor timing for envelope openings!"
     },
     {
       "time": "1:35 - 1:45",
       "title": "Cupcake Reveal Ceremony",
       "duration": "10 minutes",
       "description": "The dramatic cupcake burning reveals the murderer!",
+      "phase": "final",
+      "envelope_instruction": "Open Envelope 4 - Final revelations before the solution",
       "activities": [
         "Host calls everyone to attention",
+        "ALL GUESTS: Open final envelope before cupcake ceremony",
         "Each guest receives a special cupcake",
         "Using kitchen torch, host reveals hidden messages under frosting",
         "The murderer is revealed!",
         "Big dramatic reveal moment"
       ],
       "music": "Building dramatic music, culminating at reveal",
-      "notes": "Practice the torch method beforehand! Safety first."
+      "notes": "Practice the torch method beforehand! Safety first. Envelope 4 must be opened BEFORE cupcakes!"
     },
     {
       "time": "1:45 - 2:00",

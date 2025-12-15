@@ -1,5 +1,100 @@
 // A Damn Fine Bridal Party - Rendering Module
 
+// Helper function to render clues by phase
+function renderCluesByPhase(phase) {
+  const clues = AppData.clues.filter(c => c.reveal_phase === phase);
+  
+  if (clues.length === 0) {
+    return '<p style="color: #999;">No clues for this phase.</p>';
+  }
+  
+  return `
+    <div style="display: grid; gap: 10px;">
+      ${clues.map(clue => {
+        const holder = AppData.characters.find(c => c.id === clue.holder_id);
+        const typeColors = {
+          'implicates': '#8B0000',
+          'eliminates': '#0B4F3F',
+          'timeline': '#C79810',
+          'motive': '#8B0000',
+          'red_herring': '#999',
+          'twist': '#8B0000'
+        };
+        return `
+          <div style="border-left: 4px solid ${typeColors[clue.type] || '#666'}; padding: 10px; background: white; border-radius: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 5px;">
+              <strong style="color: ${typeColors[clue.type] || '#666'};">${clue.type.toUpperCase()}</strong>
+              <span style="background: #f0f0f0; padding: 2px 8px; border-radius: 3px; font-size: 12px;">Held by: ${holder ? holder.name : clue.holder_id}</span>
+            </div>
+            <p style="margin: 5px 0; font-size: 14px;">${clue.text}</p>
+            <p style="margin: 5px 0; font-size: 12px; color: #666; font-style: italic;">💡 ${clue.trade_hint}</p>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+// Helper function to render director notes for phase
+function renderDirectorNotes(phase) {
+  const phaseInfo = {
+    'intro': {
+      time: '0:50-1:10',
+      notes: 'Characters are introduced. Envelope 1 opened. Guests begin to understand their roles and initial clues.',
+      instructions: [
+        'Ensure all guests have opened Envelope 1',
+        'Give guests 5-10 minutes to read and absorb their character info',
+        'Encourage initial mingling and character interactions',
+        'Watch for shy guests and help draw them in'
+      ]
+    },
+    'mid': {
+      time: '1:10-1:25',
+      notes: 'Investigation deepens. Envelope 2 opened. More clues revealed, patterns begin to emerge.',
+      instructions: [
+        'Announce it\'s time to open Envelope 2',
+        'Clues should start connecting',
+        'Watch for guests who are stuck and provide gentle hints',
+        'Build tension and mystery atmosphere'
+      ]
+    },
+    'pre-final': {
+      time: '1:25-1:35',
+      notes: 'Critical evidence emerges. Envelope 3 opened. Guests should be narrowing in on suspects.',
+      instructions: [
+        'Announce Envelope 3 opening',
+        'Critical clues are now in play',
+        'Guests should be forming theories',
+        'Prepare for the final reveal'
+      ]
+    },
+    'final': {
+      time: '1:35-1:45',
+      notes: 'Truth revealed before cupcake ceremony. Envelope 4 opened. All clues come together.',
+      instructions: [
+        'Have all guests open Envelope 4 BEFORE cupcakes',
+        'Final revelations set up the solution',
+        'Proceed to cupcake reveal ceremony',
+        'The murderer (Josie/owner) is revealed!'
+      ]
+    }
+  };
+  
+  const info = phaseInfo[phase];
+  if (!info) return '<p>No director notes for this phase.</p>';
+  
+  return `
+    <div style="background: #fff9e6; border: 2px solid #C79810; padding: 15px; border-radius: 8px;">
+      <p><strong>⏰ Timing:</strong> ${info.time}</p>
+      <p style="margin: 10px 0;">${info.notes}</p>
+      <h4 style="margin: 15px 0 10px 0;">📋 Instructions:</h4>
+      <ul style="margin: 5px 0; padding-left: 20px;">
+        ${info.instructions.map(instruction => `<li>${instruction}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
 // Render functions for each page
 const Render = {
   
@@ -259,6 +354,89 @@ const Render = {
     }).join('');
     
     document.getElementById('character-list').innerHTML = assignmentStatus + charactersHtml;
+    
+    // Render phase controls
+    const phases = [
+      { id: 'intro', name: 'Introduction', color: '#0B4F3F' },
+      { id: 'mid', name: 'Mid-Investigation', color: '#C79810' },
+      { id: 'pre-final', name: 'Pre-Final', color: '#8B0000' },
+      { id: 'final', name: 'Final Reveal', color: '#8B0000' }
+    ];
+    
+    const currentPhase = AppData.currentPhase || 'intro';
+    const currentIndex = phases.findIndex(p => p.id === currentPhase);
+    
+    const phaseControlsHtml = `
+      <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
+        ${phases.map((phase, index) => {
+          const isActive = phase.id === currentPhase;
+          const isCompleted = index < currentIndex;
+          const backgroundColor = isActive ? phase.color : (isCompleted ? '#999' : '#f0f0f0');
+          const textColor = isActive || isCompleted ? 'white' : '#333';
+          return `
+            <div style="flex: 1; min-width: 150px; padding: 15px; background: ${backgroundColor}; color: ${textColor}; border-radius: 8px; text-align: center;">
+              <h4 style="margin: 0 0 5px 0; color: ${textColor};">${phase.name}</h4>
+              <p style="margin: 0; font-size: 14px;">${isActive ? '▶️ CURRENT' : isCompleted ? '✅ Complete' : '⏳ Upcoming'}</p>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      
+      <div style="text-align: center; margin: 20px 0;">
+        ${currentIndex < phases.length - 1 ? `
+          <button class="btn" onclick="handleAdvancePhase()" style="font-size: 16px; padding: 15px 30px;">
+            ▶️ Advance to ${phases[currentIndex + 1].name}
+          </button>
+        ` : `
+          <div class="alert alert-success">
+            <strong>🎉 Mystery Complete!</strong> All phases have been completed.
+          </div>
+        `}
+      </div>
+      
+      <div class="card" style="background: #f9f9f9; margin-top: 20px;">
+        <h3>Current Phase: ${phases[currentIndex].name}</h3>
+        <h4>Active Clues in This Phase:</h4>
+        ${renderCluesByPhase(currentPhase)}
+        <h4 style="margin-top: 20px;">Director's Notes:</h4>
+        ${renderDirectorNotes(currentPhase)}
+      </div>
+    `;
+    
+    document.getElementById('phase-controls').innerHTML = phaseControlsHtml;
+    
+    // Render envelope list
+    const envelopeListHtml = AppData.characters.map(char => {
+      const packet = AppData.packets.find(p => p.character_id === char.id);
+      if (!packet || !packet.envelopes) return '';
+      
+      return `
+        <div class="card" style="margin: 15px 0; border-left: 4px solid var(--deep-cherry-red);">
+          <h3>${char.name} (${char.role})</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+            ${packet.envelopes.map((env, index) => {
+              const phaseColors = {
+                'intro': '#0B4F3F',
+                'mid': '#C79810',
+                'pre-final': '#8B0000',
+                'final': '#8B0000'
+              };
+              return `
+                <div style="border: 2px solid ${phaseColors[env.phase]}; border-radius: 8px; padding: 15px; background: white;">
+                  <div style="background: ${phaseColors[env.phase]}; color: white; padding: 5px 10px; border-radius: 4px; margin: -15px -15px 10px -15px; font-weight: bold; text-align: center;">
+                    ${env.phase.toUpperCase()}
+                  </div>
+                  <h4 style="margin: 10px 0 5px 0; font-size: 14px;">${env.title}</h4>
+                  <p style="font-size: 12px; color: #666; margin: 5px 0;">Envelope ${index + 1} of 4</p>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('envelope-list').innerHTML = envelopeListHtml || '<p style="color: #999;">No envelope packets configured.</p>';
   },
   
   // Render schedule page
@@ -351,7 +529,8 @@ const Render = {
                 <td>${accessibilityDisplay}</td>
                 <td>${character ? character.name : '<span style="color: #999;">Not assigned</span>'}</td>
                 <td>
-                  <button class="btn" onclick="copyInvite(${guest.id})">Copy Invite</button>
+                  <button class="btn" onclick="copyInvite(${guest.id})" style="margin: 2px;">Copy Invite</button>
+                  ${character ? `<button class="btn btn-secondary" onclick="printCharacterPacket('${character.id}')" style="margin: 2px;">Print Packet</button>` : ''}
                 </td>
               </tr>
             `;
@@ -445,8 +624,21 @@ const Render = {
           <a href="guests.html" class="btn">Update Guest Info</a>
         </div>
         
+        <div class="decision-step ${progress.envelopeReadiness >= 100 ? 'completed' : ''}">
+          <h3>Step 6: Mystery Envelope Preparation</h3>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress.envelopeReadiness}%;">
+              ${progress.envelopeReadiness}% Ready
+            </div>
+          </div>
+          <p><strong>Status:</strong> ${progress.envelopeReadiness >= 100 ? '✓ Complete' : `${progress.guestsWithPackets} of ${progress.totalAssigned} assigned guests have complete envelope packets`}</p>
+          <p>Ensure all guests with assigned roles have 4-envelope packets prepared.</p>
+          <a href="mystery.html" class="btn">View Mystery Phase System</a>
+          <button class="btn btn-secondary" onclick="downloadClueKitZip()">Download Clue Kit</button>
+        </div>
+        
         <div class="decision-step">
-          <h3>Step 6: Review Schedule</h3>
+          <h3>Step 7: Review Schedule</h3>
           <p>Finalize your 2-hour timeline and make any necessary adjustments.</p>
           <a href="schedule.html" class="btn">View Schedule</a>
         </div>
@@ -462,13 +654,57 @@ const Render = {
           </p>
         </div>
       </div>
+      
+      <div class="card">
+        <h2>🎬 Director's Notes - Mystery Phase Timeline</h2>
+        <p>Quick reference guide for managing the mystery phases during the party:</p>
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 15px 0;">
+          <h3 style="color: var(--deep-cherry-red);">Phase Timeline:</h3>
+          <div style="display: grid; gap: 15px; margin-top: 15px;">
+            ${['intro', 'mid', 'pre-final', 'final'].map((phase, index) => {
+              const phaseNames = ['Introduction', 'Mid-Investigation', 'Pre-Final', 'Final Reveal'];
+              const phaseTimes = ['0:50-1:10', '1:10-1:25', '1:25-1:35', '1:35-1:45'];
+              const envelopeNums = [1, 2, 3, 4];
+              const clueCount = AppData.clues.filter(c => c.reveal_phase === phase).length;
+              return `
+                <div style="border-left: 4px solid var(--deep-cherry-red); padding: 15px; background: white; border-radius: 4px;">
+                  <h4 style="margin: 0 0 5px 0; color: var(--deep-cherry-red);">${phaseNames[index]}</h4>
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>⏰ Time:</strong> ${phaseTimes[index]}</p>
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>✉️ Envelope:</strong> #${envelopeNums[index]} - Open at start of phase</p>
+                  <p style="margin: 5px 0; font-size: 14px;"><strong>🔍 Active Clues:</strong> ${clueCount} clues in circulation</p>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        
+        <div class="alert alert-info" style="margin-top: 20px;">
+          <strong>💡 Pro Tips:</strong>
+          <ul style="margin: 10px 0; padding-left: 20px;">
+            <li>Print all envelopes before the party and label them clearly</li>
+            <li>Announce envelope openings loudly so all guests hear</li>
+            <li>Give guests 2-3 minutes to read each new envelope</li>
+            <li>Watch for stuck guests and provide gentle hints from unused clues</li>
+            <li>The murderer (Josie/owner) should be engaged but not obvious</li>
+            <li>Keep the energy high and the atmosphere mysterious!</li>
+          </ul>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="mystery.html" class="btn">View Full Mystery System</a>
+          <button class="btn btn-secondary" onclick="downloadClueKitZip()">Download Director's Guide</button>
+        </div>
+      </div>
     `;
     
     // Insert decision mode before validation results
     const container = document.getElementById('validation-results').parentElement;
     const decisionDiv = document.createElement('div');
     decisionDiv.innerHTML = decisionModeHtml;
-    container.insertBefore(decisionDiv.firstElementChild, container.firstElementChild);
+    // Insert all children (both Decision Mode and Director's Notes cards)
+    while (decisionDiv.firstChild) {
+      container.insertBefore(decisionDiv.firstChild, container.firstElementChild);
+    }
     
     // Data links
     document.getElementById('data-links').innerHTML = `
@@ -479,6 +715,8 @@ const Render = {
         <li><a href="./data/menu.json" target="_blank">menu.json</a> <span>${AppData.menu.menuItems ? AppData.menu.menuItems.length : 0} items</span></li>
         <li><a href="./data/schedule.json" target="_blank">schedule.json</a></li>
         <li><a href="./data/story.json" target="_blank">story.json</a></li>
+        <li><a href="./data/clues.json" target="_blank">clues.json</a> <span>${AppData.clues ? AppData.clues.length : 0} clues</span></li>
+        <li><a href="./data/packets.json" target="_blank">packets.json</a> <span>${AppData.packets ? AppData.packets.length : 0} character packets</span></li>
       </ul>
     `;
   }
@@ -587,4 +825,17 @@ window.handleSuggestAssignments = function() {
     alert(`Assignments suggested! ${unassigned} guest(s) could not be assigned (not enough available roles).`);
   }
   window.renderPage('mystery');
+};
+
+// Phase advancement handler
+window.handleAdvancePhase = function() {
+  const phases = ['intro', 'mid', 'pre-final', 'final'];
+  const currentIndex = phases.indexOf(AppData.currentPhase);
+  if (currentIndex < phases.length - 1) {
+    AppData.currentPhase = phases[currentIndex + 1];
+    alert(`Advanced to phase: ${phases[currentIndex + 1].toUpperCase()}`);
+    window.renderPage('mystery');
+  } else {
+    alert('Already at the final phase!');
+  }
 };
