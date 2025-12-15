@@ -118,7 +118,8 @@ const Render = {
     // Helper function to generate dietary badges
     const generateDietaryBadges = (item) => {
       const badges = [];
-      const description = (item.description + ' ' + item.dietaryOptions.join(' ')).toLowerCase();
+      const dietaryOptions = item.dietaryOptions || [];
+      const description = (item.description + ' ' + dietaryOptions.join(' ')).toLowerCase();
       
       if (description.includes('vegan')) badges.push('<span class="dietary-badge vegan">🌱 Vegan</span>');
       if (description.includes('vegetarian')) badges.push('<span class="dietary-badge vegetarian">🥗 Vegetarian</span>');
@@ -406,7 +407,7 @@ const Render = {
         <li><a href="./data/guests.json" target="_blank">guests.json</a> <span>${AppData.guests.length} guests</span></li>
         <li><a href="./data/characters.json" target="_blank">characters.json</a> <span>${AppData.characters.length} characters</span></li>
         <li><a href="./data/decor.json" target="_blank">decor.json</a></li>
-        <li><a href="./data/menu.json" target="_blank">menu.json</a> <span>${AppData.menu.menuItems.length} items</span></li>
+        <li><a href="./data/menu.json" target="_blank">menu.json</a> <span>${AppData.menu.menuItems ? AppData.menu.menuItems.length : 0} items</span></li>
         <li><a href="./data/schedule.json" target="_blank">schedule.json</a></li>
         <li><a href="./data/story.json" target="_blank">story.json</a></li>
       </ul>
