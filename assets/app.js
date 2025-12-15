@@ -5,6 +5,7 @@ const AppData = {
   guests: [],
   characters: [],
   decor: {},
+  vendors: [],
   menu: {},
   schedule: {},
   story: {},
@@ -16,31 +17,83 @@ const AppData = {
   menuFavorites: new Set(),
   menuFeatured: new Set(),
   rolePreferences: {}, // guestId -> characterId mapping
-  currentPhase: 'intro' // Track current mystery phase
+  currentPhase: 'intro', // Track current mystery phase
+  // Autosave settings
+  autosaveEnabled: false,
+  // Original defaults for reset
+  defaults: {}
 };
 
 // Load all data on page initialization
 async function loadData() {
   try {
-    const [guests, characters, decor, menu, schedule, story, clues, packets] = await Promise.all([
-      fetch('./data/guests.json').then(r => r.json()),
-      fetch('./data/characters.json').then(r => r.json()),
-      fetch('./data/decor.json').then(r => r.json()),
-      fetch('./data/menu.json').then(r => r.json()),
-      fetch('./data/schedule.json').then(r => r.json()),
-      fetch('./data/story.json').then(r => r.json()),
-      fetch('./data/clues.json').then(r => r.json()),
-      fetch('./data/packets.json').then(r => r.json())
-    ]);
+    // Check if autosave is enabled and data exists in localStorage
+    const autosaveEnabled = localStorage.getItem('autosaveEnabled') === 'true';
+    AppData.autosaveEnabled = autosaveEnabled;
     
-    AppData.guests = guests;
-    AppData.characters = characters;
-    AppData.decor = decor;
-    AppData.menu = menu;
-    AppData.schedule = schedule;
-    AppData.story = story;
-    AppData.clues = clues;
-    AppData.packets = packets;
+    if (autosaveEnabled && localStorage.getItem('appData')) {
+      // Load from localStorage
+      const saved = JSON.parse(localStorage.getItem('appData'));
+      AppData.guests = saved.guests || [];
+      AppData.characters = saved.characters || [];
+      AppData.decor = saved.decor || {};
+      AppData.vendors = saved.vendors || [];
+      AppData.menu = saved.menu || {};
+      AppData.schedule = saved.schedule || {};
+      AppData.story = saved.story || {};
+      AppData.clues = saved.clues || [];
+      AppData.packets = saved.packets || [];
+    } else {
+      // Load from JSON files
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+        fetch('./data/guests.json').then(r => r.json()),
+        fetch('./data/characters.json').then(r => r.json()),
+        fetch('./data/decor.json').then(r => r.json()),
+        fetch('./data/vendors.json').then(r => r.json()),
+        fetch('./data/menu.json').then(r => r.json()),
+        fetch('./data/schedule.json').then(r => r.json()),
+        fetch('./data/story.json').then(r => r.json()),
+        fetch('./data/clues.json').then(r => r.json()),
+        fetch('./data/packets.json').then(r => r.json())
+      ]);
+      
+      AppData.guests = guests;
+      AppData.characters = characters;
+      AppData.decor = decor;
+      AppData.vendors = vendors;
+      AppData.menu = menu;
+      AppData.schedule = schedule;
+      AppData.story = story;
+      AppData.clues = clues;
+      AppData.packets = packets;
+    }
+    
+    // Store defaults for reset functionality
+    if (!AppData.defaults.guests) {
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+        fetch('./data/guests.json').then(r => r.json()),
+        fetch('./data/characters.json').then(r => r.json()),
+        fetch('./data/decor.json').then(r => r.json()),
+        fetch('./data/vendors.json').then(r => r.json()),
+        fetch('./data/menu.json').then(r => r.json()),
+        fetch('./data/schedule.json').then(r => r.json()),
+        fetch('./data/story.json').then(r => r.json()),
+        fetch('./data/clues.json').then(r => r.json()),
+        fetch('./data/packets.json').then(r => r.json())
+      ]);
+      
+      AppData.defaults = {
+        guests: JSON.parse(JSON.stringify(guests)),
+        characters: JSON.parse(JSON.stringify(characters)),
+        decor: JSON.parse(JSON.stringify(decor)),
+        vendors: JSON.parse(JSON.stringify(vendors)),
+        menu: JSON.parse(JSON.stringify(menu)),
+        schedule: JSON.parse(JSON.stringify(schedule)),
+        story: JSON.parse(JSON.stringify(story)),
+        clues: JSON.parse(JSON.stringify(clues)),
+        packets: JSON.parse(JSON.stringify(packets))
+      };
+    }
     
     return true;
   } catch (error) {
@@ -723,6 +776,270 @@ function calculateDecisionProgress() {
   };
 }
 
+// ============================================================================
+// PERSISTENCE & AUTOSAVE FUNCTIONS
+// ============================================================================
+
+// Toggle autosave
+function toggleAutosave() {
+  AppData.autosaveEnabled = !AppData.autosaveEnabled;
+  localStorage.setItem('autosaveEnabled', AppData.autosaveEnabled.toString());
+  
+  if (AppData.autosaveEnabled) {
+    saveToLocalStorage();
+  } else {
+    localStorage.removeItem('appData');
+  }
+  
+  return AppData.autosaveEnabled;
+}
+
+// Save current state to localStorage
+function saveToLocalStorage() {
+  if (!AppData.autosaveEnabled) return;
+  
+  const dataToSave = {
+    guests: AppData.guests,
+    characters: AppData.characters,
+    decor: AppData.decor,
+    vendors: AppData.vendors,
+    menu: AppData.menu,
+    schedule: AppData.schedule,
+    story: AppData.story,
+    clues: AppData.clues,
+    packets: AppData.packets
+  };
+  
+  localStorage.setItem('appData', JSON.stringify(dataToSave));
+}
+
+// Reset to defaults from repo
+async function resetToDefaults(datasetName) {
+  if (!datasetName || datasetName === 'all') {
+    // Reset all datasets
+    AppData.guests = JSON.parse(JSON.stringify(AppData.defaults.guests));
+    AppData.characters = JSON.parse(JSON.stringify(AppData.defaults.characters));
+    AppData.decor = JSON.parse(JSON.stringify(AppData.defaults.decor));
+    AppData.vendors = JSON.parse(JSON.stringify(AppData.defaults.vendors));
+    AppData.menu = JSON.parse(JSON.stringify(AppData.defaults.menu));
+    AppData.schedule = JSON.parse(JSON.stringify(AppData.defaults.schedule));
+    AppData.story = JSON.parse(JSON.stringify(AppData.defaults.story));
+    AppData.clues = JSON.parse(JSON.stringify(AppData.defaults.clues));
+    AppData.packets = JSON.parse(JSON.stringify(AppData.defaults.packets));
+  } else {
+    // Reset specific dataset
+    if (AppData.defaults[datasetName]) {
+      AppData[datasetName] = JSON.parse(JSON.stringify(AppData.defaults[datasetName]));
+    }
+  }
+  
+  saveToLocalStorage();
+}
+
+// ============================================================================
+// GENERIC CRUD HELPERS
+// ============================================================================
+
+// Add item to array dataset
+function addItem(datasetName, item) {
+  if (Array.isArray(AppData[datasetName])) {
+    AppData[datasetName].push(item);
+  } else if (AppData[datasetName] && Array.isArray(AppData[datasetName][datasetName])) {
+    // For nested arrays like menu.menuItems
+    AppData[datasetName][datasetName].push(item);
+  }
+  saveToLocalStorage();
+}
+
+// Update item in array dataset
+function updateItem(datasetName, id, updates) {
+  let dataset = AppData[datasetName];
+  
+  // Handle nested structures
+  if (!Array.isArray(dataset)) {
+    // Try common nested patterns
+    if (dataset && Array.isArray(dataset.menuItems)) {
+      dataset = dataset.menuItems;
+    } else if (dataset && Array.isArray(dataset.timeline)) {
+      dataset = dataset.timeline;
+    } else if (dataset && Array.isArray(dataset.moodBoard)) {
+      dataset = dataset.moodBoard;
+    } else if (dataset && Array.isArray(dataset.shoppingList)) {
+      dataset = dataset.shoppingList;
+    }
+  }
+  
+  if (Array.isArray(dataset)) {
+    const index = dataset.findIndex(item => item.id === id);
+    if (index !== -1) {
+      dataset[index] = { ...dataset[index], ...updates };
+    }
+  }
+  
+  saveToLocalStorage();
+}
+
+// Delete item from array dataset
+function deleteItem(datasetName, id) {
+  let dataset = AppData[datasetName];
+  
+  // Handle nested structures
+  if (!Array.isArray(dataset)) {
+    if (dataset && Array.isArray(dataset.menuItems)) {
+      dataset.menuItems = dataset.menuItems.filter(item => item.id !== id);
+    } else if (dataset && Array.isArray(dataset.timeline)) {
+      dataset.timeline = dataset.timeline.filter(item => item.id !== id);
+    } else if (dataset && Array.isArray(dataset.moodBoard)) {
+      dataset.moodBoard = dataset.moodBoard.filter(item => item.id !== id);
+    } else if (dataset && Array.isArray(dataset.shoppingList)) {
+      dataset.shoppingList = dataset.shoppingList.filter(item => item.id !== id);
+    }
+  } else {
+    AppData[datasetName] = dataset.filter(item => item.id !== id);
+  }
+  
+  saveToLocalStorage();
+}
+
+// ============================================================================
+// IMPORT/EXPORT UTILITIES
+// ============================================================================
+
+// Generic export function
+function exportDataset(datasetName, data) {
+  const jsonStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${datasetName}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Generic import function with validation
+async function importDataset(datasetName, file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        
+        // Basic validation
+        if (data === null || data === undefined) {
+          reject(new Error('Invalid JSON: file is empty'));
+          return;
+        }
+        
+        // Schema validation based on dataset
+        const isValid = validateImportSchema(datasetName, data);
+        if (!isValid) {
+          reject(new Error(`Invalid schema for ${datasetName}`));
+          return;
+        }
+        
+        resolve(data);
+      } catch (error) {
+        reject(new Error(`Failed to parse JSON: ${error.message}`));
+      }
+    };
+    
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+}
+
+// Validate import schema
+function validateImportSchema(datasetName, data) {
+  switch (datasetName) {
+    case 'guests':
+      return Array.isArray(data) && data.every(item => 
+        item.hasOwnProperty('id') && item.hasOwnProperty('name')
+      );
+    
+    case 'characters':
+      return Array.isArray(data) && data.every(item => 
+        item.hasOwnProperty('id') && item.hasOwnProperty('name') && item.hasOwnProperty('role')
+      );
+    
+    case 'vendors':
+      return Array.isArray(data) && data.every(item => 
+        item.hasOwnProperty('name') && item.hasOwnProperty('type')
+      );
+    
+    case 'menu':
+      return data.hasOwnProperty('menuItems') && Array.isArray(data.menuItems);
+    
+    case 'decor':
+      return data.hasOwnProperty('moodBoard') && data.hasOwnProperty('shoppingList');
+    
+    case 'schedule':
+      return data.hasOwnProperty('timeline') && Array.isArray(data.timeline);
+    
+    case 'story':
+      return data.hasOwnProperty('title') && data.hasOwnProperty('theMurder') && 
+             data.hasOwnProperty('theMurderer');
+    
+    case 'clues':
+      return Array.isArray(data) && data.every(item => 
+        item.hasOwnProperty('id') && item.hasOwnProperty('type') && item.hasOwnProperty('text')
+      );
+    
+    case 'packets':
+      return Array.isArray(data) && data.every(item => 
+        item.hasOwnProperty('character_id') && item.hasOwnProperty('intro_profile') && 
+        item.hasOwnProperty('envelopes')
+      );
+    
+    default:
+      return true; // Allow unknown datasets
+  }
+}
+
+// Apply imported data
+function applyImportedData(datasetName, data) {
+  AppData[datasetName] = data;
+  saveToLocalStorage();
+}
+
+// Export specific datasets
+function exportGuests() {
+  exportDataset('guests', AppData.guests);
+}
+
+function exportCharacters() {
+  exportDataset('characters', AppData.characters);
+}
+
+function exportVendors() {
+  exportDataset('vendors', AppData.vendors);
+}
+
+function exportDecor() {
+  exportDataset('decor', AppData.decor);
+}
+
+function exportMenu() {
+  exportDataset('menu', AppData.menu);
+}
+
+function exportSchedule() {
+  exportDataset('schedule', AppData.schedule);
+}
+
+function exportStory() {
+  exportDataset('story', AppData.story);
+}
+
+function exportClues() {
+  exportDataset('clues', AppData.clues);
+}
+
+function exportPackets() {
+  exportDataset('packets', AppData.packets);
+}
+
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -747,6 +1064,28 @@ if (typeof module !== 'undefined' && module.exports) {
     exportGuestsJSON,
     exportCharactersJSON,
     downloadAllDataAsZip,
-    calculateDecisionProgress
+    calculateDecisionProgress,
+    // New persistence functions
+    toggleAutosave,
+    saveToLocalStorage,
+    resetToDefaults,
+    // New CRUD helpers
+    addItem,
+    updateItem,
+    deleteItem,
+    // New import/export functions
+    exportDataset,
+    importDataset,
+    validateImportSchema,
+    applyImportedData,
+    exportGuests,
+    exportCharacters,
+    exportVendors,
+    exportDecor,
+    exportMenu,
+    exportSchedule,
+    exportStory,
+    exportClues,
+    exportPackets
   };
 }
