@@ -522,8 +522,9 @@ function handleSaveGuest(event, guestId) {
   };
   
   if (guestId === null) {
-    // Add new guest
-    const newId = AppData.guests.length > 0 ? Math.max(...AppData.guests.map(g => g.id)) + 1 : 1;
+    // Add new guest with safer ID generation
+    const existingIds = AppData.guests.filter(g => g.id != null).map(g => g.id);
+    const newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
     guestData.id = newId;
     AppData.guests.push(guestData);
   } else {
@@ -841,8 +842,8 @@ function handleSaveMenuItem(event, itemId) {
   };
   
   if (itemId === null) {
-    // Add new menu item
-    const newId = 'menu-' + Date.now();
+    // Add new menu item with more robust ID generation
+    const newId = 'menu-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     itemData.id = newId;
     AppData.menu.menuItems.push(itemData);
   } else {
@@ -1651,41 +1652,41 @@ function validateImportSchema(datasetName, data) {
   switch (datasetName) {
     case 'guests':
       return Array.isArray(data) && data.every(item => 
-        item.hasOwnProperty('id') && item.hasOwnProperty('name')
+        item != null && 'id' in item && 'name' in item
       );
     
     case 'characters':
       return Array.isArray(data) && data.every(item => 
-        item.hasOwnProperty('id') && item.hasOwnProperty('name') && item.hasOwnProperty('role')
+        item != null && 'id' in item && 'name' in item && 'role' in item
       );
     
     case 'vendors':
       return Array.isArray(data) && data.every(item => 
-        item.hasOwnProperty('name') && item.hasOwnProperty('type')
+        item != null && 'name' in item && 'type' in item
       );
     
     case 'menu':
-      return data.hasOwnProperty('menuItems') && Array.isArray(data.menuItems);
+      return data != null && 'menuItems' in data && Array.isArray(data.menuItems);
     
     case 'decor':
-      return data.hasOwnProperty('moodBoard') && data.hasOwnProperty('shoppingList');
+      return data != null && 'moodBoard' in data && 'shoppingList' in data;
     
     case 'schedule':
-      return data.hasOwnProperty('timeline') && Array.isArray(data.timeline);
+      return data != null && 'timeline' in data && Array.isArray(data.timeline);
     
     case 'story':
-      return data.hasOwnProperty('title') && data.hasOwnProperty('theMurder') && 
-             data.hasOwnProperty('theMurderer');
+      return data != null && 'title' in data && 'theMurder' in data && 
+             'theMurderer' in data;
     
     case 'clues':
       return Array.isArray(data) && data.every(item => 
-        item.hasOwnProperty('id') && item.hasOwnProperty('type') && item.hasOwnProperty('text')
+        item != null && 'id' in item && 'type' in item && 'text' in item
       );
     
     case 'packets':
       return Array.isArray(data) && data.every(item => 
-        item.hasOwnProperty('character_id') && item.hasOwnProperty('intro_profile') && 
-        item.hasOwnProperty('envelopes')
+        item != null && 'character_id' in item && 'intro_profile' in item && 
+        'envelopes' in item
       );
     
     default:
