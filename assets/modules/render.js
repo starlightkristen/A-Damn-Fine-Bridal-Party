@@ -772,19 +772,50 @@ const Render = {
       container.insertBefore(decisionDiv.firstChild, container.firstElementChild);
     }
     
-    // Data links
-    document.getElementById('data-links').innerHTML = `
-      <ul class="item-list">
-        <li><a href="./data/guests.json" target="_blank">guests.json</a> <span>${AppData.guests.length} guests</span></li>
-        <li><a href="./data/characters.json" target="_blank">characters.json</a> <span>${AppData.characters.length} characters</span></li>
-        <li><a href="./data/decor.json" target="_blank">decor.json</a></li>
-        <li><a href="./data/menu.json" target="_blank">menu.json</a> <span>${AppData.menu.menuItems ? AppData.menu.menuItems.length : 0} items</span></li>
-        <li><a href="./data/schedule.json" target="_blank">schedule.json</a></li>
-        <li><a href="./data/story.json" target="_blank">story.json</a></li>
-        <li><a href="./data/clues.json" target="_blank">clues.json</a> <span>${AppData.clues ? AppData.clues.length : 0} clues</span></li>
-        <li><a href="./data/packets.json" target="_blank">packets.json</a> <span>${AppData.packets ? AppData.packets.length : 0} character packets</span></li>
-      </ul>
+    // Global Data Manager
+    const dataManager = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+        ${[
+          { name: 'Guests', dataset: 'guests', icon: '👥', count: AppData.guests.length, file: 'guests.json' },
+          { name: 'Characters', dataset: 'characters', icon: '🎭', count: AppData.characters.length, file: 'characters.json' },
+          { name: 'Decor', dataset: 'decor', icon: '🎨', count: AppData.decor.moodBoard ? AppData.decor.moodBoard.length : 0, file: 'decor.json' },
+          { name: 'Vendors', dataset: 'vendors', icon: '🏪', count: AppData.vendors.length, file: 'vendors.json' },
+          { name: 'Menu', dataset: 'menu', icon: '🍽️', count: AppData.menu.menuItems ? AppData.menu.menuItems.length : 0, file: 'menu.json' },
+          { name: 'Schedule', dataset: 'schedule', icon: '📅', count: AppData.schedule.timeline ? AppData.schedule.timeline.length : 0, file: 'schedule.json' },
+          { name: 'Story', dataset: 'story', icon: '📖', count: 1, file: 'story.json' },
+          { name: 'Clues', dataset: 'clues', icon: '🔍', count: AppData.clues.length, file: 'clues.json' },
+          { name: 'Packets', dataset: 'packets', icon: '📦', count: AppData.packets.length, file: 'packets.json' }
+        ].map(ds => `
+          <div style="background: var(--cream); padding: 20px; border-radius: 10px; border-left: 4px solid var(--deep-cherry-red);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="margin: 0; color: var(--deep-cherry-red);">${ds.icon} ${ds.name}</h3>
+              <span style="background: var(--forest-emerald); color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${ds.count} items</span>
+            </div>
+            <p style="font-size: 14px; color: #666; margin: 10px 0;"><code>${ds.file}</code></p>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 15px;">
+              <button class="btn-sm" onclick="handleExportDataset('${ds.dataset}')" title="Export to JSON">📥 Export</button>
+              <button class="btn-sm" onclick="handleImportDataset('${ds.dataset}')" title="Import from JSON">📂 Import</button>
+              <button class="btn-sm" onclick="handleResetDataset('${ds.dataset}')" title="Reset to defaults">🔄 Reset</button>
+              <a href="./data/${ds.file}" target="_blank" class="btn-sm" style="text-decoration: none; line-height: 1.5;">📄 View</a>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      
+      <div style="margin-top: 30px; text-align: center;">
+        <label style="display: inline-flex; align-items: center; gap: 10px; padding: 15px 25px; background: var(--cream); border-radius: 10px; cursor: pointer; font-size: 16px;">
+          <input type="checkbox" id="autosave-toggle-admin" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()" style="width: 20px; height: 20px; cursor: pointer;">
+          <span><strong>Autosave to Browser Storage</strong> ${AppData.autosaveEnabled ? '✓ Enabled' : '✗ Disabled'}</span>
+        </label>
+        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+          ${AppData.autosaveEnabled ? 
+            '✓ All changes are automatically saved to your browser. Use Export to back up to files.' : 
+            '⚠️ Changes are temporary. Use Export buttons to save your data to files.'}
+        </p>
+      </div>
     `;
+    
+    document.getElementById('data-links').innerHTML = dataManager;
   }
 };
 

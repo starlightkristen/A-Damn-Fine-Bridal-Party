@@ -937,6 +937,108 @@ async function handleResetMenu() {
   }
 }
 
+// ============================================================================
+// ADMIN DATA MANAGER FUNCTIONS
+// ============================================================================
+
+// Generic export handler for admin panel
+function handleExportDataset(datasetName) {
+  switch(datasetName) {
+    case 'guests':
+      exportGuests();
+      break;
+    case 'characters':
+      exportCharacters();
+      break;
+    case 'decor':
+      exportDecor();
+      break;
+    case 'vendors':
+      exportVendors();
+      break;
+    case 'menu':
+      exportMenu();
+      break;
+    case 'schedule':
+      exportSchedule();
+      break;
+    case 'story':
+      exportStory();
+      break;
+    case 'clues':
+      exportClues();
+      break;
+    case 'packets':
+      exportPackets();
+      break;
+    default:
+      alert(`Unknown dataset: ${datasetName}`);
+  }
+}
+
+// Generic import handler for admin panel
+async function handleImportDataset(datasetName) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset(datasetName, file);
+      
+      // Determine count for confirmation
+      let count = 0;
+      if (Array.isArray(data)) {
+        count = data.length;
+      } else if (data.menuItems) {
+        count = data.menuItems.length;
+      } else if (data.timeline) {
+        count = data.timeline.length;
+      } else if (data.moodBoard) {
+        count = data.moodBoard.length;
+      }
+      
+      const message = count > 0 ? 
+        `Import ${count} items from ${datasetName}.json? This will replace your current data.` :
+        `Import ${datasetName}.json? This will replace your current data.`;
+      
+      if (confirm(message)) {
+        applyImportedData(datasetName, data);
+        
+        // Re-render if current page matches
+        const page = getPageName();
+        if (window.Render && window.Render[page]) {
+          window.Render[page]();
+        }
+        
+        alert(`${datasetName} imported successfully!`);
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+// Generic reset handler for admin panel
+async function handleResetDataset(datasetName) {
+  if (confirm(`Reset ${datasetName} to repository defaults? This will discard all changes.`)) {
+    await resetToDefaults(datasetName);
+    
+    // Re-render if current page matches
+    const page = getPageName();
+    if (window.Render && window.Render[page]) {
+      window.Render[page]();
+    }
+    
+    alert(`${datasetName} reset to defaults!`);
+  }
+}
+
 // Role preference functions
 function setRolePreference(guestId, characterId) {
   if (!AppData.rolePreferences[guestId]) {
@@ -1697,6 +1799,10 @@ if (typeof module !== 'undefined' && module.exports) {
     deleteMenuItem,
     closeMenuEditor,
     handleImportMenu,
-    handleResetMenu
+    handleResetMenu,
+    // Admin Data Manager functions
+    handleExportDataset,
+    handleImportDataset,
+    handleResetDataset
   };
 }
