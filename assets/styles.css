@@ -334,14 +334,46 @@ label {
 @media print {
   body {
     background: white;
+    color: black;
   }
   
-  nav, .btn {
+  nav, .btn, header, .alert {
     display: none;
   }
   
   .card {
     page-break-inside: avoid;
+    border: 1px solid #ccc;
+    box-shadow: none;
+    margin: 20px 0;
+  }
+  
+  /* Character packet specific print styles */
+  .character-card {
+    page-break-before: always;
+    padding: 40px;
+    border: 2px solid #000;
+    font-size: 12pt;
+    line-height: 1.6;
+  }
+  
+  .character-card h4 {
+    font-size: 18pt;
+    margin-bottom: 20px;
+  }
+  
+  .character-card .role {
+    font-size: 14pt;
+    margin-bottom: 15px;
+    padding: 10px;
+  }
+  
+  .character-card p {
+    margin: 15px 0;
+  }
+  
+  .character-card strong {
+    font-size: 11pt;
   }
 }
 

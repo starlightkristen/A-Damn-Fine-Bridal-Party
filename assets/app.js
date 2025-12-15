@@ -111,6 +111,11 @@ function autoAssignCharacters() {
   const unassignedGuests = AppData.guests.filter(g => !g.assignedCharacter);
   const availableCharacters = [...AppData.characters];
   
+  if (unassignedGuests.length > availableCharacters.length) {
+    const excess = unassignedGuests.length - availableCharacters.length;
+    alert(`Warning: ${excess} guest(s) cannot be assigned. There are more guests than available characters. Consider adding more character roles or having guests share roles.`);
+  }
+  
   unassignedGuests.forEach((guest, index) => {
     if (index < availableCharacters.length) {
       guest.assignedCharacter = availableCharacters[index].id;
