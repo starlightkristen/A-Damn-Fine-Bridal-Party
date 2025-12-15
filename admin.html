@@ -109,9 +109,22 @@
   "id": number,
   "name": "string",
   "email": "string",
+  "phone": "string | null",
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zip": "string",
+    "country": "string"
+  },
   "dietary": "string",
+  "dietarySeverity": "allergy | intolerance | preference | null",
+  "accessibility": "string",
+  "roleVibe": "string",
+  "seatingPreferences": "string | null",
+  "notes": "string | null",
   "assignedCharacter": "string | null",
-  "rsvp": "pending | confirmed | declined"
+  "rsvp": "invited | confirmed | tentative | not attending | pending"
 }</code></pre>
 
             <h3>characters.json</h3>

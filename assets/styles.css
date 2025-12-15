@@ -600,3 +600,39 @@ label {
   justify-content: center;
   align-items: center;
 }
+
+/* Badge Styles for RSVP and Status Indicators */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.badge-success {
+  background: var(--forest-emerald);
+  color: var(--white);
+}
+
+.badge-info {
+  background: #17a2b8;
+  color: var(--white);
+}
+
+.badge-warning {
+  background: var(--gold);
+  color: var(--dark-wood);
+}
+
+.badge-danger {
+  background: var(--deep-cherry-red);
+  color: var(--white);
+}
+
+.badge-secondary {
+  background: #6c757d;
+  color: var(--white);
+}
