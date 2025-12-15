@@ -40,5 +40,13 @@
     "notes": "Arrives early",
     "assignedCharacter": null,
     "rsvp": "confirmed"
+  },
+  {
+    "id": 3,
+    "name": "Legacy Guest",
+    "email": "legacy@example.com",
+    "dietary": "None",
+    "assignedCharacter": null,
+    "rsvp": "pending"
   }
 ]
