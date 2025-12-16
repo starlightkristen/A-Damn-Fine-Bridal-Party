@@ -64,31 +64,5 @@
         {"item": "Character name cards", "quantity": 35, "estimated": 20, "purchased": false}
       ]
     }
-  ],
-  "vendors": [
-    {
-      "name": "Pacific Northwest Party Supply",
-      "type": "Decorations",
-      "contact": "contact@pnwparty.com",
-      "phone": "(555) 555-0100",
-      "notes": "Specializes in rustic and lodge-themed decor",
-      "website": "https://example.com"
-    },
-    {
-      "name": "Twin Peaks Floral",
-      "type": "Flowers",
-      "contact": "flowers@twinpeaks.com",
-      "phone": "(555) 555-0101",
-      "notes": "Can source deep red roses and evergreen arrangements",
-      "website": "https://example.com"
-    },
-    {
-      "name": "Great Northern Rentals",
-      "type": "Furniture & Linens",
-      "contact": "rentals@greatnorthern.com",
-      "phone": "(555) 555-0102",
-      "notes": "Elegant furniture and high-quality linens",
-      "website": "https://example.com"
-    }
   ]
 }

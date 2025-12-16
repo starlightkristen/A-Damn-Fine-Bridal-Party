@@ -52,23 +52,20 @@
             <h2>🎭 Character Assignment Guide</h2>
             
             <h3>Available Characters:</h3>
-            <ul class="item-list">
-                <li><strong>Audrey Horne (Socialite):</strong> Sophisticated, mysterious, elegant</li>
-                <li><strong>Dale Cooper (Detective):</strong> Quirky FBI agent, coffee lover</li>
-                <li><strong>Shelly Johnson (Waitress):</strong> Warm, observant, protective</li>
-                <li><strong>The Log Lady (Mystic):</strong> Eccentric, prophetic, mysterious</li>
-                <li><strong>Josie Packard (Business Owner):</strong> Elegant, cunning, ambitious</li>
-                <li><strong>Andy Brennan (Deputy):</strong> Kind-hearted, emotional, earnest</li>
-            </ul>
+            <div id="character-list-guide">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading characters...</p>
+                </div>
+            </div>
 
             <div class="alert alert-warning">
                 <strong>Assignment Tips:</strong>
                 <ul>
                     <li>Match character personalities to guest personalities for best results</li>
                     <li>Consider who would be comfortable with more dramatic vs. subtle roles</li>
-                    <li>The murderer role (Josie) should go to someone who can handle being "the bad guy"</li>
-                    <li>Detective role is great for naturally curious or analytical guests</li>
-                    <li>Log Lady is perfect for someone with a good sense of humor</li>
+                    <li>Use the Auto-Assign feature to get suggestions based on guest personalities</li>
+                    <li>Detective roles are great for naturally curious or analytical guests</li>
                     <li>You can assign the same character type to multiple guests if needed</li>
                 </ul>
             </div>
@@ -136,6 +133,17 @@
             document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
             document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
             document.getElementById('stat-pending').textContent = stats.pendingGuests;
+            
+            // Render character guide dynamically
+            const characterGuideHtml = AppData.characters.length > 0 ?
+                `<ul class="item-list">
+                    ${AppData.characters.map(char => `
+                        <li><strong>${char.name} (${char.role}):</strong> ${char.personality}</li>
+                    `).join('')}
+                </ul>` :
+                '<p style="color: #999;">No characters available. Please add characters to the characters.json file.</p>';
+            
+            document.getElementById('character-list-guide').innerHTML = characterGuideHtml;
         });
     </script>
 </body>

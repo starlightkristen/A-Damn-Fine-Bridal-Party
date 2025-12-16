@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - A Damn Fine Bridal Party</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .login-container h1 {
+      text-align: center;
+      color: #8B0000;
+      margin-bottom: 30px;
+    }
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+    }
+    .form-group input {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #8B0000;
+    }
+    .btn-login {
+      background: #8B0000;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn-login:hover {
+      background: #660000;
+    }
+    .btn-login:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .error-message {
+      color: #8B0000;
+      background: #ffe6e6;
+      padding: 12px;
+      border-radius: 4px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+    .login-subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>🌲 A Damn Fine Bridal Party</h1>
+    <p class="login-subtitle">Planning Portal Login</p>
+    
+    <div class="error-message" id="errorMessage"></div>
+    
+    <form class="login-form" id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      
+      <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+    </form>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCPgOFesGt3LWN26D_OyzFMMLkDB7dAbj4",
+      authDomain: "bridal-party-planner.firebaseapp.com",
+      projectId: "bridal-party-planner",
+      storageBucket: "bridal-party-planner.firebasestorage.app",
+      messagingSenderId: "583661723414",
+      appId: "1:583661723414:web:b26114fc100ab526f6fa37",
+      measurementId: "G-8ZMK1VR3VL"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Check if already logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, redirect to home page
+        window.location.href = './index.html';
+      }
+    });
+
+    // Handle login form submission
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorMessage = document.getElementById('errorMessage');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      // Disable button and show loading
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+      errorMessage.classList.remove('show');
+      
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // Success - will redirect via onAuthStateChanged
+      } catch (error) {
+        // Show error message
+        let message = 'Login failed. Please check your credentials.';
+        if (error.code === 'auth/invalid-email') {
+          message = 'Invalid email address.';
+        } else if (error.code === 'auth/user-not-found') {
+          message = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password') {
+          message = 'Incorrect password.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many failed attempts. Please try again later.';
+        }
+        
+        errorMessage.textContent = message;
+        errorMessage.classList.add('show');
+        
+        // Re-enable button
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

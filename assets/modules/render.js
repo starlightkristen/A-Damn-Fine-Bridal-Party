@@ -124,92 +124,166 @@ const Render = {
   
   // Render decor page
   decor: function() {
-    // Render mood board
-    const moodHtml = AppData.decor.moodBoard.map(mood => `
-      <div class="card">
-        <h3>${mood.name}</h3>
-        <p>${mood.description}</p>
-        <div style="display: flex; gap: 10px; margin: 10px 0;">
-          ${mood.colors.map(color => 
-            `<div style="width: 50px; height: 50px; background: ${color}; border-radius: 5px;"></div>`
-          ).join('')}
+    // Check if mood board exists
+    if (!AppData.decor.moodBoard || AppData.decor.moodBoard.length === 0) {
+      document.getElementById('mood-board').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No mood boards yet!</strong> Click "Add Mood Board" below to start planning your decor.
         </div>
-        <ul>
-          ${mood.items.map(item => `<li>${item}</li>`).join('')}
-        </ul>
-        <div class="item-controls">
-          <button class="favorite-btn ${AppData.decorFavorites.has(mood.id) ? 'active' : ''}" 
-                  onclick="handleDecorFavorite('${mood.id}')">
-            ${AppData.decorFavorites.has(mood.id) ? '❤️ Favorited' : '🤍 Favorite'}
-          </button>
-          <button class="add-to-list-btn ${AppData.decorShoppingList.has(mood.id) ? 'active' : ''}" 
-                  onclick="handleDecorShoppingList('${mood.id}')">
-            ${AppData.decorShoppingList.has(mood.id) ? '✓ In Shopping List' : '+ Add to Shopping List'}
-          </button>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddMoodBoardForm()">➕ Add Mood Board</button>
         </div>
-      </div>
-    `).join('');
+      `;
+    } else {
+      // Controls at the top
+      const controlsHtml = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <button class="btn" onclick="showAddMoodBoardForm()">➕ Add Mood Board</button>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" id="autosave-toggle-decor" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+              <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+            </label>
+            <button class="btn" onclick="handleImportDecor()">📂 Import</button>
+            <button class="btn" onclick="exportDecor()">📥 Export</button>
+            <button class="btn btn-secondary" onclick="handleResetDecor()">🔄 Reset</button>
+          </div>
+        </div>
+      `;
+      
+      // Render mood board
+      const moodHtml = AppData.decor.moodBoard.map(mood => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <h3 style="margin: 0;">${mood.name}</h3>
+            <div>
+              <button class="btn-sm" onclick="editMoodBoard('${mood.id}')" title="Edit mood board">✏️</button>
+              <button class="btn-sm" onclick="deleteMoodBoard('${mood.id}')" title="Delete mood board">🗑️</button>
+            </div>
+          </div>
+          <p>${mood.description}</p>
+          <div style="display: flex; gap: 10px; margin: 10px 0;">
+            ${mood.colors.map(color => 
+              `<div style="width: 50px; height: 50px; background: ${color}; border-radius: 5px;"></div>`
+            ).join('')}
+          </div>
+          <ul>
+            ${mood.items.map(item => `<li>${item}</li>`).join('')}
+          </ul>
+          <div class="item-controls">
+            <button class="favorite-btn ${AppData.decorFavorites.has(mood.id) ? 'active' : ''}" 
+                    onclick="handleDecorFavorite('${mood.id}')">
+              ${AppData.decorFavorites.has(mood.id) ? '❤️ Favorited' : '🤍 Favorite'}
+            </button>
+            <button class="add-to-list-btn ${AppData.decorShoppingList.has(mood.id) ? 'active' : ''}" 
+                    onclick="handleDecorShoppingList('${mood.id}')">
+              ${AppData.decorShoppingList.has(mood.id) ? '✓ In Shopping List' : '+ Add to Shopping List'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      document.getElementById('mood-board').innerHTML = controlsHtml + moodHtml;
+    }
     
-    document.getElementById('mood-board').innerHTML = moodHtml;
-    
-    // Add export button
-    const exportSection = `
-      <div style="text-align: center; margin-top: 20px;">
-        <button class="export-btn" onclick="exportDecorJSON()">
-          📥 Export Decor Selections
-        </button>
-        <p style="margin-top: 10px; font-size: 14px; color: #666;">
-          Downloads your favorited items and shopping list as decor.json
-        </p>
-      </div>
-    `;
-    document.getElementById('mood-board').innerHTML += exportSection;
-    
-    // Render shopping list
-    const shoppingHtml = AppData.decor.shoppingList.map(category => `
-      <div class="card">
-        <h3>${category.category}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Estimated Cost</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${category.items.map(item => `
+    // Render shopping list with CRUD
+    if (!AppData.decor.shoppingList || AppData.decor.shoppingList.length === 0) {
+      document.getElementById('shopping-list').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No shopping list items yet!</strong> Click "Add Category" below to start your shopping list.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddShoppingCategoryForm()">➕ Add Category</button>
+        </div>
+      `;
+    } else {
+      const shoppingControlsHtml = `
+        <div style="margin-bottom: 20px;">
+          <button class="btn" onclick="showAddShoppingCategoryForm()">➕ Add Category</button>
+        </div>
+      `;
+      
+      const shoppingHtml = AppData.decor.shoppingList.map((category, catIndex) => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">${category.category}</h3>
+            <div>
+              <button class="btn-sm" onclick="showAddShoppingItemForm(${catIndex})" title="Add item to category">➕</button>
+              <button class="btn-sm" onclick="deleteShoppingCategory(${catIndex})" title="Delete category">🗑️</button>
+            </div>
+          </div>
+          <table>
+            <thead>
               <tr>
-                <td>${item.item}</td>
-                <td>${item.quantity}</td>
-                <td>$${item.estimated}</td>
-                <td>${item.purchased ? '✓ Purchased' : 'Pending'}</td>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Estimated Cost</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `).join('');
+            </thead>
+            <tbody>
+              ${category.items.map((item, itemIndex) => `
+                <tr>
+                  <td>${item.item}</td>
+                  <td>${item.quantity}</td>
+                  <td>$${item.estimated}</td>
+                  <td>${item.purchased ? '✓ Purchased' : 'Pending'}</td>
+                  <td>
+                    <button class="btn-sm" onclick="editShoppingItem(${catIndex}, ${itemIndex})" title="Edit item">✏️</button>
+                    <button class="btn-sm" onclick="deleteShoppingItem(${catIndex}, ${itemIndex})" title="Delete item">🗑️</button>
+                    <button class="btn-sm" onclick="togglePurchased(${catIndex}, ${itemIndex})" title="Toggle purchased">${item.purchased ? '↩️' : '✓'}</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `).join('');
+      
+      document.getElementById('shopping-list').innerHTML = shoppingControlsHtml + shoppingHtml;
+    }
     
-    document.getElementById('shopping-list').innerHTML = shoppingHtml;
-    
-    // Render vendors
-    const vendorsHtml = AppData.decor.vendors.map(vendor => `
-      <div class="card">
-        <h3>${vendor.name}</h3>
-        <p><strong>Type:</strong> ${vendor.type}</p>
-        <p><strong>Contact:</strong> ${vendor.contact}</p>
-        <p><strong>Phone:</strong> ${vendor.phone}</p>
-        <p>${vendor.notes}</p>
-      </div>
-    `).join('');
-    
-    document.getElementById('vendors').innerHTML = vendorsHtml;
+    // Render vendors (from AppData.vendors loaded from vendors.json)
+    if (!AppData.vendors || AppData.vendors.length === 0) {
+      document.getElementById('vendors').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No vendors yet!</strong> Use the Admin panel to manage vendors.
+        </div>
+      `;
+    } else {
+      const vendorsHtml = AppData.vendors.map(vendor => `
+        <div class="card">
+          <h3>${vendor.name}</h3>
+          <p><strong>Type:</strong> ${vendor.type}</p>
+          <p><strong>Contact:</strong> ${vendor.contact}</p>
+          <p><strong>Phone:</strong> ${vendor.phone}</p>
+          <p>${vendor.notes}</p>
+          ${vendor.website ? `<p><a href="${vendor.website}" target="_blank">Visit Website</a></p>` : ''}
+        </div>
+      `).join('');
+      
+      document.getElementById('vendors').innerHTML = vendorsHtml;
+    }
   },
   
   // Render food page
   food: function() {
+    // Check if menu items exist
+    if (!AppData.menu.menuItems || AppData.menu.menuItems.length === 0) {
+      document.getElementById('menu-items').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No menu items yet!</strong> Click "Add Menu Item" below to start building your menu.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
+        </div>
+      `;
+      return;
+    }
+    
     // Helper function to generate dietary badges
     const generateDietaryBadges = (item) => {
       const badges = [];
@@ -224,8 +298,28 @@ const Render = {
       return badges.join(' ');
     };
     
-    // Render menu items by category
-    const categories = ['Dessert', 'Beverage', 'Main', 'Side', 'Appetizer'];
+    // Dynamically get categories from existing menu items
+    const categories = [...new Set(AppData.menu.menuItems.map(item => item.category))].sort();
+    
+    // Controls at the top
+    const controlsHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <input type="checkbox" id="autosave-toggle-menu" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+            <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+          </label>
+          <button class="btn" onclick="handleImportMenu()">📂 Import</button>
+          <button class="btn" onclick="exportMenu()">📥 Export</button>
+          <button class="btn btn-secondary" onclick="handleResetMenu()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    
+    // Render menu items by category (dynamically determined)
     const menuHtml = categories.map(category => {
       const items = AppData.menu.menuItems.filter(item => item.category === category);
       if (items.length === 0) return '';
@@ -235,11 +329,17 @@ const Render = {
           <h3>${category}</h3>
           ${items.map(item => `
             <div style="padding: 15px; margin: 10px 0; background: var(--cream); border-radius: 8px; ${AppData.menuFeatured.has(item.id) ? 'border: 3px solid var(--gold);' : ''}">
-              <h4 style="color: var(--deep-cherry-red);">${item.name}</h4>
+              <div style="display: flex; justify-content: space-between; align-items: start;">
+                <h4 style="color: var(--deep-cherry-red); margin: 0;">${item.name}</h4>
+                <div>
+                  <button class="btn-sm" onclick="editMenuItem('${item.id}')" title="Edit menu item">✏️</button>
+                  <button class="btn-sm" onclick="deleteMenuItem('${item.id}')" title="Delete menu item">🗑️</button>
+                </div>
+              </div>
               <p>${item.description}</p>
               <p><strong>Serves:</strong> ${item.serves} | <strong>Prep Time:</strong> ${item.prepTime}</p>
-              ${item.allergens.length > 0 ? `<p><strong>Allergens:</strong> ${item.allergens.join(', ')}</p>` : ''}
-              ${item.dietaryOptions.length > 0 ? `<p><em>${item.dietaryOptions.join(', ')}</em></p>` : ''}
+              ${item.allergens && item.allergens.length > 0 ? `<p><strong>Allergens:</strong> ${item.allergens.join(', ')}</p>` : ''}
+              ${item.dietaryOptions && item.dietaryOptions.length > 0 ? `<p><em>${item.dietaryOptions.join(', ')}</em></p>` : ''}
               <div style="margin: 10px 0;">
                 ${generateDietaryBadges(item)}
               </div>
@@ -260,38 +360,45 @@ const Render = {
       `;
     }).join('');
     
-    document.getElementById('menu-items').innerHTML = menuHtml;
+    document.getElementById('menu-items').innerHTML = controlsHtml + menuHtml;
     
-    // Add export button
-    const exportSection = `
-      <div style="text-align: center; margin-top: 20px;">
-        <button class="export-btn" onclick="exportMenuJSON()">
-          📥 Export Menu Selections
-        </button>
-        <p style="margin-top: 10px; font-size: 14px; color: #666;">
-          Downloads your starred and featured menu items as menu.json
-        </p>
-      </div>
-    `;
-    document.getElementById('menu-items').innerHTML += exportSection;
-    
-    // Render prep timeline
-    const timelineHtml = AppData.menu.prepTimeline.map(phase => `
-      <div class="card">
-        <h3>${phase.time}</h3>
-        <ul class="item-list">
-          ${phase.tasks.map(task => `<li>${task}</li>`).join('')}
-        </ul>
-      </div>
-    `).join('');
-    
-    document.getElementById('prep-timeline').innerHTML = timelineHtml;
+    // Render prep timeline if it exists
+    if (AppData.menu.prepTimeline && AppData.menu.prepTimeline.length > 0) {
+      const timelineHtml = AppData.menu.prepTimeline.map(phase => `
+        <div class="card">
+          <h3>${phase.time}</h3>
+          <ul class="item-list">
+            ${phase.tasks.map(task => `<li>${task}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+      
+      document.getElementById('prep-timeline').innerHTML = timelineHtml;
+    }
   },
   
   // Render mystery page
   mystery: function() {
+    // Add data management controls at the top
+    const controlsHtml = `
+      <div class="card">
+        <h3>📦 Mystery Data Management</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+          <button class="btn" onclick="exportStory()">📥 Export Story</button>
+          <button class="btn" onclick="handleImportStory()">📂 Import Story</button>
+          <button class="btn" onclick="exportClues()">📥 Export Clues</button>
+          <button class="btn" onclick="handleImportClues()">📂 Import Clues</button>
+          <button class="btn" onclick="exportPackets()">📥 Export Packets</button>
+          <button class="btn" onclick="handleImportPackets()">📂 Import Packets</button>
+        </div>
+        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+          <strong>Note:</strong> Full CRUD editors for Story, Clues, and Packets can be accessed via the Admin panel's Global Data Manager.
+        </p>
+      </div>
+    `;
+    
     // Render story overview
-    document.getElementById('story-overview').innerHTML = `
+    const storyHtml = `
       <div class="card">
         <h2>${AppData.story.title}</h2>
         <h3>${AppData.story.subtitle}</h3>
@@ -318,6 +425,8 @@ const Render = {
         <p>${AppData.story.solution}</p>
       </div>
     `;
+    
+    document.getElementById('story-overview').innerHTML = controlsHtml + storyHtml;
     
     // Render character list with role assignment controls
     const unassignedCount = AppData.guests.filter(g => !g.assignedCharacter).length;
@@ -441,11 +550,51 @@ const Render = {
   
   // Render schedule page
   schedule: function() {
+    if (!AppData.schedule.timeline || AppData.schedule.timeline.length === 0) {
+      document.getElementById('schedule-timeline').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No timeline items yet!</strong> Click "Add Timeline Item" below to start building your schedule.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddTimelineForm()">➕ Add Timeline Item</button>
+        </div>
+      `;
+      return;
+    }
+    
+    // Controls at the top
+    const controlsHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <button class="btn" onclick="showAddTimelineForm()">➕ Add Timeline Item</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <input type="checkbox" id="autosave-toggle-schedule" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+            <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+          </label>
+          <button class="btn" onclick="handleImportSchedule()">📂 Import</button>
+          <button class="btn" onclick="exportSchedule()">📥 Export</button>
+          <button class="btn btn-secondary" onclick="handleResetSchedule()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    
     const scheduleHtml = AppData.schedule.timeline.map((block, index) => `
       <div class="card">
-        <h3>${block.time} - ${block.title}</h3>
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 10px 0;">${block.time} - ${block.title}</h3>
+          </div>
+          <div>
+            <button class="btn-sm" onclick="editTimelineItem(${index})" title="Edit timeline item">✏️</button>
+            <button class="btn-sm" onclick="deleteTimelineItem(${index})" title="Delete timeline item">🗑️</button>
+          </div>
+        </div>
         <p><strong>Duration:</strong> ${block.duration}</p>
         <p>${block.description}</p>
+        ${block.phase ? `<p><strong>Phase:</strong> <span class="badge badge-info">${block.phase}</span></p>` : ''}
+        ${block.envelope_instruction ? `<p><strong>Envelope:</strong> <em>${block.envelope_instruction}</em></p>` : ''}
         <h4>Activities:</h4>
         <ul>
           ${block.activities.map(activity => `<li>${activity}</li>`).join('')}
@@ -455,11 +604,24 @@ const Render = {
       </div>
     `).join('');
     
-    document.getElementById('schedule-timeline').innerHTML = scheduleHtml;
+    document.getElementById('schedule-timeline').innerHTML = controlsHtml + scheduleHtml;
   },
   
   // Render guests page
   guests: function() {
+    // Check if guests list is empty
+    if (!AppData.guests || AppData.guests.length === 0) {
+      document.getElementById('guest-table').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No guests yet!</strong> Click "Add Guest" below to start building your guest list.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddGuestForm()">➕ Add Guest</button>
+        </div>
+      `;
+      return;
+    }
+    
     // Helper function to generate RSVP badge
     const getRsvpBadge = (rsvp) => {
       const rsvpLower = (rsvp || 'pending').toLowerCase();
@@ -482,6 +644,25 @@ const Render = {
              guest.address.state;
     };
     
+    // Controls at the top
+    const controlsHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <button class="btn" onclick="showAddGuestForm()">➕ Add Guest</button>
+          <button class="btn btn-secondary" onclick="autoAssignAll()">🎭 Auto-Assign Characters</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <input type="checkbox" id="autosave-toggle-guests" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+            <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+          </label>
+          <button class="btn" onclick="handleImportGuests()">📂 Import</button>
+          <button class="btn" onclick="exportGuests()">📥 Export</button>
+          <button class="btn btn-secondary" onclick="handleResetGuests()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    
     const tableHtml = `
       <table>
         <thead>
@@ -490,7 +671,6 @@ const Render = {
             <th>Contact</th>
             <th>RSVP</th>
             <th>Dietary</th>
-            <th>Accessibility</th>
             <th>Character</th>
             <th>Actions</th>
           </tr>
@@ -501,36 +681,43 @@ const Render = {
               AppData.characters.find(c => c.id === guest.assignedCharacter) : null;
             
             const addressIndicator = hasAddress(guest) ? 
-              '<span class="badge badge-success" style="font-size: 11px; margin-left: 5px;">📬 Address on file</span>' : 
+              '<span class="badge badge-success" style="font-size: 11px; margin-left: 5px;">📬 Address</span>' : 
               '<span class="badge badge-warning" style="font-size: 11px; margin-left: 5px;">📭 No address</span>';
             
             const phoneDisplay = guest.phone ? `<br><small>📞 ${guest.phone}</small>` : '';
             
             const accessibilityDisplay = guest.accessibility && guest.accessibility !== 'None' ?
-              `<strong style="color: var(--deep-cherry-red);">♿ ${guest.accessibility}</strong>` :
-              '<span style="color: #999;">None</span>';
+              `<br><small style="color: var(--deep-cherry-red);">♿ ${guest.accessibility}</small>` :
+              '';
             
             const dietaryInfo = guest.dietary && guest.dietary !== 'None' ?
               `${guest.dietary}${guest.dietarySeverity ? ` <em>(${guest.dietarySeverity})</em>` : ''}` :
               'None';
+            
+            const roleVibeDisplay = guest.roleVibe ? 
+              `<br><small style="color: #666;">🎭 ${guest.roleVibe}</small>` : '';
             
             return `
               <tr>
                 <td>
                   <strong>${guest.name}</strong>
                   ${addressIndicator}
-                  ${guest.roleVibe ? `<br><small style="color: #666;">🎭 ${guest.roleVibe}</small>` : ''}
+                  ${roleVibeDisplay}
                 </td>
                 <td>
-                  ${guest.email}${phoneDisplay}
+                  ${guest.email || '<em style="color: #999;">No email</em>'}${phoneDisplay}
+                  ${accessibilityDisplay}
                 </td>
                 <td>${getRsvpBadge(guest.rsvp)}</td>
-                <td>${dietaryInfo}</td>
-                <td>${accessibilityDisplay}</td>
-                <td>${character ? character.name : '<span style="color: #999;">Not assigned</span>'}</td>
+                <td><small>${dietaryInfo}</small></td>
                 <td>
-                  <button class="btn" onclick="copyInvite(${guest.id})" style="margin: 2px;">Copy Invite</button>
-                  ${character ? `<button class="btn btn-secondary" onclick="printCharacterPacket('${character.id}')" style="margin: 2px;">Print Packet</button>` : ''}
+                  ${character ? `<span style="color: var(--forest-emerald);">${character.name}</span>` : '<span style="color: #999;">Unassigned</span>'}
+                </td>
+                <td>
+                  <button class="btn-sm" onclick="editGuest(${guest.id})" title="Edit guest details">✏️ Edit</button>
+                  <button class="btn-sm" onclick="deleteGuest(${guest.id})" title="Delete guest">🗑️</button>
+                  <button class="btn-sm" onclick="copyInvite(${guest.id})" title="Copy invitation text">✉️</button>
+                  ${character ? `<button class="btn-sm" onclick="printCharacterPacket('${character.id}')" title="Print character packet">🖨️</button>` : ''}
                 </td>
               </tr>
             `;
@@ -539,7 +726,7 @@ const Render = {
       </table>
     `;
     
-    document.getElementById('guest-table').innerHTML = tableHtml;
+    document.getElementById('guest-table').innerHTML = controlsHtml + tableHtml;
   },
   
   // Render admin page
@@ -706,19 +893,50 @@ const Render = {
       container.insertBefore(decisionDiv.firstChild, container.firstElementChild);
     }
     
-    // Data links
-    document.getElementById('data-links').innerHTML = `
-      <ul class="item-list">
-        <li><a href="./data/guests.json" target="_blank">guests.json</a> <span>${AppData.guests.length} guests</span></li>
-        <li><a href="./data/characters.json" target="_blank">characters.json</a> <span>${AppData.characters.length} characters</span></li>
-        <li><a href="./data/decor.json" target="_blank">decor.json</a></li>
-        <li><a href="./data/menu.json" target="_blank">menu.json</a> <span>${AppData.menu.menuItems ? AppData.menu.menuItems.length : 0} items</span></li>
-        <li><a href="./data/schedule.json" target="_blank">schedule.json</a></li>
-        <li><a href="./data/story.json" target="_blank">story.json</a></li>
-        <li><a href="./data/clues.json" target="_blank">clues.json</a> <span>${AppData.clues ? AppData.clues.length : 0} clues</span></li>
-        <li><a href="./data/packets.json" target="_blank">packets.json</a> <span>${AppData.packets ? AppData.packets.length : 0} character packets</span></li>
-      </ul>
+    // Global Data Manager
+    const dataManager = `
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+        ${[
+          { name: 'Guests', dataset: 'guests', icon: '👥', count: AppData.guests.length, file: 'guests.json' },
+          { name: 'Characters', dataset: 'characters', icon: '🎭', count: AppData.characters.length, file: 'characters.json' },
+          { name: 'Decor', dataset: 'decor', icon: '🎨', count: AppData.decor.moodBoard ? AppData.decor.moodBoard.length : 0, file: 'decor.json' },
+          { name: 'Vendors', dataset: 'vendors', icon: '🏪', count: AppData.vendors.length, file: 'vendors.json' },
+          { name: 'Menu', dataset: 'menu', icon: '🍽️', count: AppData.menu.menuItems ? AppData.menu.menuItems.length : 0, file: 'menu.json' },
+          { name: 'Schedule', dataset: 'schedule', icon: '📅', count: AppData.schedule.timeline ? AppData.schedule.timeline.length : 0, file: 'schedule.json' },
+          { name: 'Story', dataset: 'story', icon: '📖', count: 1, file: 'story.json' },
+          { name: 'Clues', dataset: 'clues', icon: '🔍', count: AppData.clues.length, file: 'clues.json' },
+          { name: 'Packets', dataset: 'packets', icon: '📦', count: AppData.packets.length, file: 'packets.json' }
+        ].map(ds => `
+          <div style="background: var(--cream); padding: 20px; border-radius: 10px; border-left: 4px solid var(--deep-cherry-red);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+              <h3 style="margin: 0; color: var(--deep-cherry-red);">${ds.icon} ${ds.name}</h3>
+              <span style="background: var(--forest-emerald); color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold;">${ds.count} items</span>
+            </div>
+            <p style="font-size: 14px; color: #666; margin: 10px 0;"><code>${ds.file}</code></p>
+            <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 15px;">
+              <button class="btn-sm" onclick="handleExportDataset('${ds.dataset}')" title="Export to JSON">📥 Export</button>
+              <button class="btn-sm" onclick="handleImportDataset('${ds.dataset}')" title="Import from JSON">📂 Import</button>
+              <button class="btn-sm" onclick="handleResetDataset('${ds.dataset}')" title="Reset to defaults">🔄 Reset</button>
+              <a href="./data/${ds.file}" target="_blank" class="btn-sm" style="text-decoration: none; line-height: 1.5;">📄 View</a>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      
+      <div style="margin-top: 30px; text-align: center;">
+        <label style="display: inline-flex; align-items: center; gap: 10px; padding: 15px 25px; background: var(--cream); border-radius: 10px; cursor: pointer; font-size: 16px;">
+          <input type="checkbox" id="autosave-toggle-admin" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()" style="width: 20px; height: 20px; cursor: pointer;">
+          <span><strong>Autosave to Browser Storage</strong> ${AppData.autosaveEnabled ? '✓ Enabled' : '✗ Disabled'}</span>
+        </label>
+        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+          ${AppData.autosaveEnabled ? 
+            '✓ All changes are automatically saved to your browser. Use Export to back up to files.' : 
+            '⚠️ Changes are temporary. Use Export buttons to save your data to files.'}
+        </p>
+      </div>
     `;
+    
+    document.getElementById('data-links').innerHTML = dataManager;
   }
 };
 

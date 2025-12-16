@@ -2274,7 +2274,7 @@ async function saveToFirestore() {
 
 // Save current state to localStorage (fallback)
 function saveToLocalStorage() {
-  if (!AppData.autosaveEnabled && !FIREBASE_ENABLED) return;
+  if (!AppData.autosaveEnabled) return;
   
   const dataToSave = {
     guests: AppData.guests,
@@ -2288,24 +2288,7 @@ function saveToLocalStorage() {
     packets: AppData.packets
   };
   
-  // If Firebase is enabled, use Firestore; otherwise use localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    // Save all datasets to Firestore
-    Promise.all([
-      FirebaseManager.saveData('guests', AppData.guests),
-      FirebaseManager.saveData('characters', AppData.characters),
-      FirebaseManager.saveData('decor', AppData.decor),
-      FirebaseManager.saveData('vendors', AppData.vendors),
-      FirebaseManager.saveData('menu', AppData.menu),
-      FirebaseManager.saveData('schedule', AppData.schedule),
-      FirebaseManager.saveData('story', AppData.story),
-      FirebaseManager.saveData('clues', AppData.clues),
-      FirebaseManager.saveData('packets', AppData.packets)
-    ]).catch(err => console.error('Error saving to Firestore:', err));
-  } else {
-    // Fallback to localStorage
-    localStorage.setItem('appData', JSON.stringify(dataToSave));
-  }
+  localStorage.setItem('appData', JSON.stringify(dataToSave));
 }
 
 // Reset to defaults from repo
@@ -2343,12 +2326,7 @@ function addItem(datasetName, item) {
     // For nested arrays like menu.menuItems
     AppData[datasetName][datasetName].push(item);
   }
-  // Save to Firestore if enabled, fallback to localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
-  } else {
-    saveToLocalStorage();
-  }
+  saveToLocalStorage();
 }
 
 // Update item in array dataset
@@ -2376,12 +2354,7 @@ function updateItem(datasetName, id, updates) {
     }
   }
   
-  // Save to Firestore if enabled, fallback to localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
-  } else {
-    saveToLocalStorage();
-  }
+  saveToLocalStorage();
 }
 
 // Delete item from array dataset
@@ -2403,12 +2376,7 @@ function deleteItem(datasetName, id) {
     AppData[datasetName] = dataset.filter(item => item.id !== id);
   }
   
-  // Save to Firestore if enabled, fallback to localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
-  } else {
-    saveToLocalStorage();
-  }
+  saveToLocalStorage();
 }
 
 // ============================================================================

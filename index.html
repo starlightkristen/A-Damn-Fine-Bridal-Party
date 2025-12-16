@@ -23,6 +23,10 @@
                 <li><a href="schedule.html">Schedule</a></li>
                 <li><a href="guests.html">Guests</a></li>
                 <li><a href="admin.html">Admin</a></li>
+                <li id="userInfo" style="margin-left: auto; display: none;">
+                    <span id="userEmail" style="color: var(--gold); margin-right: 10px;"></span>
+                    <button id="logoutBtn" class="btn btn-sm" style="background: var(--deep-cherry-red); color: white;">Sign Out</button>
+                </li>
             </ul>
         </nav>
 
@@ -145,7 +149,26 @@
     <script src="./assets/modules/render.js"></script>
     <script>
         // Initialize the app when DOM is ready
-        document.addEventListener('DOMContentLoaded', initApp);
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Setup logout button if Firebase is enabled
+            if (FIREBASE_ENABLED && FirebaseManager && FirebaseManager.currentUser) {
+                const logoutBtn = document.getElementById('logoutBtn');
+                const userInfo = document.getElementById('userInfo');
+                const userEmail = document.getElementById('userEmail');
+                
+                if (logoutBtn) {
+                    userEmail.textContent = FirebaseManager.currentUser.email;
+                    userInfo.style.display = 'block';
+                    logoutBtn.addEventListener('click', () => {
+                        if (confirm('Are you sure you want to sign out?')) {
+                            FirebaseManager.signOut();
+                        }
+                    });
+                }
+            }
+            
+            await initApp();
+        });
     </script>
 </body>
 </html>
