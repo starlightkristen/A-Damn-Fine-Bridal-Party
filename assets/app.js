@@ -61,29 +61,34 @@ async function loadData() {
     if (FIREBASE_ENABLED && FirebaseManager) {
       console.log('Loading data from Firestore...');
       
+      // Check if data has been seeded before
+      const meta = await FirebaseManager.readMeta();
+      const isSeeded = meta && meta.seeded === true;
+      
       const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets'];
-      const loaded = {};
-      let anyDataLoaded = false;
       
-      for (const dataset of datasets) {
-        const data = await FirebaseManager.loadData(dataset);
-        if (data !== null) {
-          loaded[dataset] = data;
-          anyDataLoaded = true;
+      if (isSeeded) {
+        // Data has been seeded, load from Firestore
+        console.log('Loading from previously seeded Firestore data...');
+        const loaded = {};
+        
+        for (const dataset of datasets) {
+          const data = await FirebaseManager.loadData(dataset);
+          if (data !== null) {
+            loaded[dataset] = data;
+          }
         }
-      }
-      
-      // If any data was loaded from Firestore, use it
-      if (anyDataLoaded) {
-        AppData.guests = loaded.guests || AppData.guests;
-        AppData.characters = loaded.characters || AppData.characters;
-        AppData.decor = loaded.decor || AppData.decor;
-        AppData.vendors = loaded.vendors || AppData.vendors;
-        AppData.menu = loaded.menu || AppData.menu;
-        AppData.schedule = loaded.schedule || AppData.schedule;
-        AppData.story = loaded.story || AppData.story;
-        AppData.clues = loaded.clues || AppData.clues;
-        AppData.packets = loaded.packets || AppData.packets;
+        
+        // Apply loaded data (Firestore is source of truth)
+        AppData.guests = loaded.guests || [];
+        AppData.characters = loaded.characters || [];
+        AppData.decor = loaded.decor || {};
+        AppData.vendors = loaded.vendors || [];
+        AppData.menu = loaded.menu || {};
+        AppData.schedule = loaded.schedule || {};
+        AppData.story = loaded.story || {};
+        AppData.clues = loaded.clues || [];
+        AppData.packets = loaded.packets || [];
         
         // Set up real-time listeners for all datasets
         for (const dataset of datasets) {
@@ -97,12 +102,67 @@ async function loadData() {
         }
         
         console.log('Data loaded from Firestore');
+      } else {
+        // First time - seed from JSON files
+        console.log('First load detected - seeding Firestore from JSON files...');
+        const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+          fetch('./data/guests.json').then(r => r.json()),
+          fetch('./data/characters.json').then(r => r.json()),
+          fetch('./data/decor.json').then(r => r.json()),
+          fetch('./data/vendors.json').then(r => r.json()),
+          fetch('./data/menu.json').then(r => r.json()),
+          fetch('./data/schedule.json').then(r => r.json()),
+          fetch('./data/story.json').then(r => r.json()),
+          fetch('./data/clues.json').then(r => r.json()),
+          fetch('./data/packets.json').then(r => r.json())
+        ]);
+        
+        AppData.guests = guests;
+        AppData.characters = characters;
+        AppData.decor = decor;
+        AppData.vendors = vendors;
+        AppData.menu = menu;
+        AppData.schedule = schedule;
+        AppData.story = story;
+        AppData.clues = clues;
+        AppData.packets = packets;
+        
+        // Save to Firestore (one-time seeding)
+        console.log('Saving initial data to Firestore...');
+        await Promise.all([
+          FirebaseManager.saveData('guests', guests),
+          FirebaseManager.saveData('characters', characters),
+          FirebaseManager.saveData('decor', decor),
+          FirebaseManager.saveData('vendors', vendors),
+          FirebaseManager.saveData('menu', menu),
+          FirebaseManager.saveData('schedule', schedule),
+          FirebaseManager.saveData('story', story),
+          FirebaseManager.saveData('clues', clues),
+          FirebaseManager.saveData('packets', packets)
+        ]);
+        
+        // Mark as seeded
+        await FirebaseManager.writeMeta({
+          seeded: true,
+          seededAt: new Date().toISOString(),
+          seededBy: FirebaseManager.currentUser?.email || 'unknown'
+        });
+        
+        console.log('Firestore seeded successfully - this will not happen again');
+        
+        // Set up real-time listeners
+        for (const dataset of datasets) {
+          FirebaseManager.listenToData(dataset, (data) => {
+            AppData[dataset] = data;
+            if (typeof window.renderCurrentPage === 'function') {
+              window.renderCurrentPage();
+            }
+          });
+        }
       }
-    }
-    
-    // Fall back to JSON files if no Firestore data or Firebase disabled
-    if (!FIREBASE_ENABLED || !FirebaseManager || AppData.guests.length === 0) {
-      console.log('Loading data from JSON files...');
+    } else {
+      // Firebase disabled - load from JSON files
+      console.log('Firebase disabled - loading data from JSON files...');
       const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
         fetch('./data/guests.json').then(r => r.json()),
         fetch('./data/characters.json').then(r => r.json()),
@@ -124,22 +184,6 @@ async function loadData() {
       AppData.story = story;
       AppData.clues = clues;
       AppData.packets = packets;
-      
-      // If Firebase is enabled, save the initial data to Firestore
-      if (FIREBASE_ENABLED && FirebaseManager) {
-        console.log('Initializing Firestore with JSON data...');
-        await Promise.all([
-          FirebaseManager.saveData('guests', guests),
-          FirebaseManager.saveData('characters', characters),
-          FirebaseManager.saveData('decor', decor),
-          FirebaseManager.saveData('vendors', vendors),
-          FirebaseManager.saveData('menu', menu),
-          FirebaseManager.saveData('schedule', schedule),
-          FirebaseManager.saveData('story', story),
-          FirebaseManager.saveData('clues', clues),
-          FirebaseManager.saveData('packets', packets)
-        ]);
-      }
     }
     
     // Store defaults for reset functionality
@@ -193,6 +237,11 @@ async function initApp() {
   
   // Set active nav link
   setActiveNavLink();
+  
+  // Initialize save status indicator
+  if (FIREBASE_ENABLED) {
+    initSaveStatusIndicator();
+  }
   
   // Render page-specific content
   const page = getPageName();
@@ -569,7 +618,7 @@ function editGuest(guestId) {
 }
 
 // Handle save guest (add or edit)
-function handleSaveGuest(event, guestId) {
+async function handleSaveGuest(event, guestId) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -609,7 +658,17 @@ function handleSaveGuest(event, guestId) {
     }
   }
   
-  saveToLocalStorage();
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    // Show saving indicator
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart('guests');
+    }
+    await FirebaseManager.saveData('guests', AppData.guests);
+  } else {
+    saveToLocalStorage();
+  }
+  
   closeGuestEditor();
   
   // Re-render guests table
@@ -628,13 +687,23 @@ function handleSaveGuest(event, guestId) {
 }
 
 // Delete guest with confirmation
-function deleteGuest(guestId) {
+async function deleteGuest(guestId) {
   const guest = AppData.guests.find(g => g.id === guestId);
   if (!guest) return;
   
   if (confirm(`Are you sure you want to delete ${guest.name}? This cannot be undone.`)) {
     AppData.guests = AppData.guests.filter(g => g.id !== guestId);
-    saveToLocalStorage();
+    
+    // Save to Firestore or localStorage
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      // Show saving indicator
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart('guests');
+      }
+      await FirebaseManager.saveData('guests', AppData.guests);
+    } else {
+      saveToLocalStorage();
+    }
     
     // Re-render
     if (window.Render && window.Render.guests) {
@@ -2310,6 +2379,16 @@ function saveToLocalStorage() {
 
 // Reset to defaults from repo
 async function resetToDefaults(datasetName) {
+  // Require explicit confirmation
+  const confirmMsg = datasetName === 'all' 
+    ? 'Are you sure you want to reset ALL datasets to repository defaults? This will overwrite all current data and cannot be undone.'
+    : `Are you sure you want to reset "${datasetName}" to repository defaults? This will overwrite current data and cannot be undone.`;
+  
+  if (!confirm(confirmMsg)) {
+    console.log('Reset cancelled by user');
+    return false;
+  }
+  
   if (!datasetName || datasetName === 'all') {
     // Reset all datasets
     AppData.guests = JSON.parse(JSON.stringify(AppData.defaults.guests));
@@ -2321,14 +2400,41 @@ async function resetToDefaults(datasetName) {
     AppData.story = JSON.parse(JSON.stringify(AppData.defaults.story));
     AppData.clues = JSON.parse(JSON.stringify(AppData.defaults.clues));
     AppData.packets = JSON.parse(JSON.stringify(AppData.defaults.packets));
+    
+    // Save all to Firestore
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      console.log('Saving reset data to Firestore...');
+      await Promise.all([
+        FirebaseManager.saveData('guests', AppData.guests),
+        FirebaseManager.saveData('characters', AppData.characters),
+        FirebaseManager.saveData('decor', AppData.decor),
+        FirebaseManager.saveData('vendors', AppData.vendors),
+        FirebaseManager.saveData('menu', AppData.menu),
+        FirebaseManager.saveData('schedule', AppData.schedule),
+        FirebaseManager.saveData('story', AppData.story),
+        FirebaseManager.saveData('clues', AppData.clues),
+        FirebaseManager.saveData('packets', AppData.packets)
+      ]);
+    } else {
+      saveToLocalStorage();
+    }
   } else {
     // Reset specific dataset
     if (AppData.defaults[datasetName]) {
       AppData[datasetName] = JSON.parse(JSON.stringify(AppData.defaults[datasetName]));
+      
+      // Save to Firestore
+      if (FIREBASE_ENABLED && FirebaseManager) {
+        console.log(`Saving reset ${datasetName} to Firestore...`);
+        await FirebaseManager.saveData(datasetName, AppData[datasetName]);
+      } else {
+        saveToLocalStorage();
+      }
     }
   }
   
-  saveToLocalStorage();
+  console.log('Reset complete');
+  return true;
 }
 
 // ============================================================================
@@ -2336,7 +2442,7 @@ async function resetToDefaults(datasetName) {
 // ============================================================================
 
 // Add item to array dataset
-function addItem(datasetName, item) {
+async function addItem(datasetName, item) {
   if (Array.isArray(AppData[datasetName])) {
     AppData[datasetName].push(item);
   } else if (AppData[datasetName] && Array.isArray(AppData[datasetName][datasetName])) {
@@ -2345,14 +2451,17 @@ function addItem(datasetName, item) {
   }
   // Save to Firestore if enabled, fallback to localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart(datasetName);
+    }
+    await FirebaseManager.saveData(datasetName, AppData[datasetName]);
   } else {
     saveToLocalStorage();
   }
 }
 
 // Update item in array dataset
-function updateItem(datasetName, id, updates) {
+async function updateItem(datasetName, id, updates) {
   let dataset = AppData[datasetName];
   
   // Handle nested structures
@@ -2378,14 +2487,17 @@ function updateItem(datasetName, id, updates) {
   
   // Save to Firestore if enabled, fallback to localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart(datasetName);
+    }
+    await FirebaseManager.saveData(datasetName, AppData[datasetName]);
   } else {
     saveToLocalStorage();
   }
 }
 
 // Delete item from array dataset
-function deleteItem(datasetName, id) {
+async function deleteItem(datasetName, id) {
   let dataset = AppData[datasetName];
   
   // Handle nested structures
@@ -2405,7 +2517,10 @@ function deleteItem(datasetName, id) {
   
   // Save to Firestore if enabled, fallback to localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart(datasetName);
+    }
+    await FirebaseManager.saveData(datasetName, AppData[datasetName]);
   } else {
     saveToLocalStorage();
   }
@@ -2550,6 +2665,261 @@ function exportPackets() {
   exportDataset('packets', AppData.packets);
 }
 
+// ============================================================================
+// SAVE STATUS INDICATOR SYSTEM
+// ============================================================================
+
+// Global save status state
+const SaveStatus = {
+  currentState: 'idle', // idle, saving, saved, error
+  lastSyncTime: null,
+  dataSource: FIREBASE_ENABLED ? 'Firestore' : 'Local',
+  error: null
+};
+
+// Initialize save status indicator in the UI
+function initSaveStatusIndicator() {
+  // Only add if Firebase is enabled and not on login page
+  if (!FIREBASE_ENABLED || window.location.pathname.includes('login.html')) {
+    return;
+  }
+  
+  // Check if indicator already exists
+  if (document.getElementById('save-status-indicator')) {
+    return;
+  }
+  
+  // Create save status indicator
+  const indicator = document.createElement('div');
+  indicator.id = 'save-status-indicator';
+  indicator.style.cssText = `
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    z-index: 10000;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+  `;
+  
+  indicator.innerHTML = `
+    <span id="save-status-icon">💾</span>
+    <span id="save-status-text">Saved</span>
+    <span id="save-status-time" style="color: #666; font-size: 12px;"></span>
+  `;
+  
+  document.body.appendChild(indicator);
+  
+  // Update initial state
+  updateSaveStatusDisplay();
+}
+
+// Update save status display
+function updateSaveStatusDisplay() {
+  const indicator = document.getElementById('save-status-indicator');
+  if (!indicator) return;
+  
+  const icon = document.getElementById('save-status-icon');
+  const text = document.getElementById('save-status-text');
+  const time = document.getElementById('save-status-time');
+  
+  if (!icon || !text || !time) return;
+  
+  switch (SaveStatus.currentState) {
+    case 'saving':
+      icon.textContent = '⏳';
+      text.textContent = 'Saving...';
+      text.style.color = '#C79810'; // Gold
+      time.textContent = '';
+      indicator.style.borderColor = '#C79810';
+      break;
+      
+    case 'saved':
+      icon.textContent = '✓';
+      text.textContent = 'Saved';
+      text.style.color = '#0B4F3F'; // Forest green
+      indicator.style.borderColor = '#0B4F3F';
+      if (SaveStatus.lastSyncTime) {
+        const now = new Date();
+        const diff = Math.floor((now - SaveStatus.lastSyncTime) / 1000);
+        if (diff < 60) {
+          time.textContent = 'just now';
+        } else if (diff < 3600) {
+          time.textContent = `${Math.floor(diff / 60)}m ago`;
+        } else {
+          time.textContent = SaveStatus.lastSyncTime.toLocaleTimeString();
+        }
+      }
+      break;
+      
+    case 'error':
+      icon.textContent = '⚠️';
+      text.textContent = 'Save failed';
+      text.style.color = '#8B0000'; // Deep red
+      indicator.style.borderColor = '#8B0000';
+      time.textContent = SaveStatus.error || 'Unknown error';
+      break;
+      
+    case 'idle':
+    default:
+      icon.textContent = '💾';
+      text.textContent = SaveStatus.dataSource;
+      text.style.color = '#666';
+      indicator.style.borderColor = '#ddd';
+      time.textContent = '';
+  }
+}
+
+// Notify save start
+window.notifySaveStart = function(datasetName) {
+  SaveStatus.currentState = 'saving';
+  updateSaveStatusDisplay();
+};
+
+// Notify save success
+window.notifySaveSuccess = function(datasetName) {
+  SaveStatus.currentState = 'saved';
+  SaveStatus.lastSyncTime = new Date();
+  SaveStatus.error = null;
+  updateSaveStatusDisplay();
+  
+  // Auto-hide after 3 seconds
+  setTimeout(() => {
+    if (SaveStatus.currentState === 'saved') {
+      SaveStatus.currentState = 'idle';
+      updateSaveStatusDisplay();
+    }
+  }, 3000);
+};
+
+// Notify save error
+window.notifySaveError = function(datasetName, error) {
+  SaveStatus.currentState = 'error';
+  SaveStatus.error = error.message || 'Network error';
+  updateSaveStatusDisplay();
+  
+  // Show error toast
+  showErrorToast(`Failed to save ${datasetName}: ${SaveStatus.error}`);
+  
+  // Auto-revert to idle after 10 seconds
+  setTimeout(() => {
+    if (SaveStatus.currentState === 'error') {
+      SaveStatus.currentState = 'idle';
+      updateSaveStatusDisplay();
+    }
+  }, 10000);
+};
+
+// Show error toast
+function showErrorToast(message) {
+  const toast = document.createElement('div');
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #8B0000;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10001;
+    font-size: 14px;
+    max-width: 500px;
+    animation: slideUp 0.3s ease;
+  `;
+  
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    toast.style.animation = 'slideDown 0.3s ease';
+    setTimeout(() => toast.remove(), 300);
+  }, 5000);
+}
+
+// Force sync from Firestore
+async function forceSyncFromFirestore() {
+  if (!FIREBASE_ENABLED || !FirebaseManager) {
+    alert('Firebase is not enabled');
+    return;
+  }
+  
+  if (!confirm('Reload all data from Firestore? Any unsaved local changes will be lost.')) {
+    return;
+  }
+  
+  try {
+    SaveStatus.currentState = 'saving';
+    updateSaveStatusDisplay();
+    
+    const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets'];
+    
+    for (const dataset of datasets) {
+      const data = await FirebaseManager.loadData(dataset);
+      if (data !== null) {
+        AppData[dataset] = data;
+      }
+    }
+    
+    SaveStatus.currentState = 'saved';
+    SaveStatus.lastSyncTime = new Date();
+    updateSaveStatusDisplay();
+    
+    // Re-render current page
+    if (typeof window.renderCurrentPage === 'function') {
+      window.renderCurrentPage();
+    }
+    
+    alert('Data reloaded from Firestore successfully!');
+  } catch (error) {
+    console.error('Error syncing from Firestore:', error);
+    SaveStatus.currentState = 'error';
+    SaveStatus.error = error.message;
+    updateSaveStatusDisplay();
+    alert('Failed to sync from Firestore: ' + error.message);
+  }
+}
+
+// Get sync status info
+async function getSyncStatusInfo() {
+  if (!FIREBASE_ENABLED || !FirebaseManager) {
+    return {
+      dataSource: 'Local',
+      seeded: false,
+      lastSync: null
+    };
+  }
+  
+  try {
+    const meta = await FirebaseManager.readMeta();
+    return {
+      dataSource: 'Firestore',
+      seeded: meta?.seeded || false,
+      seededAt: meta?.seededAt || null,
+      seededBy: meta?.seededBy || null,
+      lastSync: SaveStatus.lastSyncTime
+    };
+  } catch (error) {
+    console.error('Error getting sync status:', error);
+    return {
+      dataSource: 'Firestore (Error)',
+      seeded: false,
+      lastSync: null,
+      error: error.message
+    };
+  }
+}
+
+// ============================================================================
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
@@ -2648,6 +3018,11 @@ if (typeof module !== 'undefined' && module.exports) {
     // Admin Data Manager functions
     handleExportDataset,
     handleImportDataset,
-    handleResetDataset
+    handleResetDataset,
+    // Save status and sync functions
+    initSaveStatusIndicator,
+    updateSaveStatusDisplay,
+    forceSyncFromFirestore,
+    getSyncStatusInfo
   };
 }

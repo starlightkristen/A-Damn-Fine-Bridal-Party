@@ -80,6 +80,40 @@
             </table>
         </div>
 
+        <div class="card" id="firebase-sync-status-card" style="display: none;">
+            <h2>🔄 Firebase Sync Status</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <td><strong>Data Source</strong></td>
+                        <td id="sync-data-source">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Seeded</strong></td>
+                        <td id="sync-seeded">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Seeded At</strong></td>
+                        <td id="sync-seeded-at">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Seeded By</strong></td>
+                        <td id="sync-seeded-by">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Last Local Sync</strong></td>
+                        <td id="sync-last-sync">-</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 20px;">
+                <button onclick="forceSyncFromFirestore()" class="btn">🔄 Force Sync Now</button>
+                <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                    Force sync will reload all data from Firestore, discarding any unsaved local changes.
+                </p>
+            </div>
+        </div>
+
         <div class="card">
             <h2>🎯 Quick Actions</h2>
             <div class="grid grid-2">
@@ -155,13 +189,37 @@
     <script src="./assets/app.js"></script>
     <script src="./assets/modules/render.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            initApp();
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initApp();
             document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
+            
+            // Update Firebase sync status if enabled
+            if (typeof getSyncStatusInfo === 'function') {
+                const syncCard = document.getElementById('firebase-sync-status-card');
+                if (syncCard) {
+                    syncCard.style.display = 'block';
+                    
+                    const status = await getSyncStatusInfo();
+                    document.getElementById('sync-data-source').textContent = status.dataSource;
+                    document.getElementById('sync-seeded').textContent = status.seeded ? 'Yes ✓' : 'No';
+                    document.getElementById('sync-seeded-at').textContent = status.seededAt 
+                        ? new Date(status.seededAt).toLocaleString() 
+                        : 'N/A';
+                    document.getElementById('sync-seeded-by').textContent = status.seededBy || 'N/A';
+                    document.getElementById('sync-last-sync').textContent = status.lastSync 
+                        ? status.lastSync.toLocaleString() 
+                        : 'Never';
+                    
+                    if (status.error) {
+                        document.getElementById('sync-data-source').textContent += ` (${status.error})`;
+                        document.getElementById('sync-data-source').style.color = '#8B0000';
+                    }
+                }
+            }
         });
     </script>
 </body>
