@@ -18,6 +18,8 @@ const AppData = {
   story: {},
   clues: [],
   packets: [],
+  settings: {},
+  roles: {},
   // In-memory state for interactive features
   decorFavorites: new Set(),
   decorShoppingList: new Set(),
@@ -25,6 +27,8 @@ const AppData = {
   menuFeatured: new Set(),
   rolePreferences: {}, // guestId -> characterId mapping
   currentPhase: 'intro', // Track current mystery phase
+  phaseTimerState: null, // Track phase timer state
+  cupcakeRevealIndex: 0, // Track cupcake reveal progress
   // Autosave settings
   autosaveEnabled: false,
   // Original defaults for reset
@@ -65,7 +69,7 @@ async function loadData() {
       const meta = await FirebaseManager.readMeta();
       const isSeeded = meta && meta.seeded === true;
       
-      const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets'];
+      const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets', 'settings', 'roles'];
       
       if (isSeeded) {
         // Data has been seeded, load from Firestore
@@ -89,6 +93,8 @@ async function loadData() {
         AppData.story = loaded.story || {};
         AppData.clues = loaded.clues || [];
         AppData.packets = loaded.packets || [];
+        AppData.settings = loaded.settings || {};
+        AppData.roles = loaded.roles || { assignments: {} };
         
         // Set up real-time listeners for all datasets
         for (const dataset of datasets) {
@@ -105,7 +111,7 @@ async function loadData() {
       } else {
         // First time - seed from JSON files
         console.log('First load detected - seeding Firestore from JSON files...');
-        const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+        const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
           fetch('./data/guests.json').then(r => r.json()),
           fetch('./data/characters.json').then(r => r.json()),
           fetch('./data/decor.json').then(r => r.json()),
@@ -114,7 +120,9 @@ async function loadData() {
           fetch('./data/schedule.json').then(r => r.json()),
           fetch('./data/story.json').then(r => r.json()),
           fetch('./data/clues.json').then(r => r.json()),
-          fetch('./data/packets.json').then(r => r.json())
+          fetch('./data/packets.json').then(r => r.json()),
+          fetch('./data/settings.json').then(r => r.json()),
+          fetch('./data/roles.json').then(r => r.json())
         ]);
         
         AppData.guests = guests;
@@ -126,6 +134,8 @@ async function loadData() {
         AppData.story = story;
         AppData.clues = clues;
         AppData.packets = packets;
+        AppData.settings = settings;
+        AppData.roles = roles;
         
         // Save to Firestore (one-time seeding)
         console.log('Saving initial data to Firestore...');
@@ -138,7 +148,9 @@ async function loadData() {
           FirebaseManager.saveData('schedule', schedule),
           FirebaseManager.saveData('story', story),
           FirebaseManager.saveData('clues', clues),
-          FirebaseManager.saveData('packets', packets)
+          FirebaseManager.saveData('packets', packets),
+          FirebaseManager.saveData('settings', settings),
+          FirebaseManager.saveData('roles', roles)
         ]);
         
         // Mark as seeded
@@ -163,7 +175,7 @@ async function loadData() {
     } else {
       // Firebase disabled - load from JSON files
       console.log('Firebase disabled - loading data from JSON files...');
-      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
         fetch('./data/guests.json').then(r => r.json()),
         fetch('./data/characters.json').then(r => r.json()),
         fetch('./data/decor.json').then(r => r.json()),
@@ -172,7 +184,9 @@ async function loadData() {
         fetch('./data/schedule.json').then(r => r.json()),
         fetch('./data/story.json').then(r => r.json()),
         fetch('./data/clues.json').then(r => r.json()),
-        fetch('./data/packets.json').then(r => r.json())
+        fetch('./data/packets.json').then(r => r.json()),
+        fetch('./data/settings.json').then(r => r.json()),
+        fetch('./data/roles.json').then(r => r.json())
       ]);
       
       AppData.guests = guests;
@@ -184,11 +198,13 @@ async function loadData() {
       AppData.story = story;
       AppData.clues = clues;
       AppData.packets = packets;
+      AppData.settings = settings;
+      AppData.roles = roles;
     }
     
     // Store defaults for reset functionality
     if (!AppData.defaults.guests) {
-      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
         fetch('./data/guests.json').then(r => r.json()),
         fetch('./data/characters.json').then(r => r.json()),
         fetch('./data/decor.json').then(r => r.json()),
@@ -197,7 +213,9 @@ async function loadData() {
         fetch('./data/schedule.json').then(r => r.json()),
         fetch('./data/story.json').then(r => r.json()),
         fetch('./data/clues.json').then(r => r.json()),
-        fetch('./data/packets.json').then(r => r.json())
+        fetch('./data/packets.json').then(r => r.json()),
+        fetch('./data/settings.json').then(r => r.json()),
+        fetch('./data/roles.json').then(r => r.json())
       ]);
       
       AppData.defaults = {
@@ -209,7 +227,9 @@ async function loadData() {
         schedule: JSON.parse(JSON.stringify(schedule)),
         story: JSON.parse(JSON.stringify(story)),
         clues: JSON.parse(JSON.stringify(clues)),
-        packets: JSON.parse(JSON.stringify(packets))
+        packets: JSON.parse(JSON.stringify(packets)),
+        settings: JSON.parse(JSON.stringify(settings)),
+        roles: JSON.parse(JSON.stringify(roles))
       };
     }
     
@@ -3025,6 +3045,436 @@ async function getSyncStatusInfo() {
       error: error.message
     };
   }
+}
+
+// ============================================================================
+// Decor Wizard - Curated Options and Controller
+// ============================================================================
+
+const DECOR_CURATED_OPTIONS = {
+  theme: {
+    label: "Theme",
+    multi: false,
+    options: [
+      "Twin Peaks / Pacific Northwest",
+      "Elegant Vintage",
+      "Forest Lodge",
+      "Cherry Blossom",
+      "Mystery & Intrigue",
+      "Cozy Cabin"
+    ]
+  },
+  "color-palette": {
+    label: "Color Palette",
+    multi: true,
+    options: [
+      "Deep burgundy & cream",
+      "Forest green & gold",
+      "Black, white & cherry red",
+      "Emerald & copper",
+      "Plaid & rustic wood tones",
+      "Soft pink & sage green"
+    ]
+  },
+  textures: {
+    label: "Textures",
+    multi: true,
+    options: [
+      "Velvet drapes",
+      "Lace tablecloths",
+      "Burlap & twine",
+      "Wood slice chargers",
+      "Pine branches & evergreen",
+      "Silk ribbons"
+    ]
+  },
+  lighting: {
+    label: "Lighting",
+    multi: true,
+    options: [
+      "String lights (warm white)",
+      "Candlelight (pillar candles)",
+      "Vintage lanterns",
+      "Edison bulbs",
+      "Fairy lights in jars",
+      "Dimmed overhead with accent spots"
+    ]
+  },
+  centerpieces: {
+    label: "Centerpieces",
+    multi: true,
+    options: [
+      "Fresh roses in vintage vases",
+      "Evergreen & pinecone arrangements",
+      "Cherry pie slice displays",
+      "Log sections with candles",
+      "Coffee cup planters with flowers",
+      "Vintage books stacked with florals"
+    ]
+  },
+  signage: {
+    label: "Signage",
+    multi: true,
+    options: [
+      "Welcome to Twin Peaks chalkboard",
+      "Double R Diner menu board",
+      "Character name placecards",
+      "Mystery clue directions",
+      "Photo booth instructions",
+      "Owl & log motif signs"
+    ]
+  },
+  "photo-backdrop": {
+    label: "Photo Backdrop",
+    multi: false,
+    options: [
+      "Forest scene with trees",
+      "Vintage diner aesthetic",
+      "Velvet curtain with fairy lights",
+      "Log Lady's log prop wall",
+      "Cherry pie display table",
+      "Twin Peaks welcome sign"
+    ]
+  },
+  "table-settings": {
+    label: "Table Settings",
+    multi: true,
+    options: [
+      "Vintage china & mismatched cups",
+      "Black napkins with red ribbons",
+      "Wood chargers with linen napkins",
+      "Coffee cup favors at each place",
+      "Mini pie slice placecards",
+      "Plaid or gingham accents"
+    ]
+  }
+};
+
+// Save decor wizard section
+async function saveDecorSection(sectionId, data) {
+  try {
+    if (!AppData.decor.sections) {
+      AppData.decor.sections = [];
+    }
+    
+    const sectionIndex = AppData.decor.sections.findIndex(s => s.id === sectionId);
+    
+    if (sectionIndex >= 0) {
+      // Update existing section
+      AppData.decor.sections[sectionIndex] = {
+        ...AppData.decor.sections[sectionIndex],
+        ...data
+      };
+    } else {
+      // Add new section
+      AppData.decor.sections.push({
+        id: sectionId,
+        name: data.name || sectionId,
+        selectedOptions: data.selectedOptions || [],
+        customIdea: data.customIdea || "",
+        notes: data.notes || "",
+        status: data.status || "draft"
+      });
+    }
+    
+    // Save to Firestore if enabled and not in rehearsal mode
+    if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+      window.notifySaveStart?.();
+      await FirebaseManager.saveData('decor', AppData.decor);
+      window.notifySaveSuccess?.();
+    }
+    
+    // Auto-generate shopping list
+    updateDecorShoppingList();
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving decor section:', error);
+    window.notifySaveError?.(error.message);
+    return false;
+  }
+}
+
+// Auto-generate shopping list from decor selections
+function updateDecorShoppingList() {
+  if (!AppData.decor.sections) return;
+  
+  const autoItems = [];
+  
+  AppData.decor.sections.forEach(section => {
+    if (section.status === 'final' && section.selectedOptions && section.selectedOptions.length > 0) {
+      section.selectedOptions.forEach(option => {
+        // Map selections to shopping items
+        const item = {
+          section: section.name,
+          item: option,
+          quantity: 1,
+          notes: '',
+          purchased: false,
+          auto: true
+        };
+        autoItems.push(item);
+      });
+    }
+    
+    // Add custom ideas as items too
+    if (section.status === 'final' && section.customIdea && section.customIdea.trim()) {
+      autoItems.push({
+        section: section.name,
+        item: section.customIdea,
+        quantity: 1,
+        notes: 'Custom idea',
+        purchased: false,
+        auto: true
+      });
+    }
+  });
+  
+  // Merge with existing shopping list, keeping manual items
+  if (!AppData.decor.shoppingList) {
+    AppData.decor.shoppingList = [];
+  }
+  
+  // Remove old auto-generated items
+  AppData.decor.shoppingList = AppData.decor.shoppingList.filter(item => !item.auto);
+  
+  // Add new auto items
+  AppData.decor.shoppingList.push(...autoItems);
+}
+
+// Get decor section data
+function getDecorSection(sectionId) {
+  if (!AppData.decor.sections) return null;
+  return AppData.decor.sections.find(s => s.id === sectionId);
+}
+
+// Toggle decor section status (draft/final)
+async function toggleDecorSectionStatus(sectionId) {
+  const section = getDecorSection(sectionId);
+  if (!section) return false;
+  
+  section.status = section.status === 'draft' ? 'final' : 'draft';
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('decor', AppData.decor);
+    window.notifySaveSuccess?.();
+  }
+  
+  // Update shopping list
+  updateDecorShoppingList();
+  
+  return true;
+}
+
+// ============================================================================
+// Menu Planner - Controller Functions
+// ============================================================================
+
+// Toggle menu item shortlist status
+async function toggleMenuShortlist(itemId) {
+  const item = AppData.menu.menuItems?.find(i => i.id === itemId);
+  if (!item) return false;
+  
+  item.shortlist = !item.shortlist;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('menu', AppData.menu);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Toggle menu item final status
+async function toggleMenuFinal(itemId) {
+  const item = AppData.menu.menuItems?.find(i => i.id === itemId);
+  if (!item) return false;
+  
+  item.final = !item.final;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('menu', AppData.menu);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Calculate dietary coverage
+function calculateDietaryCoverage() {
+  if (!AppData.menu.menuItems) return {};
+  
+  const finalItems = AppData.menu.menuItems.filter(i => i.final);
+  const coverage = {
+    V: 0,   // Vegetarian
+    VG: 0,  // Vegan
+    GF: 0,  // Gluten-free
+    DF: 0   // Dairy-free
+  };
+  
+  finalItems.forEach(item => {
+    if (item.tags) {
+      if (item.tags.includes('V')) coverage.V++;
+      if (item.tags.includes('VG')) coverage.VG++;
+      if (item.tags.includes('GF')) coverage.GF++;
+      if (item.tags.includes('DF')) coverage.DF++;
+    }
+  });
+  
+  return {
+    totalFinal: finalItems.length,
+    ...coverage
+  };
+}
+
+// Calculate category totals
+function calculateCategoryTotals() {
+  if (!AppData.menu.menuItems) return {};
+  
+  const categories = {};
+  
+  AppData.menu.menuItems.forEach(item => {
+    const cat = item.category || 'Other';
+    if (!categories[cat]) {
+      categories[cat] = { total: 0, shortlist: 0, final: 0 };
+    }
+    categories[cat].total++;
+    if (item.shortlist) categories[cat].shortlist++;
+    if (item.final) categories[cat].final++;
+  });
+  
+  return categories;
+}
+
+// ============================================================================
+// Role Assignment Functions
+// ============================================================================
+
+// Assign role to guest
+async function assignRoleToGuest(guestId, characterId) {
+  const guest = AppData.guests.find(g => g.id === guestId);
+  if (!guest) return false;
+  
+  guest.assignedCharacter = characterId;
+  
+  // Also update roles.assignments for tracking
+  if (!AppData.roles.assignments) {
+    AppData.roles.assignments = {};
+  }
+  AppData.roles.assignments[guestId] = characterId;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await Promise.all([
+      FirebaseManager.saveData('guests', AppData.guests),
+      FirebaseManager.saveData('roles', AppData.roles)
+    ]);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Swap roles between two guests
+async function swapGuestRoles(guestId1, guestId2) {
+  const guest1 = AppData.guests.find(g => g.id === guestId1);
+  const guest2 = AppData.guests.find(g => g.id === guestId2);
+  
+  if (!guest1 || !guest2) return false;
+  
+  const temp = guest1.assignedCharacter;
+  guest1.assignedCharacter = guest2.assignedCharacter;
+  guest2.assignedCharacter = temp;
+  
+  // Update roles.assignments
+  if (!AppData.roles.assignments) {
+    AppData.roles.assignments = {};
+  }
+  AppData.roles.assignments[guestId1] = guest1.assignedCharacter;
+  AppData.roles.assignments[guestId2] = guest2.assignedCharacter;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await Promise.all([
+      FirebaseManager.saveData('guests', AppData.guests),
+      FirebaseManager.saveData('roles', AppData.roles)
+    ]);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// ============================================================================
+// Host Controls Functions
+// ============================================================================
+
+// Update settings
+async function updateSettings(newSettings) {
+  AppData.settings = {
+    ...AppData.settings,
+    ...newSettings
+  };
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('settings', AppData.settings);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Advance cupcake reveal
+function advanceCupcakeReveal() {
+  if (!AppData.cupcakeRevealIndex) {
+    AppData.cupcakeRevealIndex = 0;
+  }
+  
+  const cupcakeOrder = AppData.settings.cupcakeOrder || AppData.story.cupcakeReveal || [];
+  
+  if (AppData.cupcakeRevealIndex < cupcakeOrder.length) {
+    AppData.cupcakeRevealIndex++;
+    return cupcakeOrder[AppData.cupcakeRevealIndex - 1];
+  }
+  
+  return null;
+}
+
+// Reset cupcake reveal
+function resetCupcakeReveal() {
+  AppData.cupcakeRevealIndex = 0;
+}
+
+// Get flavor-adjusted text
+function getFlavorText(baseText, flavor) {
+  // Adjust text based on Twin Peaks flavor setting
+  const flavorLevel = flavor || AppData.settings.twinPeaksFlavor || 'standard';
+  
+  if (flavorLevel === 'light') {
+    // Tone down mysterious language
+    return baseText.replace(/mystic|prophecy|otherworldly/gi, 'interesting');
+  } else if (flavorLevel === 'extra') {
+    // Add more Twin Peaks flavor
+    const extras = [
+      ' The owls are watching.',
+      ' The log has spoken.',
+      ' Fire walk with me.',
+      ' Through the darkness of future past.'
+    ];
+    return baseText + extras[Math.floor(Math.random() * extras.length)];
+  }
+  
+  return baseText; // standard
 }
 
 // ============================================================================

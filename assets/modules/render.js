@@ -1,5 +1,17 @@
 // A Damn Fine Bridal Party - Rendering Module
 
+// HTML escape function to prevent XSS
+function escapeHtml(unsafe) {
+  if (typeof unsafe !== 'string') return unsafe;
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+    .replace(/\//g, "&#x2F;");
+}
+
 // Helper function to render clues by phase
 function renderCluesByPhase(phase) {
   const clues = AppData.clues.filter(c => c.reveal_phase === phase);
@@ -269,6 +281,93 @@ const Render = {
     }
   },
   
+  // Render Decor Wizard page
+  'decor-wizard': function() {
+    if (!AppData.decor.sections || AppData.decor.sections.length === 0) {
+      // Initialize sections if they don't exist
+      AppData.decor.sections = Object.keys(DECOR_CURATED_OPTIONS).map(id => ({
+        id,
+        name: DECOR_CURATED_OPTIONS[id].label,
+        selectedOptions: [],
+        customIdea: "",
+        notes: "",
+        status: "draft"
+      }));
+    }
+    
+    // Render all sections
+    const sectionsHtml = AppData.decor.sections.map(section => {
+      const options = DECOR_CURATED_OPTIONS[section.id];
+      if (!options) return '';
+      
+      const isMulti = options.multi;
+      const statusBadge = section.status === 'final' 
+        ? '<span style="background: #0B4F3F; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">FINAL ✓</span>'
+        : '<span style="background: #999; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">DRAFT</span>';
+      
+      const optionsHtml = options.options.map(opt => {
+        const isSelected = section.selectedOptions && section.selectedOptions.includes(opt);
+        const inputType = isMulti ? 'checkbox' : 'radio';
+        const inputName = `section-${section.id}`;
+        
+        return `
+          <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid ${isSelected ? '#8B0000' : '#ddd'}; border-radius: 4px; background: ${isSelected ? '#fff5f5' : 'white'}; cursor: pointer; margin-bottom: 8px;">
+            <input type="${inputType}" 
+                   name="${inputName}" 
+                   value="${escapeHtml(opt)}" 
+                   ${isSelected ? 'checked' : ''}
+                   onchange="handleDecorOptionChange('${escapeHtml(section.id)}', '${escapeHtml(opt)}', this.checked, ${isMulti})">
+            <span>${escapeHtml(opt)}</span>
+          </label>
+        `;
+      }).join('');
+      
+      return `
+        <div class="card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3>${section.name}</h3>
+            ${statusBadge}
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <strong>Curated Options:</strong> <span style="color: #666; font-size: 14px;">${isMulti ? '(Select multiple)' : '(Select one)'}</span>
+            <div style="margin-top: 10px;">
+              ${optionsHtml}
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px;"><strong>Custom Idea:</strong></label>
+            <input type="text" 
+                   placeholder="Enter your own idea..." 
+                   value="${escapeHtml(section.customIdea || '')}"
+                   onchange="handleDecorCustomIdea('${escapeHtml(section.id)}', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px;"><strong>Notes:</strong></label>
+            <textarea placeholder="Additional notes for this section..." 
+                      onchange="handleDecorNotes('${escapeHtml(section.id)}', this.value)"
+                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px;">${escapeHtml(section.notes || '')}</textarea>
+          </div>
+          
+          <div>
+            <button class="btn ${section.status === 'final' ? 'btn-secondary' : ''}" 
+                    onclick="handleDecorToggleStatus('${escapeHtml(section.id)}')">
+              ${section.status === 'final' ? '⬅️ Mark as Draft' : '✓ Mark as Final'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('decor-wizard-sections').innerHTML = sectionsHtml;
+    
+    // Render shopping list
+    renderDecorShoppingList();
+  },
+  
   // Render food page
   food: function() {
     // Check if menu items exist
@@ -375,6 +474,309 @@ const Render = {
       
       document.getElementById('prep-timeline').innerHTML = timelineHtml;
     }
+  },
+  
+  // Render Menu Planner page
+  'menu-planner': function() {
+    if (!AppData.menu.menuItems || AppData.menu.menuItems.length === 0) {
+      document.getElementById('menu-planner-items').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No menu items yet!</strong> Click "Add Menu Item" above to start.
+        </div>
+      `;
+      document.getElementById('dietary-summary').innerHTML = '<p>No items to analyze.</p>';
+      document.getElementById('category-totals').innerHTML = '<p>No items to categorize.</p>';
+      return;
+    }
+    
+    // Group by category
+    const categories = {};
+    AppData.menu.menuItems.forEach(item => {
+      const cat = item.category || 'Other';
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(item);
+    });
+    
+    // Render items by category
+    let html = '';
+    ['Appetizer', 'Main', 'Side', 'Dessert', 'Beverage', 'Other'].forEach(catName => {
+      if (!categories[catName] || categories[catName].length === 0) return;
+      
+      html += `
+        <div style="margin-bottom: 30px;">
+          <h3 style="color: #8B0000; border-bottom: 2px solid #8B0000; padding-bottom: 5px;">${catName}s</h3>
+          <div style="display: grid; gap: 15px; margin-top: 15px;">
+      `;
+      
+      categories[catName].forEach(item => {
+        const tagBadges = (item.tags || []).map(tag => {
+          const colors = { V: '#0B4F3F', VG: '#228B22', GF: '#DAA520', DF: '#4682B4' };
+          return `<span style="background: ${colors[tag] || '#999'}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">${tag}</span>`;
+        }).join(' ');
+        
+        const allergenList = (item.allergens || []).length > 0 
+          ? `<p style="color: #8B0000; font-size: 13px; margin: 5px 0;"><strong>⚠️ Allergens:</strong> ${item.allergens.join(', ')}</p>`
+          : '';
+        
+        const shortlistBadge = item.shortlist 
+          ? '<span style="background: #FFD700; color: #000; padding: 3px 10px; border-radius: 3px; font-size: 12px;">SHORTLIST ⭐</span>'
+          : '';
+        
+        const finalBadge = item.final 
+          ? '<span style="background: #0B4F3F; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">FINAL ✓</span>'
+          : '';
+        
+        html += `
+          <div style="border: 1px solid ${item.final ? '#0B4F3F' : '#ddd'}; border-radius: 4px; padding: 15px; background: white;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+              <div>
+                <strong style="font-size: 16px;">${item.name}</strong>
+                <div style="margin-top: 5px;">${tagBadges}</div>
+              </div>
+              <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                ${shortlistBadge}
+                ${finalBadge}
+              </div>
+            </div>
+            <p style="margin: 8px 0; color: #666;">${item.description || ''}</p>
+            ${allergenList}
+            <div style="display: flex; gap: 15px; margin: 8px 0; font-size: 13px; color: #666;">
+              <span><strong>Serves:</strong> ${item.serves || 'N/A'}</span>
+              <span><strong>Prep:</strong> ${item.prep || 'N/A'}</span>
+              <span><strong>Source:</strong> ${item.source || 'N/A'}</span>
+            </div>
+            ${item.notes ? `<p style="font-size: 13px; color: #666; font-style: italic; margin: 8px 0;">Note: ${item.notes}</p>` : ''}
+            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+              <button class="btn btn-secondary" onclick="handleMenuToggleShortlist('${item.id}')" style="font-size: 13px; padding: 5px 12px;">
+                ${item.shortlist ? '⭐ Remove from Shortlist' : '⭐ Add to Shortlist'}
+              </button>
+              <button class="btn ${item.final ? 'btn-secondary' : ''}" onclick="handleMenuToggleFinal('${item.id}')" style="font-size: 13px; padding: 5px 12px;">
+                ${item.final ? '✓ Unmark Final' : '✓ Mark as Final'}
+              </button>
+              <button class="btn btn-secondary" onclick="deleteMenuItem('${item.id}')" style="font-size: 13px; padding: 5px 12px; color: #8B0000;">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div></div>';
+    });
+    
+    document.getElementById('menu-planner-items').innerHTML = html;
+    
+    // Render dietary summary
+    const coverage = calculateDietaryCoverage();
+    const coverageHtml = `
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>${coverage.totalFinal}</h3>
+          <p>Final Items</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.V}</h3>
+          <p>Vegetarian 🌱</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.VG}</h3>
+          <p>Vegan 🥗</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.GF}</h3>
+          <p>Gluten-Free 🌾</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.DF}</h3>
+          <p>Dairy-Free 🥛</p>
+        </div>
+      </div>
+    `;
+    document.getElementById('dietary-summary').innerHTML = coverageHtml;
+    
+    // Render category totals
+    const catTotals = calculateCategoryTotals();
+    const totalsHtml = `
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f5f5f5; border-bottom: 2px solid #8B0000;">
+            <th style="padding: 10px; text-align: left;">Category</th>
+            <th style="padding: 10px; text-align: center;">Total</th>
+            <th style="padding: 10px; text-align: center;">Shortlist</th>
+            <th style="padding: 10px; text-align: center;">Final</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.keys(catTotals).map(cat => `
+            <tr style="border-bottom: 1px solid #ddd;">
+              <td style="padding: 10px;"><strong>${cat}</strong></td>
+              <td style="padding: 10px; text-align: center;">${catTotals[cat].total}</td>
+              <td style="padding: 10px; text-align: center;">${catTotals[cat].shortlist}</td>
+              <td style="padding: 10px; text-align: center;">${catTotals[cat].final}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    document.getElementById('category-totals').innerHTML = totalsHtml;
+  },
+  
+  // Render Role Assignment page
+  'role-assignment': function() {
+    const assignedGuests = AppData.guests.filter(g => g.assignedCharacter);
+    const unassignedGuests = AppData.guests.filter(g => !g.assignedCharacter);
+    
+    let html = `
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f5f5f5; border-bottom: 2px solid #8B0000;">
+            <th style="padding: 10px; text-align: left;">Guest</th>
+            <th style="padding: 10px; text-align: left;">Assigned Role</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    AppData.guests.forEach(guest => {
+      const character = guest.assignedCharacter 
+        ? AppData.characters.find(c => c.id === guest.assignedCharacter)
+        : null;
+      
+      html += `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 10px;"><strong>${guest.name}</strong></td>
+          <td style="padding: 10px;">
+            <select onchange="handleRoleAssign(${guest.id}, this.value)" style="width: 100%; padding: 5px;">
+              <option value="">-- No Role --</option>
+              ${AppData.characters.map(c => `
+                <option value="${c.id}" ${guest.assignedCharacter === c.id ? 'selected' : ''}>
+                  ${c.name} (${c.role})
+                </option>
+              `).join('')}
+            </select>
+          </td>
+          <td style="padding: 10px; text-align: center;">
+            ${character ? `<button class="btn btn-secondary" onclick="printGuestPacket(${guest.id})" style="font-size: 13px;">📦 Print Packet</button>` : ''}
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += '</tbody></table>';
+    document.getElementById('role-assignment-matrix').innerHTML = html;
+    
+    // Packet print list
+    const packetListHtml = assignedGuests.map(guest => {
+      const character = AppData.characters.find(c => c.id === guest.assignedCharacter);
+      return `
+        <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
+          <strong>${guest.name}</strong> → ${character?.name || 'Unknown'} (${character?.role || ''})
+          <button class="btn" onclick="printGuestPacket(${guest.id})" style="margin-left: 15px;">📦 Print Packet</button>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('packet-print-list').innerHTML = packetListHtml || '<p>No guests with assigned roles yet.</p>';
+  },
+  
+  // Render Host Controls page
+  'host-controls': function() {
+    // Show rehearsal mode indicator if active
+    if (AppData.settings.rehearsalMode) {
+      document.getElementById('rehearsal-mode-indicator').style.display = 'block';
+    }
+    
+    // Phase Timer
+    const phaseDurations = AppData.settings.phaseDurations || { intro: 20, mid: 20, preFinal: 15, final: 15 };
+    const currentPhase = AppData.currentPhase || 'intro';
+    
+    const timerHtml = `
+      <div style="text-align: center; padding: 30px; background: #f5f5f5; border-radius: 8px;">
+        <h3 style="color: #8B0000;">Current Phase: ${currentPhase.toUpperCase()}</h3>
+        <p style="font-size: 18px; margin: 15px 0;">Duration: ${phaseDurations[currentPhase]} minutes</p>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn" onclick="handlePhaseStart()">▶️ Start Timer</button>
+          <button class="btn btn-secondary" onclick="handlePhaseNext()">⏭️ Next Phase</button>
+          <button class="btn btn-secondary" onclick="handlePhaseReset()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('phase-timer-controls').innerHTML = timerHtml;
+    
+    // Hint Controls
+    const hintBoostEnabled = AppData.settings.hintBoost !== false;
+    const hintsHtml = `
+      <div style="padding: 20px; background: #fff9e6; border: 2px solid #C79810; border-radius: 8px;">
+        <p>Extra Log Lady prophecies to help stuck guests:</p>
+        <div style="margin: 15px 0;">
+          <label style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" ${hintBoostEnabled ? 'checked' : ''} onchange="handleHintBoostToggle(this.checked)">
+            <span>Enable Hint Boost</span>
+          </label>
+        </div>
+        <button class="btn" onclick="handleBroadcastHint()" ${!hintBoostEnabled ? 'disabled' : ''}>
+          📢 Broadcast Log Lady Hint
+        </button>
+        <div id="hint-display" style="margin-top: 15px; padding: 15px; background: white; border-radius: 4px; font-style: italic; display: none;"></div>
+      </div>
+    `;
+    document.getElementById('hint-controls').innerHTML = hintsHtml;
+    
+    // Cupcake Controller
+    const cupcakeOrder = AppData.settings.cupcakeOrder || AppData.story.cupcakeReveal || [];
+    const currentIndex = AppData.cupcakeRevealIndex || 0;
+    
+    const cupcakeHtml = `
+      <div style="padding: 20px;">
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+          <h3>Current Position: ${currentIndex} / ${cupcakeOrder.length}</h3>
+          <div style="font-size: 24px; font-weight: bold; color: #8B0000; margin: 15px 0;">
+            ${currentIndex > 0 ? cupcakeOrder[currentIndex - 1] : 'Ready to start...'}
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn" onclick="handleCupcakeNext()" ${currentIndex >= cupcakeOrder.length ? 'disabled' : ''}>
+            ➡️ Reveal Next (${currentIndex + 1}/${cupcakeOrder.length})
+          </button>
+          <button class="btn btn-secondary" onclick="handleCupcakeReset()">🔄 Reset Order</button>
+          <button class="btn btn-secondary" onclick="printCupcakeTags()">🖨️ Print Tags</button>
+        </div>
+        <div style="margin-top: 20px;">
+          <details>
+            <summary style="cursor: pointer; padding: 10px; background: #f5f5f5; border-radius: 4px;">
+              View All Cupcake Lines (${cupcakeOrder.length})
+            </summary>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+              ${cupcakeOrder.map((line, i) => `
+                <li style="padding: 5px; ${i < currentIndex ? 'color: #999; text-decoration: line-through;' : ''}">${line}</li>
+              `).join('')}
+            </ol>
+          </details>
+        </div>
+      </div>
+    `;
+    document.getElementById('cupcake-controller').innerHTML = cupcakeHtml;
+    
+    // Twin Peaks Flavor
+    const currentFlavor = AppData.settings.twinPeaksFlavor || 'standard';
+    const flavorHtml = `
+      <div style="padding: 20px; text-align: center;">
+        <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+          ${['light', 'standard', 'extra'].map(flavor => `
+            <button class="btn ${currentFlavor === flavor ? '' : 'btn-secondary'}" 
+                    onclick="handleFlavorChange('${flavor}')"
+                    style="min-width: 120px;">
+              ${flavor.charAt(0).toUpperCase() + flavor.slice(1)}
+            </button>
+          `).join('')}
+        </div>
+        <p style="color: #666; font-size: 14px;">
+          ${currentFlavor === 'light' ? 'Light: Toned-down mysterious language' : 
+            currentFlavor === 'extra' ? 'Extra: Full Twin Peaks mysticism' :
+            'Standard: Balanced Twin Peaks atmosphere'}
+        </p>
+      </div>
+    `;
+    document.getElementById('flavor-controls').innerHTML = flavorHtml;
   },
   
   // Render mystery page
@@ -961,8 +1363,99 @@ const Render = {
     `;
     
     document.getElementById('data-links').innerHTML = dataManager;
+    
+    // Render settings panel
+    renderSettingsPanel();
   }
 };
+
+// Helper function to render settings panel
+function renderSettingsPanel() {
+  const settings = AppData.settings || {};
+  const phaseDurations = settings.phaseDurations || { intro: 20, mid: 20, preFinal: 15, final: 15 };
+  
+  const settingsHtml = `
+    <div style="display: grid; gap: 20px;">
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>🌲 Twin Peaks Flavor</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Adjust the Twin Peaks mysticism level in Log Lady prophecies and flavor text.</p>
+        <div style="display: flex; gap: 10px;">
+          ${['light', 'standard', 'extra'].map(flavor => `
+            <button class="btn ${(settings.twinPeaksFlavor || 'standard') === flavor ? '' : 'btn-secondary'}" 
+                    onclick="handleAdminSettingChange('twinPeaksFlavor', '${flavor}')">
+              ${flavor.charAt(0).toUpperCase() + flavor.slice(1)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>⏱️ Phase Durations (minutes)</h3>
+        <div style="display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Intro Phase:</strong></label>
+            <input type="number" value="${phaseDurations.intro}" 
+                   onchange="handleAdminPhaseDurationChange('intro', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Mid Phase:</strong></label>
+            <input type="number" value="${phaseDurations.mid}" 
+                   onchange="handleAdminPhaseDurationChange('mid', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Pre-Final Phase:</strong></label>
+            <input type="number" value="${phaseDurations.preFinal}" 
+                   onchange="handleAdminPhaseDurationChange('preFinal', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Final Phase:</strong></label>
+            <input type="number" value="${phaseDurations.final}" 
+                   onchange="handleAdminPhaseDurationChange('final', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+        </div>
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>🎭 Rehearsal Mode</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Simulate the event without saving changes to Firestore.</p>
+        <label style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" ${settings.rehearsalMode ? 'checked' : ''} 
+                 onchange="handleAdminSettingChange('rehearsalMode', this.checked)">
+          <span>Enable Rehearsal Mode</span>
+        </label>
+        ${settings.rehearsalMode ? '<p style="color: #8B0000; margin-top: 10px;"><strong>⚠️ Changes will NOT be saved!</strong></p>' : ''}
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>💡 Hint Boost</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Enable extra Log Lady prophecies for guests who get stuck.</p>
+        <label style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" ${settings.hintBoost !== false ? 'checked' : ''} 
+                 onchange="handleAdminSettingChange('hintBoost', this.checked)">
+          <span>Enable Hint Boost</span>
+        </label>
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>🛡️ PG-13 Mode</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Keep all content family-friendly (always enforced).</p>
+        <label style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" checked disabled>
+          <span>PG-13 Mode (Always Active)</span>
+        </label>
+      </div>
+    </div>
+  `;
+  
+  const panel = document.getElementById('settings-panel');
+  if (panel) {
+    panel.innerHTML = settingsHtml;
+  }
+}
 
 // Page rendering dispatcher
 window.renderPage = function(page) {
@@ -1032,6 +1525,153 @@ window.printCharacterPacket = function(characterId) {
   printWindow.print();
 };
 
+// ============================================================================
+// Decor Wizard Handlers
+// ============================================================================
+
+window.handleDecorOptionChange = async function(sectionId, option, checked, isMulti) {
+  const section = getDecorSection(sectionId);
+  if (!section) return;
+  
+  if (isMulti) {
+    // Multi-select: add or remove from array
+    if (checked) {
+      if (!section.selectedOptions.includes(option)) {
+        section.selectedOptions.push(option);
+      }
+    } else {
+      section.selectedOptions = section.selectedOptions.filter(o => o !== option);
+    }
+  } else {
+    // Single-select: replace array with single item
+    section.selectedOptions = checked ? [option] : [];
+  }
+  
+  await saveDecorSection(sectionId, section);
+};
+
+window.handleDecorCustomIdea = async function(sectionId, value) {
+  const section = getDecorSection(sectionId);
+  if (!section) return;
+  
+  section.customIdea = value;
+  await saveDecorSection(sectionId, section);
+};
+
+window.handleDecorNotes = async function(sectionId, value) {
+  const section = getDecorSection(sectionId);
+  if (!section) return;
+  
+  section.notes = value;
+  await saveDecorSection(sectionId, section);
+};
+
+window.handleDecorToggleStatus = async function(sectionId) {
+  await toggleDecorSectionStatus(sectionId);
+  // Re-render the page to show updated status
+  if (window.renderPage) {
+    window.renderPage('decor-wizard');
+  }
+};
+
+function renderDecorShoppingList() {
+  if (!AppData.decor.shoppingList || AppData.decor.shoppingList.length === 0) {
+    document.getElementById('decor-shopping-list').innerHTML = `
+      <div class="alert alert-info">
+        <p>Mark sections as "Final" to generate shopping list items automatically.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Group by section
+  const grouped = {};
+  AppData.decor.shoppingList.forEach(item => {
+    if (!grouped[item.section]) {
+      grouped[item.section] = [];
+    }
+    grouped[item.section].push(item);
+  });
+  
+  let html = '<div style="display: grid; gap: 15px;">';
+  
+  Object.keys(grouped).forEach(section => {
+    html += `
+      <div style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: white;">
+        <h4 style="margin: 0 0 10px 0; color: #8B0000;">${section}</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+          ${grouped[section].map(item => `
+            <li>
+              ${item.item} 
+              ${item.notes ? `<span style="color: #666; font-size: 12px;">(${item.notes})</span>` : ''}
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  document.getElementById('decor-shopping-list').innerHTML = html;
+}
+
+window.printDecorPlan = function() {
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Decor Plan - A Damn Fine Bridal Party</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          h1 { color: #8B0000; border-bottom: 3px solid #8B0000; padding-bottom: 10px; }
+          h2 { color: #0B4F3F; margin-top: 30px; }
+          .section { margin-bottom: 30px; page-break-inside: avoid; }
+          .final-badge { background: #0B4F3F; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px; }
+          ul { list-style: none; padding: 0; }
+          li { padding: 5px 0; border-bottom: 1px solid #eee; }
+          @media print {
+            body { padding: 20px; }
+            .section { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🌲 Decor Plan - A Damn Fine Bridal Party</h1>
+        <p><em>Generated on ${new Date().toLocaleDateString()}</em></p>
+        
+        ${(AppData.decor.sections || []).map(section => `
+          <div class="section">
+            <h2>
+              ${section.name} 
+              ${section.status === 'final' ? '<span class="final-badge">FINAL ✓</span>' : ''}
+            </h2>
+            ${section.selectedOptions && section.selectedOptions.length > 0 ? `
+              <p><strong>Selections:</strong></p>
+              <ul>
+                ${section.selectedOptions.map(opt => `<li>• ${opt}</li>`).join('')}
+              </ul>
+            ` : ''}
+            ${section.customIdea ? `<p><strong>Custom Idea:</strong> ${section.customIdea}</p>` : ''}
+            ${section.notes ? `<p><strong>Notes:</strong> ${section.notes}</p>` : ''}
+          </div>
+        `).join('')}
+        
+        <h2>Shopping List</h2>
+        ${(AppData.decor.shoppingList || []).length > 0 ? `
+          <ul>
+            ${AppData.decor.shoppingList.map(item => `
+              <li>☐ ${item.item} ${item.notes ? `(${item.notes})` : ''}</li>
+            `).join('')}
+          </ul>
+        ` : '<p>No items in shopping list yet.</p>'}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+
 window.copyInvite = function(guestId) {
   const inviteText = generateInviteText(guestId);
   
@@ -1095,4 +1735,336 @@ window.handleAdvancePhase = function() {
   } else {
     alert('Already at the final phase!');
   }
+};
+
+// ============================================================================
+// Menu Planner Handlers
+// ============================================================================
+
+window.handleMenuToggleShortlist = async function(itemId) {
+  await toggleMenuShortlist(itemId);
+  // Re-render the page to show updated status
+  if (window.renderPage) {
+    window.renderPage('menu-planner');
+  }
+};
+
+window.handleMenuToggleFinal = async function(itemId) {
+  await toggleMenuFinal(itemId);
+  // Re-render the page to show updated status
+  if (window.renderPage) {
+    window.renderPage('menu-planner');
+  }
+};
+
+window.printMenuPreview = function() {
+  const finalItems = (AppData.menu.menuItems || []).filter(i => i.final);
+  
+  // Group by category
+  const categories = {};
+  finalItems.forEach(item => {
+    const cat = item.category || 'Other';
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(item);
+  });
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Menu - A Damn Fine Bridal Party</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          h1 { color: #8B0000; border-bottom: 3px solid #8B0000; padding-bottom: 10px; }
+          h2 { color: #0B4F3F; margin-top: 30px; }
+          .category { margin-bottom: 30px; page-break-inside: avoid; }
+          .menu-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+          .menu-item h3 { margin: 0; color: #333; }
+          .tags { display: inline-flex; gap: 5px; margin-top: 5px; }
+          .tag { background: #0B4F3F; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; }
+          .allergen { color: #8B0000; font-weight: bold; }
+          @media print {
+            body { padding: 20px; }
+            .category { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🌲 Menu - A Damn Fine Bridal Party</h1>
+        <p><em>Generated on ${new Date().toLocaleDateString()}</em></p>
+        
+        ${['Appetizer', 'Main', 'Side', 'Dessert', 'Beverage', 'Other'].map(catName => {
+          if (!categories[catName] || categories[catName].length === 0) return '';
+          return `
+            <div class="category">
+              <h2>${catName}s</h2>
+              ${categories[catName].map(item => `
+                <div class="menu-item">
+                  <h3>${item.name}</h3>
+                  ${(item.tags && item.tags.length > 0) ? `
+                    <div class="tags">
+                      ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                  ` : ''}
+                  <p>${item.description || ''}</p>
+                  ${(item.allergens && item.allergens.length > 0) ? `
+                    <p class="allergen">⚠️ Contains: ${item.allergens.join(', ')}</p>
+                  ` : ''}
+                  <p><em>Serves: ${item.serves || 'N/A'}</em></p>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }).join('')}
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #8B0000;">
+          <h3>Dietary Information</h3>
+          <p>V = Vegetarian | VG = Vegan | GF = Gluten-Free | DF = Dairy-Free</p>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+
+// ============================================================================
+// Role Assignment Handlers
+// ============================================================================
+
+window.handleRoleAssign = async function(guestId, characterId) {
+  await assignRoleToGuest(guestId, characterId || null);
+  if (window.renderPage) {
+    window.renderPage('role-assignment');
+  }
+};
+
+window.filterAssignments = function(filter) {
+  // Simple filter UI update
+  document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+    btn.classList.add('btn-secondary');
+  });
+  document.getElementById(`filter-${filter}`).classList.remove('btn-secondary');
+  
+  // For now, just re-render (could add actual filtering logic)
+  if (window.renderPage) {
+    window.renderPage('role-assignment');
+  }
+};
+
+window.autoAssignRoles = function() {
+  autoAssignCharacters();
+  if (window.renderPage) {
+    window.renderPage('role-assignment');
+  }
+};
+
+window.printGuestPacket = function(guestId) {
+  const guest = AppData.guests.find(g => g.id === guestId);
+  if (!guest || !guest.assignedCharacter) {
+    alert('Guest must have an assigned role to print packet.');
+    return;
+  }
+  
+  const character = AppData.characters.find(c => c.id === guest.assignedCharacter);
+  const packet = AppData.packets.find(p => p.character_id === guest.assignedCharacter);
+  
+  if (!character || !packet) {
+    alert('Character packet data not found.');
+    return;
+  }
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Character Packet - ${guest.name}</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 40px; }
+          .page-break { page-break-after: always; }
+          h1 { color: #8B0000; border-bottom: 3px solid #8B0000; padding-bottom: 10px; }
+          h2 { color: #0B4F3F; margin-top: 30px; }
+          .envelope { padding: 30px; border: 2px solid #8B0000; margin: 20px 0; page-break-inside: avoid; }
+          .intro { background: #fff9e6; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          @media print {
+            body { padding: 20px; }
+            .page-break { page-break-after: always; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🌲 Character Packet for ${guest.name}</h1>
+        
+        <div class="intro">
+          <h2>${packet.intro_profile.name}</h2>
+          <h3>${packet.intro_profile.role}</h3>
+          <p><em>${packet.intro_profile.tagline}</em></p>
+          <p>${packet.intro_profile.overview}</p>
+          
+          <h4>Costume Essentials:</h4>
+          <ul>
+            ${(packet.intro_profile.costume_essentials || []).map(item => `<li>${item}</li>`).join('')}
+          </ul>
+          
+          <p><strong>Secret Preview:</strong> ${packet.intro_profile.secret_preview}</p>
+        </div>
+        
+        <div class="page-break"></div>
+        
+        ${(packet.envelopes || []).map((env, idx) => `
+          <div class="envelope">
+            <h2>Envelope ${idx + 1}: ${env.title}</h2>
+            <h3>Phase: ${env.phase.toUpperCase()}</h3>
+            <p><strong>Contents:</strong></p>
+            <p>${env.contents}</p>
+            <p><strong>Instructions:</strong></p>
+            <p>${env.instructions}</p>
+          </div>
+          ${idx < packet.envelopes.length - 1 ? '<div class="page-break"></div>' : ''}
+        `).join('')}
+        
+        <div class="page-break"></div>
+        
+        <div style="padding: 20px; background: #f5f5f5; border-radius: 8px;">
+          <h2>Costume Tips for ${character.name}</h2>
+          <p>${character.costume || 'No specific costume requirements.'}</p>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+// ============================================================================
+// Host Controls Handlers
+// ============================================================================
+
+window.handlePhaseStart = function() {
+  const phase = AppData.currentPhase || 'intro';
+  const duration = AppData.settings.phaseDurations?.[phase] || 20;
+  alert(`Starting ${phase.toUpperCase()} phase - Duration: ${duration} minutes\n\nUse a separate timer app for actual timing.`);
+};
+
+window.handlePhaseNext = function() {
+  const phases = ['intro', 'mid', 'preFinal', 'final'];
+  const currentIndex = phases.indexOf(AppData.currentPhase || 'intro');
+  if (currentIndex < phases.length - 1) {
+    AppData.currentPhase = phases[currentIndex + 1];
+    alert(`Advanced to phase: ${AppData.currentPhase.toUpperCase()}`);
+    if (window.renderPage) window.renderPage('host-controls');
+  } else {
+    alert('Already at final phase!');
+  }
+};
+
+window.handlePhaseReset = function() {
+  AppData.currentPhase = 'intro';
+  alert('Phase reset to INTRO');
+  if (window.renderPage) window.renderPage('host-controls');
+};
+
+window.handleHintBoostToggle = async function(enabled) {
+  await updateSettings({ hintBoost: enabled });
+  if (window.renderPage) window.renderPage('host-controls');
+};
+
+window.handleBroadcastHint = function() {
+  const hints = [
+    "The log knows who held the poison. Look for the elegant one.",
+    "False heritage claims hide dark truths. Follow the money.",
+    "Someone's grandmother's recipe wasn't theirs at all.",
+    "The pie business depends on a lie. Cassandra found proof."
+  ];
+  const hint = hints[Math.floor(Math.random() * hints.length)];
+  
+  const flavoredHint = getFlavorText(hint, AppData.settings.twinPeaksFlavor);
+  
+  const display = document.getElementById('hint-display');
+  if (display) {
+    display.textContent = `"${flavoredHint}"`;
+    display.style.display = 'block';
+  }
+  
+  alert(`Log Lady Prophecy:\n\n"${flavoredHint}"\n\nShare this hint with your guests!`);
+};
+
+window.handleCupcakeNext = function() {
+  const revealed = advanceCupcakeReveal();
+  if (revealed) {
+    alert(`Cupcake Reveal ${AppData.cupcakeRevealIndex}:\n\n"${revealed}"`);
+    if (window.renderPage) window.renderPage('host-controls');
+  }
+};
+
+window.handleCupcakeReset = function() {
+  resetCupcakeReveal();
+  alert('Cupcake reveal order reset!');
+  if (window.renderPage) window.renderPage('host-controls');
+};
+
+window.printCupcakeTags = function() {
+  const cupcakeOrder = AppData.settings.cupcakeOrder || AppData.story.cupcakeReveal || [];
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Cupcake Tags</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 20px; }
+          .tag { 
+            border: 2px dashed #8B0000; 
+            padding: 30px; 
+            margin: 20px; 
+            text-align: center; 
+            font-size: 24px; 
+            font-weight: bold;
+            page-break-inside: avoid;
+            display: inline-block;
+            width: 300px;
+          }
+          @media print {
+            .tag { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🧁 Cupcake Reveal Tags</h1>
+        <p>Cut these out and attach to cupcakes in order:</p>
+        ${cupcakeOrder.map((line, idx) => `
+          <div class="tag">
+            <div style="font-size: 16px; color: #666;">Tag ${idx + 1}</div>
+            <div style="margin-top: 15px;">${line}</div>
+          </div>
+        `).join('')}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+window.handleFlavorChange = async function(flavor) {
+  await updateSettings({ twinPeaksFlavor: flavor });
+  if (window.renderPage) window.renderPage('host-controls');
+};
+
+// ============================================================================
+// Admin Settings Handlers
+// ============================================================================
+
+window.handleAdminSettingChange = async function(key, value) {
+  const newSettings = {};
+  newSettings[key] = value;
+  await updateSettings(newSettings);
+  renderSettingsPanel();
+};
+
+window.handleAdminPhaseDurationChange = async function(phase, value) {
+  const phaseDurations = AppData.settings.phaseDurations || {};
+  phaseDurations[phase] = parseInt(value);
+  await updateSettings({ phaseDurations });
+  renderSettingsPanel();
 };

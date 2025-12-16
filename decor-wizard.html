@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decor Wizard - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Decor Planning Wizard</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>🎨 Decor Planning Wizard</h2>
+            <p>Make selections for each decor category. Your choices will automatically generate a shopping list!</p>
+            
+            <div id="decor-wizard-sections">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading wizard sections...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Auto-Generated Shopping List</h2>
+            <p>Based on your "Final" selections above:</p>
+            <div id="decor-shopping-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading shopping list...</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="printDecorPlan()">🖨️ Print Decor Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
