@@ -269,6 +269,93 @@ const Render = {
     }
   },
   
+  // Render Decor Wizard page
+  'decor-wizard': function() {
+    if (!AppData.decor.sections || AppData.decor.sections.length === 0) {
+      // Initialize sections if they don't exist
+      AppData.decor.sections = Object.keys(DECOR_CURATED_OPTIONS).map(id => ({
+        id,
+        name: DECOR_CURATED_OPTIONS[id].label,
+        selectedOptions: [],
+        customIdea: "",
+        notes: "",
+        status: "draft"
+      }));
+    }
+    
+    // Render all sections
+    const sectionsHtml = AppData.decor.sections.map(section => {
+      const options = DECOR_CURATED_OPTIONS[section.id];
+      if (!options) return '';
+      
+      const isMulti = options.multi;
+      const statusBadge = section.status === 'final' 
+        ? '<span style="background: #0B4F3F; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">FINAL ✓</span>'
+        : '<span style="background: #999; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">DRAFT</span>';
+      
+      const optionsHtml = options.options.map(opt => {
+        const isSelected = section.selectedOptions && section.selectedOptions.includes(opt);
+        const inputType = isMulti ? 'checkbox' : 'radio';
+        const inputName = `section-${section.id}`;
+        
+        return `
+          <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid ${isSelected ? '#8B0000' : '#ddd'}; border-radius: 4px; background: ${isSelected ? '#fff5f5' : 'white'}; cursor: pointer; margin-bottom: 8px;">
+            <input type="${inputType}" 
+                   name="${inputName}" 
+                   value="${opt}" 
+                   ${isSelected ? 'checked' : ''}
+                   onchange="handleDecorOptionChange('${section.id}', '${opt.replace(/'/g, "\\'")}', this.checked, ${isMulti})">
+            <span>${opt}</span>
+          </label>
+        `;
+      }).join('');
+      
+      return `
+        <div class="card" style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3>${section.name}</h3>
+            ${statusBadge}
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <strong>Curated Options:</strong> <span style="color: #666; font-size: 14px;">${isMulti ? '(Select multiple)' : '(Select one)'}</span>
+            <div style="margin-top: 10px;">
+              ${optionsHtml}
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px;"><strong>Custom Idea:</strong></label>
+            <input type="text" 
+                   placeholder="Enter your own idea..." 
+                   value="${section.customIdea || ''}"
+                   onchange="handleDecorCustomIdea('${section.id}', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 5px;"><strong>Notes:</strong></label>
+            <textarea placeholder="Additional notes for this section..." 
+                      onchange="handleDecorNotes('${section.id}', this.value)"
+                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px;">${section.notes || ''}</textarea>
+          </div>
+          
+          <div>
+            <button class="btn ${section.status === 'final' ? 'btn-secondary' : ''}" 
+                    onclick="handleDecorToggleStatus('${section.id}')">
+              ${section.status === 'final' ? '⬅️ Mark as Draft' : '✓ Mark as Final'}
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('decor-wizard-sections').innerHTML = sectionsHtml;
+    
+    // Render shopping list
+    renderDecorShoppingList();
+  },
+  
   // Render food page
   food: function() {
     // Check if menu items exist
@@ -1031,6 +1118,153 @@ window.printCharacterPacket = function(characterId) {
   printWindow.document.close();
   printWindow.print();
 };
+
+// ============================================================================
+// Decor Wizard Handlers
+// ============================================================================
+
+window.handleDecorOptionChange = async function(sectionId, option, checked, isMulti) {
+  const section = getDecorSection(sectionId);
+  if (!section) return;
+  
+  if (isMulti) {
+    // Multi-select: add or remove from array
+    if (checked) {
+      if (!section.selectedOptions.includes(option)) {
+        section.selectedOptions.push(option);
+      }
+    } else {
+      section.selectedOptions = section.selectedOptions.filter(o => o !== option);
+    }
+  } else {
+    // Single-select: replace array with single item
+    section.selectedOptions = checked ? [option] : [];
+  }
+  
+  await saveDecorSection(sectionId, section);
+};
+
+window.handleDecorCustomIdea = async function(sectionId, value) {
+  const section = getDecorSection(sectionId);
+  if (!section) return;
+  
+  section.customIdea = value;
+  await saveDecorSection(sectionId, section);
+};
+
+window.handleDecorNotes = async function(sectionId, value) {
+  const section = getDecorSection(sectionId);
+  if (!section) return;
+  
+  section.notes = value;
+  await saveDecorSection(sectionId, section);
+};
+
+window.handleDecorToggleStatus = async function(sectionId) {
+  await toggleDecorSectionStatus(sectionId);
+  // Re-render the page to show updated status
+  if (window.renderPage) {
+    window.renderPage('decor-wizard');
+  }
+};
+
+function renderDecorShoppingList() {
+  if (!AppData.decor.shoppingList || AppData.decor.shoppingList.length === 0) {
+    document.getElementById('decor-shopping-list').innerHTML = `
+      <div class="alert alert-info">
+        <p>Mark sections as "Final" to generate shopping list items automatically.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  // Group by section
+  const grouped = {};
+  AppData.decor.shoppingList.forEach(item => {
+    if (!grouped[item.section]) {
+      grouped[item.section] = [];
+    }
+    grouped[item.section].push(item);
+  });
+  
+  let html = '<div style="display: grid; gap: 15px;">';
+  
+  Object.keys(grouped).forEach(section => {
+    html += `
+      <div style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: white;">
+        <h4 style="margin: 0 0 10px 0; color: #8B0000;">${section}</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+          ${grouped[section].map(item => `
+            <li>
+              ${item.item} 
+              ${item.notes ? `<span style="color: #666; font-size: 12px;">(${item.notes})</span>` : ''}
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+    `;
+  });
+  
+  html += '</div>';
+  document.getElementById('decor-shopping-list').innerHTML = html;
+}
+
+window.printDecorPlan = function() {
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Decor Plan - A Damn Fine Bridal Party</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          h1 { color: #8B0000; border-bottom: 3px solid #8B0000; padding-bottom: 10px; }
+          h2 { color: #0B4F3F; margin-top: 30px; }
+          .section { margin-bottom: 30px; page-break-inside: avoid; }
+          .final-badge { background: #0B4F3F; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px; }
+          ul { list-style: none; padding: 0; }
+          li { padding: 5px 0; border-bottom: 1px solid #eee; }
+          @media print {
+            body { padding: 20px; }
+            .section { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🌲 Decor Plan - A Damn Fine Bridal Party</h1>
+        <p><em>Generated on ${new Date().toLocaleDateString()}</em></p>
+        
+        ${(AppData.decor.sections || []).map(section => `
+          <div class="section">
+            <h2>
+              ${section.name} 
+              ${section.status === 'final' ? '<span class="final-badge">FINAL ✓</span>' : ''}
+            </h2>
+            ${section.selectedOptions && section.selectedOptions.length > 0 ? `
+              <p><strong>Selections:</strong></p>
+              <ul>
+                ${section.selectedOptions.map(opt => `<li>• ${opt}</li>`).join('')}
+              </ul>
+            ` : ''}
+            ${section.customIdea ? `<p><strong>Custom Idea:</strong> ${section.customIdea}</p>` : ''}
+            ${section.notes ? `<p><strong>Notes:</strong> ${section.notes}</p>` : ''}
+          </div>
+        `).join('')}
+        
+        <h2>Shopping List</h2>
+        ${(AppData.decor.shoppingList || []).length > 0 ? `
+          <ul>
+            ${AppData.decor.shoppingList.map(item => `
+              <li>☐ ${item.item} ${item.notes ? `(${item.notes})` : ''}</li>
+            `).join('')}
+          </ul>
+        ` : '<p>No items in shopping list yet.</p>'}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
 
 window.copyInvite = function(guestId) {
   const inviteText = generateInviteText(guestId);

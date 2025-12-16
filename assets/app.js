@@ -3048,6 +3048,227 @@ async function getSyncStatusInfo() {
 }
 
 // ============================================================================
+// Decor Wizard - Curated Options and Controller
+// ============================================================================
+
+const DECOR_CURATED_OPTIONS = {
+  theme: {
+    label: "Theme",
+    multi: false,
+    options: [
+      "Twin Peaks / Pacific Northwest",
+      "Elegant Vintage",
+      "Forest Lodge",
+      "Cherry Blossom",
+      "Mystery & Intrigue",
+      "Cozy Cabin"
+    ]
+  },
+  "color-palette": {
+    label: "Color Palette",
+    multi: true,
+    options: [
+      "Deep burgundy & cream",
+      "Forest green & gold",
+      "Black, white & cherry red",
+      "Emerald & copper",
+      "Plaid & rustic wood tones",
+      "Soft pink & sage green"
+    ]
+  },
+  textures: {
+    label: "Textures",
+    multi: true,
+    options: [
+      "Velvet drapes",
+      "Lace tablecloths",
+      "Burlap & twine",
+      "Wood slice chargers",
+      "Pine branches & evergreen",
+      "Silk ribbons"
+    ]
+  },
+  lighting: {
+    label: "Lighting",
+    multi: true,
+    options: [
+      "String lights (warm white)",
+      "Candlelight (pillar candles)",
+      "Vintage lanterns",
+      "Edison bulbs",
+      "Fairy lights in jars",
+      "Dimmed overhead with accent spots"
+    ]
+  },
+  centerpieces: {
+    label: "Centerpieces",
+    multi: true,
+    options: [
+      "Fresh roses in vintage vases",
+      "Evergreen & pinecone arrangements",
+      "Cherry pie slice displays",
+      "Log sections with candles",
+      "Coffee cup planters with flowers",
+      "Vintage books stacked with florals"
+    ]
+  },
+  signage: {
+    label: "Signage",
+    multi: true,
+    options: [
+      "Welcome to Twin Peaks chalkboard",
+      "Double R Diner menu board",
+      "Character name placecards",
+      "Mystery clue directions",
+      "Photo booth instructions",
+      "Owl & log motif signs"
+    ]
+  },
+  "photo-backdrop": {
+    label: "Photo Backdrop",
+    multi: false,
+    options: [
+      "Forest scene with trees",
+      "Vintage diner aesthetic",
+      "Velvet curtain with fairy lights",
+      "Log Lady's log prop wall",
+      "Cherry pie display table",
+      "Twin Peaks welcome sign"
+    ]
+  },
+  "table-settings": {
+    label: "Table Settings",
+    multi: true,
+    options: [
+      "Vintage china & mismatched cups",
+      "Black napkins with red ribbons",
+      "Wood chargers with linen napkins",
+      "Coffee cup favors at each place",
+      "Mini pie slice placecards",
+      "Plaid or gingham accents"
+    ]
+  }
+};
+
+// Save decor wizard section
+async function saveDecorSection(sectionId, data) {
+  try {
+    if (!AppData.decor.sections) {
+      AppData.decor.sections = [];
+    }
+    
+    const sectionIndex = AppData.decor.sections.findIndex(s => s.id === sectionId);
+    
+    if (sectionIndex >= 0) {
+      // Update existing section
+      AppData.decor.sections[sectionIndex] = {
+        ...AppData.decor.sections[sectionIndex],
+        ...data
+      };
+    } else {
+      // Add new section
+      AppData.decor.sections.push({
+        id: sectionId,
+        name: data.name || sectionId,
+        selectedOptions: data.selectedOptions || [],
+        customIdea: data.customIdea || "",
+        notes: data.notes || "",
+        status: data.status || "draft"
+      });
+    }
+    
+    // Save to Firestore if enabled and not in rehearsal mode
+    if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+      window.notifySaveStart?.();
+      await FirebaseManager.saveData('decor', AppData.decor);
+      window.notifySaveSuccess?.();
+    }
+    
+    // Auto-generate shopping list
+    updateDecorShoppingList();
+    
+    return true;
+  } catch (error) {
+    console.error('Error saving decor section:', error);
+    window.notifySaveError?.(error.message);
+    return false;
+  }
+}
+
+// Auto-generate shopping list from decor selections
+function updateDecorShoppingList() {
+  if (!AppData.decor.sections) return;
+  
+  const autoItems = [];
+  
+  AppData.decor.sections.forEach(section => {
+    if (section.status === 'final' && section.selectedOptions && section.selectedOptions.length > 0) {
+      section.selectedOptions.forEach(option => {
+        // Map selections to shopping items
+        const item = {
+          section: section.name,
+          item: option,
+          quantity: 1,
+          notes: '',
+          purchased: false,
+          auto: true
+        };
+        autoItems.push(item);
+      });
+    }
+    
+    // Add custom ideas as items too
+    if (section.status === 'final' && section.customIdea && section.customIdea.trim()) {
+      autoItems.push({
+        section: section.name,
+        item: section.customIdea,
+        quantity: 1,
+        notes: 'Custom idea',
+        purchased: false,
+        auto: true
+      });
+    }
+  });
+  
+  // Merge with existing shopping list, keeping manual items
+  if (!AppData.decor.shoppingList) {
+    AppData.decor.shoppingList = [];
+  }
+  
+  // Remove old auto-generated items
+  AppData.decor.shoppingList = AppData.decor.shoppingList.filter(item => !item.auto);
+  
+  // Add new auto items
+  AppData.decor.shoppingList.push(...autoItems);
+}
+
+// Get decor section data
+function getDecorSection(sectionId) {
+  if (!AppData.decor.sections) return null;
+  return AppData.decor.sections.find(s => s.id === sectionId);
+}
+
+// Toggle decor section status (draft/final)
+async function toggleDecorSectionStatus(sectionId) {
+  const section = getDecorSection(sectionId);
+  if (!section) return false;
+  
+  section.status = section.status === 'draft' ? 'final' : 'draft';
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('decor', AppData.decor);
+    window.notifySaveSuccess?.();
+  }
+  
+  // Update shopping list
+  updateDecorShoppingList();
+  
+  return true;
+}
+
+// ============================================================================
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
