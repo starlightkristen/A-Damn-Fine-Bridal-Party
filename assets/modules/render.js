@@ -1,5 +1,17 @@
 // A Damn Fine Bridal Party - Rendering Module
 
+// HTML escape function to prevent XSS
+function escapeHtml(unsafe) {
+  if (typeof unsafe !== 'string') return unsafe;
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+    .replace(/\//g, "&#x2F;");
+}
+
 // Helper function to render clues by phase
 function renderCluesByPhase(phase) {
   const clues = AppData.clues.filter(c => c.reveal_phase === phase);
@@ -302,10 +314,10 @@ const Render = {
           <label style="display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px solid ${isSelected ? '#8B0000' : '#ddd'}; border-radius: 4px; background: ${isSelected ? '#fff5f5' : 'white'}; cursor: pointer; margin-bottom: 8px;">
             <input type="${inputType}" 
                    name="${inputName}" 
-                   value="${opt}" 
+                   value="${escapeHtml(opt)}" 
                    ${isSelected ? 'checked' : ''}
-                   onchange="handleDecorOptionChange('${section.id}', '${opt.replace(/'/g, "\\'")}', this.checked, ${isMulti})">
-            <span>${opt}</span>
+                   onchange="handleDecorOptionChange('${escapeHtml(section.id)}', '${escapeHtml(opt)}', this.checked, ${isMulti})">
+            <span>${escapeHtml(opt)}</span>
           </label>
         `;
       }).join('');
@@ -328,21 +340,21 @@ const Render = {
             <label style="display: block; margin-bottom: 5px;"><strong>Custom Idea:</strong></label>
             <input type="text" 
                    placeholder="Enter your own idea..." 
-                   value="${section.customIdea || ''}"
-                   onchange="handleDecorCustomIdea('${section.id}', this.value)"
+                   value="${escapeHtml(section.customIdea || '')}"
+                   onchange="handleDecorCustomIdea('${escapeHtml(section.id)}', this.value)"
                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
           </div>
           
           <div style="margin-bottom: 15px;">
             <label style="display: block; margin-bottom: 5px;"><strong>Notes:</strong></label>
             <textarea placeholder="Additional notes for this section..." 
-                      onchange="handleDecorNotes('${section.id}', this.value)"
-                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px;">${section.notes || ''}</textarea>
+                      onchange="handleDecorNotes('${escapeHtml(section.id)}', this.value)"
+                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; min-height: 60px;">${escapeHtml(section.notes || '')}</textarea>
           </div>
           
           <div>
             <button class="btn ${section.status === 'final' ? 'btn-secondary' : ''}" 
-                    onclick="handleDecorToggleStatus('${section.id}')">
+                    onclick="handleDecorToggleStatus('${escapeHtml(section.id)}')">
               ${section.status === 'final' ? '⬅️ Mark as Draft' : '✓ Mark as Final'}
             </button>
           </div>
