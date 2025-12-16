@@ -13,7 +13,7 @@
     "location": "Outside Morgan's new artisan pie shop"
   },
   "theMurderer": {
-    "culprit": "Morgan Blackwood (Venue Owner)",
+    "character": "Morgan Blackwood (Venue Owner)",
     "motive": "Cassandra discovered that Morgan stole Norma's secret cherry pie recipe and was passing it off as her own 'family heritage' to attract investors for her new pie business. When Cassandra threatened to publish the truth, Morgan's dreams of success—and the investor money already promised—would vanish.",
     "method": "Poisoned a slice of the stolen cherry pie recipe and gave it to Cassandra as a 'sample' to 'clear things up'",
     "coverUp": "Morgan is acting concerned about Cassandra's absence while secretly relieved the blogger won't expose her lies"
