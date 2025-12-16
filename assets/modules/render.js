@@ -731,11 +731,11 @@ const Render = {
     // Populate character guide dynamically if element exists
     const characterGuideElement = document.getElementById('character-list-guide');
     if (characterGuideElement) {
-      const characterGuideHtml = AppData.characters && AppData.characters.length > 0 ?
+      const characterGuideHtml = AppData.characters?.length > 0 ?
         `<ul class="item-list">
           ${AppData.characters.map(char => {
             // Find all guests assigned to this character
-            const assignedGuests = (AppData.guests || []).filter(g => g.assignedCharacter === char.id);
+            const assignedGuests = (AppData.guests?.filter(g => g.assignedCharacter === char.id)) || [];
             const assignmentStatus = assignedGuests.length > 0 ?
               `<span style="color: var(--forest-emerald); margin-left: 10px;">✓ Assigned to ${assignedGuests.map(g => g.name).join(', ')}</span>` :
               '';
