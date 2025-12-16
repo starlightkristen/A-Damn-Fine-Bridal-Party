@@ -2326,12 +2326,7 @@ function addItem(datasetName, item) {
     // For nested arrays like menu.menuItems
     AppData[datasetName][datasetName].push(item);
   }
-  // Save to Firestore if enabled, fallback to localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
-  } else {
-    saveToLocalStorage();
-  }
+  saveToLocalStorage();
 }
 
 // Update item in array dataset
@@ -2359,12 +2354,7 @@ function updateItem(datasetName, id, updates) {
     }
   }
   
-  // Save to Firestore if enabled, fallback to localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
-  } else {
-    saveToLocalStorage();
-  }
+  saveToLocalStorage();
 }
 
 // Delete item from array dataset
@@ -2386,12 +2376,7 @@ function deleteItem(datasetName, id) {
     AppData[datasetName] = dataset.filter(item => item.id !== id);
   }
   
-  // Save to Firestore if enabled, fallback to localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    FirebaseManager.saveData(datasetName, AppData[datasetName]);
-  } else {
-    saveToLocalStorage();
-  }
+  saveToLocalStorage();
 }
 
 // ============================================================================
