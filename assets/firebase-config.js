@@ -198,22 +198,12 @@ const FirebaseManager = {
         
         // Check if we have a more recent local write
         const lastWrite = this.lastWriteTimestamps[datasetName];
-        if (lastWrite) {
-          // Compare versions - ignore if incoming is older or same
+        if (lastWrite && lastWrite.version) {
+          // Primary check: Compare versions - ignore if incoming is older or same
+          // Version number is the source of truth for conflict resolution
           if (incomingVersion <= lastWrite.version) {
             console.log(`Ignoring stale update for ${datasetName} (incoming v${incomingVersion} <= local v${lastWrite.version})`);
             return;
-          }
-          
-          // Also check timestamps as a fallback
-          if (incomingTimestamp && lastWrite.updatedAt) {
-            const incomingTime = new Date(incomingTimestamp).getTime();
-            const lastWriteTime = new Date(lastWrite.updatedAt).getTime();
-            
-            if (incomingTime < lastWriteTime) {
-              console.log(`Ignoring older update for ${datasetName} based on timestamp`);
-              return;
-            }
           }
         }
         

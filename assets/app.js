@@ -687,7 +687,9 @@ async function handleSaveGuest(event, guestId) {
     }
   } catch (error) {
     console.error('Error saving guest:', error);
-    alert('Failed to save guest: ' + error.message);
+    // Sanitize error message for user display
+    const safeMsg = error && error.message ? String(error.message).substring(0, 100).replace(/[<>]/g, '') : 'Unknown error';
+    alert('Failed to save guest: ' + safeMsg);
     // Don't close editor on error so user can retry
   }
 }
