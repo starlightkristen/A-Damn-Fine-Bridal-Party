@@ -5,35 +5,35 @@
       "name": "Audrey Horne",
       "role": "The Socialite",
       "tagline": "Sophistication hides many secrets",
-      "overview": "You are Audrey Horne, the daughter of Twin Peaks' wealthiest family. You move through high society with grace and mystery, always knowing more than you let on. Tonight, you're here to celebrate Marlena, but there are whispers of scandal that could threaten your carefully cultivated image.",
+      "overview": "You are Audrey Horne, daughter of Twin Peaks' wealthiest family. You move through high society with grace and mystery, always knowing more than you let on. You're here to celebrate Marlena, but you've been hearing whispers about stolen recipes and false heritage claims.",
       "costume_essentials": ["1950s-inspired elegant dress", "Saddle shoes", "Cherry red lipstick", "Vintage clutch"],
-      "personality_notes": "Confident, mysterious, playful. You enjoy the game of social manipulation but have a good heart underneath.",
-      "secret_preview": "Someone from your past has returned to Twin Peaks with information that could change everything..."
+      "personality_notes": "Confident, mysterious, observant. You notice things others miss and aren't afraid to ask pointed questions.",
+      "secret_preview": "You know about Morgan's investor pitch and suspect something isn't quite right..."
     },
     "envelopes": [
       {
         "phase": "intro",
-        "title": "Envelope 1: Your Arrival",
-        "contents": "You arrive at the party looking impeccable as always. As you enter, you notice several familiar faces - and one that makes your heart skip a beat. Someone you thought you'd never see again is here. You must find out what they know before they reveal your secret relationship to everyone.",
-        "instructions": "Mingle with guests. Try to gauge who knows about your secret. You have one clue to trade (receipt from the jeweler). Use it wisely."
+        "title": "Envelope 1: Suspicious Investments",
+        "contents": "You attended Morgan's investor pitch last week. She promised 'authentic heritage recipes' would make everyone rich. But you know Morgan's family isn't originally from Twin Peaks. Something doesn't add up.",
+        "instructions": "Share your clue about Morgan's false heritage claims. Ask others about recipe origins and Cassandra's investigation."
       },
       {
         "phase": "mid",
-        "title": "Envelope 2: A Whispered Warning",
-        "contents": "You receive a cryptic note slipped under your champagne glass: 'Not everyone here is who they claim to be. Watch the business owner carefully.' Your instincts tell you this party is about to take a dark turn.",
-        "instructions": "Focus your investigation on Josie Packard. What is she hiding? You now have access to another clue about her financial troubles."
+        "title": "Envelope 2: Following the Money",
+        "contents": "You've always followed the money in this town. When you do, the trail leads straight to Morgan's new pie business. The investors are already here, expecting authenticity. What happens when they learn the truth?",
+        "instructions": "Investigate Morgan's business dealings. Connect financial motive to the recipe theft."
       },
       {
         "phase": "pre-final",
-        "title": "Envelope 3: The Contract",
-        "contents": "You discover a damning piece of evidence: a contract showing significant debt. This could be the motive everyone's been looking for. But revealing it means drawing attention to yourself and your own secrets.",
-        "instructions": "Decide whether to share the contract clue or use it as leverage. Time is running out."
+        "title": "Envelope 3: The Investment Contracts",
+        "contents": "You found copies of the investor contracts—$50K promised to Morgan for her 'authentic heritage pie business.' Everything depends on that stolen recipe being believable. Cassandra's exposure would destroy it all.",
+        "instructions": "Share the contract evidence. This is the motive Morgan had for silencing Cassandra."
       },
       {
         "phase": "final",
-        "title": "Envelope 4: The Truth Revealed",
-        "contents": "All the pieces come together. You realize that while you were worried about your own scandal, something far more serious was unfolding. The business deal, the threats, the desperation - it all points to one person. You must decide: protect your secret or help solve the mystery?",
-        "instructions": "Share what you know. The truth must come out."
+        "title": "Envelope 4: The Complete Picture",
+        "contents": "Cassandra's draft article 'The Great Recipe Heist' names Morgan directly with photo proof. Morgan had everything to lose—money, reputation, her business dreams. The cupcake reveal will expose the truth.",
+        "instructions": "Present your evidence. Prepare for the cupcake reveal ceremony that will spell out Morgan's guilt."
       }
     ]
   },
@@ -42,36 +42,36 @@
     "intro_profile": {
       "name": "Special Agent Dale Cooper",
       "role": "The FBI Detective",
-      "tagline": "Trust your intuition and the signs the universe provides",
-      "overview": "You are Special Agent Dale Cooper, an FBI agent with unconventional methods. You believe in following your intuition and reading the signs around you. While you're here to celebrate, your investigative instincts never rest. You've already noticed several suspicious behaviors among the guests.",
+      "tagline": "Trust your intuition and follow the evidence",
+      "overview": "You are Special Agent Dale Cooper, an FBI agent with unconventional methods. You believe in following evidence and reading the signs. While you're here to celebrate, your investigative instincts never rest. Something about this food blogger's death doesn't sit right.",
       "costume_essentials": ["Black suit", "White dress shirt", "Skinny black tie", "FBI badge (prop)", "Small notepad"],
-      "personality_notes": "Earnest, quirky, highly observant. You find meaning in small details that others overlook.",
-      "secret_preview": "You're here on an active case, but you can't reveal your true purpose..."
+      "personality_notes": "Earnest, methodical, highly observant. You document everything and find meaning in small details.",
+      "secret_preview": "You're analyzing evidence that points to recipe theft and murder..."
     },
     "envelopes": [
       {
         "phase": "intro",
-        "title": "Envelope 1: Initial Observations",
-        "contents": "As you arrive, your trained eye picks up on numerous details others miss. The deputy seems nervous - more than usual. You've already confirmed his alibi for the suspicious activity reported earlier. Your instincts tell you to observe carefully.",
-        "instructions": "Document behaviors. Interview guests casually. You have evidence that eliminates the deputy as a suspect."
+        "title": "Envelope 1: Initial Investigation",
+        "contents": "You've confirmed the deputy's alibi—he's clear. Now you turn your attention to others. The blogger Cassandra was investigating local recipes. Her notes mention interviewing Norma about cherry pie. Why would that be dangerous?",
+        "instructions": "Share the deputy's elimination. Document suspicious behaviors. Begin connecting recipe investigation to motive."
       },
       {
         "phase": "mid",
-        "title": "Envelope 2: A Pattern Emerges",
-        "contents": "Your intuition was correct. Several clues are beginning to form a pattern. Someone at this party is desperate, and desperation leads to poor decisions. You recall a similar case from three years ago...",
-        "instructions": "Focus on connecting the clues. Look for patterns in behavior, especially around financial matters."
+        "title": "Envelope 2: Building the Case",
+        "contents": "Cassandra's research notes show discrepancies between Norma's original recipe and the one Morgan claims as 'family heritage.' Your instincts tell you this recipe theft is connected to the murder.",
+        "instructions": "Share evidence about recipe discrepancies. Focus on Morgan's false heritage claims."
       },
       {
         "phase": "pre-final",
-        "title": "Envelope 3: The Evidence",
-        "contents": "Your forensic work has paid off. The fingerprints from the suspicious package match someone at this party. This is no longer just a celebration - it's an active investigation.",
-        "instructions": "Share the fingerprint evidence strategically. Build your case."
+        "title": "Envelope 3: Forensic Evidence",
+        "contents": "Lab report confirms it: the poisoned pie slice matches Morgan's recipe exactly—same unique spice blend that Norma created. The murder weapon came from the stolen recipe itself.",
+        "instructions": "Present forensic evidence. This is the scientific proof linking Morgan to the crime."
       },
       {
         "phase": "final",
-        "title": "Envelope 4: Case Closed",
-        "contents": "All the evidence points to one conclusion. Your unconventional methods have once again led to the truth. It's time to make your case and reveal what you know.",
-        "instructions": "Present your findings. Justice must be served, even at a party."
+        "title": "Envelope 4: Case Solved",
+        "contents": "All evidence points to Morgan Blackwood: stolen recipe, false heritage, investor money at stake, Cassandra's proof threatening to expose it all. The poisoned pie was Morgan's desperate solution. Justice must be served.",
+        "instructions": "Present your complete case. Prepare for cupcake reveal that will publicly expose Morgan's guilt."
       }
     ]
   },
@@ -81,35 +81,35 @@
       "name": "Shelly Johnson",
       "role": "The Diner Waitress",
       "tagline": "The person who pours coffee hears all the secrets",
-      "overview": "You are Shelly Johnson, a waitress at the Double R Diner. You know everything that happens in Twin Peaks because everyone talks at the diner. You're sweet and kind-hearted, but you're carrying a heavy secret that could ruin this party - and possibly someone's life.",
+      "overview": "You are Shelly Johnson, a waitress at the Double R Diner. You know everything that happens in Twin Peaks because everyone talks at the diner. You're sweet and kind-hearted, but you're carrying heavy knowledge about recipe theft and threatening voicemails.",
       "costume_essentials": ["Classic diner uniform", "White apron", "Name tag", "Comfortable shoes", "Order pad (prop)"],
-      "personality_notes": "Warm, observant, protective. You genuinely care about people but sometimes know too much for your own good.",
-      "secret_preview": "You overheard something at the diner that you wish you hadn't..."
+      "personality_notes": "Warm, observant, protective. You care about people but sometimes know too much for your own good.",
+      "secret_preview": "You overheard things at the diner that now make terrible sense..."
     },
     "envelopes": [
       {
         "phase": "intro",
-        "title": "Envelope 1: The Morning Shift",
-        "contents": "This morning's shift was unusual. Someone ordered two slices of cherry pie to go at 6:47 AM - who eats pie that early? You kept the order slip without really knowing why. Now you're glad you did.",
-        "instructions": "Observe who seems nervous or is acting differently. You have the order slip as a clue."
+        "title": "Envelope 1: The Early Morning Order",
+        "contents": "This morning Morgan came in at 6:30 AM and bought a whole cherry pie—very unusual. You kept the receipt without knowing why. Now Cassandra is dead and you're wondering if that pie was involved.",
+        "instructions": "Share the receipt evidence. Ask others about Morgan's behavior and recipe origins."
       },
       {
         "phase": "mid",
-        "title": "Envelope 2: The Conversation",
-        "contents": "You remember now - three days ago you overheard someone at the diner talking about a business deal gone bad. They said 'someone's going to pay for this.' At the time you thought it was just frustrated venting, but now...",
-        "instructions": "Try to remember more details about that conversation. Who was there? What exactly did they say?"
+        "title": "Envelope 2: Norma's Missing Recipe",
+        "contents": "Norma confided in you last month that her secret cherry pie recipe went missing from her kitchen. She suspected theft but had no proof. Now Morgan is claiming a nearly identical recipe as her 'family heritage.'",
+        "instructions": "Reveal Norma's stolen recipe. Connect this theft to Morgan's business and Cassandra's investigation."
       },
       {
         "phase": "pre-final",
-        "title": "Envelope 3: The Phone Message",
-        "contents": "The call came to the diner last week. A voice you didn't recognize said: 'Tell her I know what she did. The truth comes out tonight.' You wrote it down but didn't know who 'she' was. Until now.",
-        "instructions": "This is serious. Share this information with someone you trust."
+        "title": "Envelope 3: The Threatening Call",
+        "contents": "You found a saved voicemail on the diner phone meant for Cassandra: 'Drop the story or you'll regret it.' The voice sounds like Morgan trying to disguise it. This is serious.",
+        "instructions": "Share the threatening voicemail evidence. This shows Morgan's desperation and willingness to threaten."
       },
       {
         "phase": "final",
-        "title": "Envelope 4: The Whole Truth",
-        "contents": "All the pieces from your shifts at the diner finally make sense. The early morning pie order, the angry conversation, the threatening phone call - they all connect to the same person. You know what happened.",
-        "instructions": "Tell everyone what you know. The truth has to come out."
+        "title": "Envelope 4: Witness to Truth",
+        "contents": "Everything you heard at the diner comes together: the early morning pie order, Norma's theft report, the threatening call, Morgan's lies to investors. Cassandra died because she found the truth. You must speak up.",
+        "instructions": "Tell everyone what you witnessed. Your testimony confirms Morgan's guilt. Prepare for cupcake reveal."
       }
     ]
   },
@@ -119,73 +119,74 @@
       "name": "The Log Lady",
       "role": "The Mystic",
       "tagline": "The log sees what others cannot",
-      "overview": "You are the Log Lady, a mystic who carries a log that communicates truths others cannot perceive. While people think you're eccentric, your log has never been wrong. Tonight, it has been giving you warnings about this party - dark omens that something terrible is coming.",
+      "overview": "You are the Log Lady, a mystic who carries a log that communicates truths others cannot perceive. While people think you're eccentric, your log has never been wrong. Tonight, it warns of stolen recipes, false heritage, and deadly consequences.",
       "costume_essentials": ["Flannel shirt", "Long skirt", "Thick-rimmed glasses", "A LOG (crucial prop!)"],
-      "personality_notes": "Mysterious, prophetic, utterly earnest. You genuinely believe the log speaks to you, and in a way, it does.",
-      "secret_preview": "Your log predicted something terrible will happen at this party..."
+      "personality_notes": "Mysterious, prophetic, utterly earnest. You believe the log speaks truth, and in its own way, it does.",
+      "secret_preview": "Your log predicted tragedy around false claims and stolen treasures...",
+      "special_powers": "SANCTIFY TRADE: Once per phase, you may declare a clue trade 'sanctified'—both parties must honor it truthfully. AMPLIFY: Once per phase, announce a critical clue dramatically to the whole group."
     },
     "envelopes": [
       {
         "phase": "intro",
-        "title": "Envelope 1: The First Warning",
-        "contents": "As you enter with your log, it grows heavy in your arms. This is never a good sign. The log whispers of shadows and secrets, of desperation hidden behind elegant facades. You must listen carefully and warn others.",
-        "instructions": "Speak in cryptic warnings. The log knows more than you do - trust it."
+        "title": "Envelope 1: The Log's First Warning",
+        "contents": "The log grows heavy with dark visions: stolen recipes, false heritage claims, someone taking credit for another's work. It whispers 'Morgan' but you don't yet know why. Trust the log—it sees truth.",
+        "instructions": "Speak cryptically about theft and false claims. Use SANCTIFY TRADE or AMPLIFY power. Share your motive clue about stolen recipes."
       },
       {
         "phase": "mid",
-        "title": "Envelope 2: The Log Speaks",
-        "contents": "The log's message becomes clearer: 'Financial desperation breeds desperate actions. Someone here has nothing left to lose.' You feel the weight of this knowledge.",
-        "instructions": "Share the log's wisdom about financial troubles and desperation. Point toward the business owner."
+        "title": "Envelope 2: Photographs in the Dark",
+        "contents": "The log shows you visions: secret photographs of recipe cards, taken without permission. Evidence of theft captured on camera. The log knows Cassandra found these photos. The log knows Morgan fears them.",
+        "instructions": "Reveal the secret photos clue dramatically. Use AMPLIFY to announce this to everyone. Use SANCTIFY TRADE once this phase."
       },
       {
         "phase": "pre-final",
-        "title": "Envelope 3: Dark Prophecy",
-        "contents": "The log trembles in your arms. It shows you visions of the mill, of late-night meetings, of threats made in desperation. Someone at this party knows what happened to the victim.",
-        "instructions": "Your warnings become more urgent. The log knows the truth is about to be revealed."
+        "title": "Envelope 3: The Log's Growing Urgency",
+        "contents": "The log trembles with revelation: the recipe thief became a murderer to protect her lies and investor money. Morgan Blackwood's ambition led to poison, silence, and death. The log sees all.",
+        "instructions": "Your warnings intensify. Point clearly toward Morgan. The log's prophecy is nearly complete."
       },
       {
         "phase": "final",
         "title": "Envelope 4: The Log's Final Truth",
-        "contents": "The log reveals its final prophecy: the victim knew about the business deal and threatened to expose the fraud. The murderer had no choice - or so they thought. The log has spoken.",
-        "instructions": "Deliver the log's final message to everyone. The prophecy is complete."
+        "contents": "The log speaks its final prophecy for all to hear: 'Morgan Blackwood stole Norma's recipe, lied to investors, and poisoned Cassandra to silence the truth. The cupcakes will reveal what the log already knows—Morgan is guilty.'",
+        "instructions": "Deliver the log's complete prophecy dramatically. Use AMPLIFY to announce this truth. Prepare for cupcake reveal ceremony."
       }
     ]
   },
   {
     "character_id": "owner",
     "intro_profile": {
-      "name": "Josie Packard",
-      "role": "The Business Owner",
-      "tagline": "Elegance and ambition at any cost",
-      "overview": "You are Josie Packard, the elegant owner of the local mill and a prominent business figure in Twin Peaks. You always get what you want, one way or another. But lately, things have been falling apart. You're in serious financial trouble, and you've been taking desperate measures to save your empire.",
+      "name": "Morgan Blackwood",
+      "role": "The Venue Owner",
+      "tagline": "Ambition and elegance at any cost",
+      "overview": "You are Morgan Blackwood, owner of a new artisan pie business. You've told everyone your grandmother's 'heritage recipe' will make you rich. But the truth is darker—you stole Norma's secret recipe and passed it off as your own to secure investor funding. When Cassandra discovered your lie, you silenced her.",
       "costume_essentials": ["Sophisticated business attire", "Pearl necklace", "Elegant updo hairstyle", "Designer handbag"],
-      "personality_notes": "Elegant, cunning, ambitious, desperate. You'll do whatever it takes to survive.",
-      "secret_preview": "Your business is failing, and you've been making deals you shouldn't have..."
+      "personality_notes": "Elegant, ambitious, desperate. You've convinced yourself the theft was justified—you needed this success.",
+      "secret_preview": "You stole the recipe, lied to investors, and poisoned Cassandra to protect your secret..."
     },
     "envelopes": [
       {
         "phase": "intro",
-        "title": "Envelope 1: Maintaining Appearances",
-        "contents": "You arrive looking as elegant and composed as ever. No one can know about your financial troubles. You must secure the business deal you've been negotiating, no matter what it takes. Smile, be charming, and keep your desperation hidden.",
-        "instructions": "Act confident. Deflect questions about your business. You have a red herring clue to use against the socialite if needed."
+        "title": "Envelope 1: Maintaining the Facade",
+        "contents": "You must appear concerned about Cassandra's absence while hiding your relief. No one can know you stole Norma's recipe and claimed it as family heritage. The investors are here—everything depends on this lie holding.",
+        "instructions": "Act worried about Cassandra. Deflect questions about recipe origins. Use red herring clue about the socialite if needed."
       },
       {
         "phase": "mid",
-        "title": "Envelope 2: Cracks in the Facade",
-        "contents": "People are starting to ask questions. Someone knows about your late-night visits to the mill. Someone else is asking about your finances. You need to divert attention. Perhaps that old scandal about the socialite could be useful?",
-        "instructions": "Use the red herring clue about the socialite to divert attention from yourself."
+        "title": "Envelope 2: Cracks Appearing",
+        "contents": "People are asking about your 'family recipe.' The waitress knows Norma reported a theft. The Log Lady speaks of stolen treasures. You need to divert attention—perhaps that old socialite rumor could help?",
+        "instructions": "Spread the red herring about the socialite. Keep attention away from yourself and the recipe theft."
       },
       {
         "phase": "pre-final",
-        "title": "Envelope 3: Desperation Sets In",
-        "contents": "The walls are closing in. The detective is asking pointed questions. The Log Lady is making disturbing pronouncements. They're getting too close to the truth about what you did.",
-        "instructions": "Continue deflecting. Try to implicate the waitress with another red herring about a romantic grudge."
+        "title": "Envelope 3: The Walls Close In",
+        "contents": "The detective has forensic evidence. The Log Lady's prophecies point at you. They found Cassandra's phone showing you met her that morning. The photo evidence of recipe theft exists. Your desperation grows.",
+        "instructions": "Try one more red herring about the waitress. Deny everything. But you feel control slipping away."
       },
       {
         "phase": "final",
-        "title": "Envelope 4: The Truth Comes Out",
-        "contents": "It's over. The evidence is overwhelming. The victim knew about your fraudulent business deal and threatened to report you to the authorities. In a moment of desperation, you... But perhaps there's still a way to explain, to make them understand you had no choice?",
-        "instructions": "The truth is revealed. Decide whether to confess or continue denying. The mystery is solved."
+        "title": "Envelope 4: Truth Revealed",
+        "contents": "It's over. They know you stole Norma's recipe, lied to investors for $50K, and poisoned Cassandra when she threatened to expose you. The cupcake reveal will spell out your guilt for everyone. You can confess or deny—either way, the truth comes out.",
+        "instructions": "Face the evidence. The cupcake reveal ceremony will publicly expose 'MORGAN BLACKWOOD IS GUILTY.' Decide how you'll respond."
       }
     ]
   },
@@ -194,36 +195,36 @@
     "intro_profile": {
       "name": "Andy Brennan",
       "role": "The Deputy Sheriff",
-      "tagline": "Good intentions pave the road to trouble",
-      "overview": "You are Andy Brennan, a deputy sheriff with a heart of gold and a tendency to make mistakes at the worst possible times. You're here to make sure everyone has a good time and stays safe, but you're also carrying the weight of a terrible error - you accidentally destroyed evidence related to another guest's past.",
-      "costume_essentials": ["Sheriff's deputy uniform", "Badge", "Duty belt (no real weapons!)", "Nervous disposition"],
-      "personality_notes": "Kind-hearted, emotional, well-meaning but clumsy. You try so hard but things often go wrong.",
-      "secret_preview": "You destroyed evidence, and now it might matter more than ever..."
+      "tagline": "Good intentions and careful evidence",
+      "overview": "You are Andy Brennan, a deputy sheriff with a heart of gold. You're here to help keep everyone safe and support the investigation. You have witness statements and evidence about Morgan's suspicious activities that may prove crucial.",
+      "costume_essentials": ["Sheriff's deputy uniform", "Badge", "Duty belt (no real weapons!)", "Notepad"],
+      "personality_notes": "Kind-hearted, helpful, earnest. You try your best to support justice and help solve this mystery.",
+      "secret_preview": "You've been collecting evidence about Morgan's activities..."
     },
     "envelopes": [
       {
         "phase": "intro",
-        "title": "Envelope 1: Duty Calls",
-        "contents": "You arrive in full uniform, ready to help keep the party safe and fun. But you're nervous - that evidence you accidentally destroyed last week keeps haunting you. What if someone finds out? What if it's important to something happening now?",
-        "instructions": "Be helpful and friendly. Try to be observant despite your nerves. You have a witness statement about late-night activity at the mill."
+        "title": "Envelope 1: Initial Evidence",
+        "contents": "You arrive ready to help. The detective has already cleared you—you were at the station all morning with security footage to prove it. Now you can focus on helping investigate. You have a witness statement about Morgan arguing with Cassandra.",
+        "instructions": "You're cleared as a suspect. Share your witness statement about Morgan and Cassandra arguing with papers visible."
       },
       {
         "phase": "mid",
-        "title": "Envelope 2: Growing Concerns",
-        "contents": "The party is taking a strange turn. The detective keeps asking questions, and they're getting closer to things you'd rather stay buried. Your destroyed evidence involved the business owner - and now people are asking about her.",
-        "instructions": "Share the witness statement about activity at the mill. Try to be helpful despite your anxiety."
+        "title": "Envelope 2: Following the Trail",
+        "contents": "Your witness report is important: someone saw Morgan and Cassandra arguing outside the pie shop two days ago. Cassandra was waving papers—likely the photo evidence of recipe theft. This puts Morgan at the scene with motive.",
+        "instructions": "Share timeline evidence. Connect the argument to Cassandra's investigation and Morgan's fear of exposure."
       },
       {
         "phase": "pre-final",
-        "title": "Envelope 3: The Investigation Intensifies",
-        "contents": "This isn't a game anymore. There's real detective work happening here. You check your notes and find something important: security logs from the mill showing unauthorized access to the safe. This could be crucial evidence.",
-        "instructions": "Share the security log evidence. Your mistake with the old evidence might not matter if you can help solve this."
+        "title": "Envelope 3: Critical Discovery",
+        "contents": "You found Cassandra's phone in evidence. Her last text says: 'Meeting Morgan at shop to discuss the photos. She says she can explain.' This places them together right before Cassandra died.",
+        "instructions": "Share the phone evidence. This is critical timeline proof that Morgan was the last person to see Cassandra alive."
       },
       {
         "phase": "final",
-        "title": "Envelope 4: Deputy's Redemption",
-        "contents": "Despite your earlier mistake, your new evidence has been crucial in solving the case. The security logs prove unauthorized access, and together with the other clues, they tell the whole story. You've redeemed yourself.",
-        "instructions": "Present your evidence proudly. You helped solve the case!"
+        "title": "Envelope 4: Justice Served",
+        "contents": "Your evidence helped crack the case: the witness statement, the phone text, the timeline. Morgan's guilt is clear. You've helped bring justice for Cassandra and truth for Norma's stolen recipe.",
+        "instructions": "Present your evidence proudly. You played a key role in solving this case. Prepare for cupcake reveal."
       }
     ]
   }

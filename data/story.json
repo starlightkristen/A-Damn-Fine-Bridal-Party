@@ -1,80 +1,59 @@
 {
-  "title": "A Toast to Secrets",
-  "subtitle": "A Twin Peaks Mystery Tailored for Marlena's Celebration",
-  "setting": "The celebration is taking place at a cozy mountain lodge that bears a striking resemblance to the Great Northern Hotel. The guests have gathered to honor Marlena, but beneath the celebratory atmosphere, dark secrets simmer.",
-  "overview": "In the mysterious town of Twin Peaks, everyone has secrets. Today's celebration for Marlena seems perfect on the surface, but when a shocking 'murder' is announced mid-party, guests discover that someone among them has a deadly secret. Was it jealousy? Revenge? A business deal gone wrong? Each guest must use their wits, their character's unique knowledge, and their detective skills to uncover the truth.",
+  "title": "Cherry Lies",
+  "subtitle": "A Twin Peaks Mystery for Marlena's Bridal Shower",
+  "setting": "The bridal shower takes place at a cozy venue reminiscent of the Double R Diner. The guests have gathered to celebrate Marlena, but beneath the cheerful atmosphere lies a tale of stolen recipes, false heritage claims, and deadly ambition.",
+  "overview": "In a town where secrets hide behind warm smiles and cherry pie, someone has crossed a dangerous line. What began as recipe theft has ended in tragedy. When Cassandra, a food blogger investigating local culinary heritage, is found dead from a poisoned pie slice, guests must unravel the truth. Was it about money, pride, or protecting a carefully constructed lie?",
   "theMurder": {
-    "victim": "Laura Palmerson (fictional character created for this mystery)",
-    "victimDescription": "A local socialite who was supposed to attend Marlena's party but never arrived. Her body was just discovered near the Double R Diner.",
-    "causeOfDeath": "Poisoned cherry pie (with a Twin Peaks twist!)",
-    "timeOfDeath": "Approximately 2 hours before the party began",
-    "location": "Behind the Double R Diner, wrapped in plastic (a chilling Twin Peaks reference)"
+    "concept": "Recipe Theft",
+    "object": "Poisoned Cherry Pie Slice",
+    "victim": "Cassandra Vale",
+    "victimDescription": "A food blogger and culinary researcher who was documenting authentic Twin Peaks recipes and family heritage stories for a feature article.",
+    "causeOfDeath": "Poisoned cherry pie slice",
+    "timeOfDeath": "Early morning, before the bridal shower began",
+    "location": "Outside Morgan's new artisan pie shop"
   },
   "theMurderer": {
-    "character": "Josie Packard (Business Owner)",
-    "motive": "Laura discovered that Josie was embezzling money from the mill and threatened to expose her at Marlena's party. Josie couldn't let her business empire crumble, so she poisoned Laura with a 'gift' cherry pie.",
-    "method": "Poisoned cherry filling in a pie she gave Laura as an 'early party gift'",
-    "coverUp": "Josie has been acting normally at the party, expressing concern about Laura's absence"
+    "culprit": "Morgan Blackwood (Venue Owner)",
+    "motive": "Cassandra discovered that Morgan stole Norma's secret cherry pie recipe and was passing it off as her own 'family heritage' to attract investors for her new pie business. When Cassandra threatened to publish the truth, Morgan's dreams of success—and the investor money already promised—would vanish.",
+    "method": "Poisoned a slice of the stolen cherry pie recipe and gave it to Cassandra as a 'sample' to 'clear things up'",
+    "coverUp": "Morgan is acting concerned about Cassandra's absence while secretly relieved the blogger won't expose her lies"
   },
-  "keyClues": [
-    {
-      "clue": "Coffee cup with special lipstick shade",
-      "location": "Crime scene description",
-      "significance": "Matches Josie's signature lipstick"
+  "solution": "Morgan Blackwood stole Norma's cherished cherry pie recipe and claimed it as her own family heritage to secure investor funding for an artisan pie business. When food blogger Cassandra Vale found proof of the theft through secret photos and interviews, Morgan silenced her with a poisoned pie slice. The cupcake reveal exposes Morgan's guilt, and Norma's recipe is returned to its rightful owner.",
+  "hostNotes": "This PG-13 mystery works for guests unfamiliar with Twin Peaks—the core conflict is universal (theft, lies, and consequences). The Log Lady's mystical warnings add flavor but aren't required knowledge. Time the final envelope opening to happen BEFORE the cupcake reveal so all players understand the solution before the dramatic presentation. If guests struggle, have the Log Lady deliver an extra prophecy.",
+  "phases": {
+    "intro": {
+      "name": "Arrival & First Warnings",
+      "timing": "0:00-0:20",
+      "description": "Guests arrive, receive character packets, and open Envelope 1. The Log Lady begins delivering cryptic warnings about theft and false heritage."
     },
-    {
-      "clue": "Receipt from Double R Diner",
-      "location": "Found in Shelly's character info",
-      "significance": "Shows Josie purchased a whole cherry pie the morning of the murder"
+    "mid": {
+      "name": "Investigation Deepens",
+      "timing": "0:20-0:40",
+      "description": "Envelope 2 opened. Clues about recipe theft, secret photos, and investor meetings emerge. Players begin trading information."
     },
-    {
-      "clue": "Business documents",
-      "location": "Mentioned by Agent Cooper's investigation notes",
-      "significance": "Laura was investigating financial irregularities at the mill"
+    "pre-final": {
+      "name": "The Web Tightens",
+      "timing": "0:40-0:55",
+      "description": "Envelope 3 opened. Critical evidence surfaces: proof of theft, motive becomes clear, Morgan's desperation shows."
     },
-    {
-      "clue": "Text message on 'Laura's phone'",
-      "location": "Revealed mid-investigation",
-      "significance": "Laura texted a friend: 'Meeting Josie. She says she has something important to tell me.'"
-    },
-    {
-      "clue": "The Log Lady's prophecy",
-      "location": "Log Lady's character knows",
-      "significance": "Her log warned that 'the most elegant person hides the darkest secret'"
+    "final": {
+      "name": "Truth Before Reveal",
+      "timing": "0:55-1:10",
+      "description": "Envelope 4 opened. Final clues confirm Morgan's guilt. All players prepare for the cupcake reveal ceremony."
     }
-  ],
-  "redHerrings": [
-    {
-      "character": "Audrey Horne",
-      "suspiciousBehavior": "Acting secretive about a forbidden relationship",
-      "reality": "Just worried about her own reputation, completely unrelated to murder"
-    },
-    {
-      "character": "Agent Cooper",
-      "suspiciousBehavior": "Constantly taking notes and asking probing questions",
-      "reality": "Actually investigating a different case, but his detective nature makes him seem suspicious"
-    },
-    {
-      "character": "Deputy Andy",
-      "suspiciousBehavior": "Nervous and acting guilty",
-      "reality": "Just upset that he destroyed unrelated evidence accidentally"
-    }
-  ],
-  "solution": "Josie Packard murdered Laura Palmerson with poisoned cherry pie to prevent her from exposing financial crimes. The clues point to Josie: her lipstick at the scene, the pie purchase receipt, Laura's text about meeting Josie, and the Log Lady's warning about elegance hiding darkness. When confronted during the cupcake reveal, the hidden message spells out J-O-S-I-E.",
-  "hostNotes": "This mystery is designed to be flexible. You can add or remove characters based on your final guest count. If someone solves it early, have backup revelations ready. If no one is close, drop the text message clue. The cupcake reveal should be the climax regardless of whether guests have solved it - it's about the dramatic reveal! Most importantly, keep the energy fun and celebratory for Marlena.",
-  "tieToMarlena": "The mystery theme honors Marlena's love of Twin Peaks, particularly her favorite character Audrey Horne's mysterious sophistication. The elegant lodge setting, the damn fine coffee, and the cherry pie all reflect elements Marlena loves from the show. The murder mystery adds excitement and interactive fun that will make this a memorable celebration she'll never forget.",
-  "alternateEndings": [
-    {
-      "option": "Cooperative Win",
-      "description": "If multiple guests work together to solve it, they all share the prize and celebrate teamwork"
-    },
-    {
-      "option": "Plot Twist",
-      "description": "Reveal that there's a second accomplice (can be assigned to another character) for extra drama"
-    },
-    {
-      "option": "Bride Involvement",
-      "description": "Marlena could be given the role of 'Laura's best friend' who helps solve the mystery of her friend's death"
-    }
+  },
+  "cupcakeReveal": [
+    "MORGAN STOLE RECIPE",
+    "FROM NORMA",
+    "SECRET PHOTOS",
+    "PIE BUSINESS",
+    "FALSE HERITAGE",
+    "INVESTORS HERE",
+    "CASSANDRA FOUND PROOF",
+    "POISONED SLICE",
+    "MORGAN BLACKWOOD",
+    "IS GUILTY",
+    "RECIPE RETURNS",
+    "LOVE WINS"
   ]
 }
