@@ -1594,6 +1594,133 @@ async function handleResetSchedule() {
   }
 }
 
+// ============================================================================
+// MYSTERY DATA IMPORT HANDLERS
+// ============================================================================
+
+async function handleImportStory() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset('story', file);
+      
+      if (confirm(`Import story "${data.title}"?`)) {
+        applyImportedData('story', data);
+        
+        if (window.Render && window.Render.mystery) {
+          window.Render.mystery();
+        }
+        
+        alert('Story imported successfully!');
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+async function handleImportClues() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset('clues', file);
+      
+      if (confirm(`Import ${data.length} clues?`)) {
+        applyImportedData('clues', data);
+        
+        if (window.Render && window.Render.mystery) {
+          window.Render.mystery();
+        }
+        
+        alert('Clues imported successfully!');
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+async function handleImportPackets() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset('packets', file);
+      
+      if (confirm(`Import ${data.length} character packets?`)) {
+        applyImportedData('packets', data);
+        
+        if (window.Render && window.Render.mystery) {
+          window.Render.mystery();
+        }
+        
+        alert('Packets imported successfully!');
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+async function handleResetStory() {
+  if (confirm('Reset story to repository defaults?')) {
+    await resetToDefaults('story');
+    
+    if (window.Render && window.Render.mystery) {
+      window.Render.mystery();
+    }
+    
+    alert('Story reset to defaults!');
+  }
+}
+
+async function handleResetClues() {
+  if (confirm('Reset clues to repository defaults?')) {
+    await resetToDefaults('clues');
+    
+    if (window.Render && window.Render.mystery) {
+      window.Render.mystery();
+    }
+    
+    alert('Clues reset to defaults!');
+  }
+}
+
+async function handleResetPackets() {
+  if (confirm('Reset packets to repository defaults?')) {
+    await resetToDefaults('packets');
+    
+    if (window.Render && window.Render.mystery) {
+      window.Render.mystery();
+    }
+    
+    alert('Packets reset to defaults!');
+  }
+}
+
 // Role preference functions
 function setRolePreference(guestId, characterId) {
   if (!AppData.rolePreferences[guestId]) {
@@ -2379,6 +2506,13 @@ if (typeof module !== 'undefined' && module.exports) {
     closeScheduleEditor,
     handleImportSchedule,
     handleResetSchedule,
+    // Mystery data import/reset handlers
+    handleImportStory,
+    handleImportClues,
+    handleImportPackets,
+    handleResetStory,
+    handleResetClues,
+    handleResetPackets,
     // Admin Data Manager functions
     handleExportDataset,
     handleImportDataset,

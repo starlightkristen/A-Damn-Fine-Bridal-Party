@@ -379,8 +379,26 @@ const Render = {
   
   // Render mystery page
   mystery: function() {
+    // Add data management controls at the top
+    const controlsHtml = `
+      <div class="card">
+        <h3>📦 Mystery Data Management</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+          <button class="btn" onclick="exportStory()">📥 Export Story</button>
+          <button class="btn" onclick="handleImportStory()">📂 Import Story</button>
+          <button class="btn" onclick="exportClues()">📥 Export Clues</button>
+          <button class="btn" onclick="handleImportClues()">📂 Import Clues</button>
+          <button class="btn" onclick="exportPackets()">📥 Export Packets</button>
+          <button class="btn" onclick="handleImportPackets()">📂 Import Packets</button>
+        </div>
+        <p style="margin-top: 10px; font-size: 14px; color: #666;">
+          <strong>Note:</strong> Full CRUD editors for Story, Clues, and Packets can be accessed via the Admin panel's Global Data Manager.
+        </p>
+      </div>
+    `;
+    
     // Render story overview
-    document.getElementById('story-overview').innerHTML = `
+    const storyHtml = `
       <div class="card">
         <h2>${AppData.story.title}</h2>
         <h3>${AppData.story.subtitle}</h3>
@@ -407,6 +425,8 @@ const Render = {
         <p>${AppData.story.solution}</p>
       </div>
     `;
+    
+    document.getElementById('story-overview').innerHTML = controlsHtml + storyHtml;
     
     // Render character list with role assignment controls
     const unassignedCount = AppData.guests.filter(g => !g.assignedCharacter).length;
