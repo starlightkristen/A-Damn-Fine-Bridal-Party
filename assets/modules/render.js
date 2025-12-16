@@ -124,88 +124,149 @@ const Render = {
   
   // Render decor page
   decor: function() {
-    // Render mood board
-    const moodHtml = AppData.decor.moodBoard.map(mood => `
-      <div class="card">
-        <h3>${mood.name}</h3>
-        <p>${mood.description}</p>
-        <div style="display: flex; gap: 10px; margin: 10px 0;">
-          ${mood.colors.map(color => 
-            `<div style="width: 50px; height: 50px; background: ${color}; border-radius: 5px;"></div>`
-          ).join('')}
+    // Check if mood board exists
+    if (!AppData.decor.moodBoard || AppData.decor.moodBoard.length === 0) {
+      document.getElementById('mood-board').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No mood boards yet!</strong> Click "Add Mood Board" below to start planning your decor.
         </div>
-        <ul>
-          ${mood.items.map(item => `<li>${item}</li>`).join('')}
-        </ul>
-        <div class="item-controls">
-          <button class="favorite-btn ${AppData.decorFavorites.has(mood.id) ? 'active' : ''}" 
-                  onclick="handleDecorFavorite('${mood.id}')">
-            ${AppData.decorFavorites.has(mood.id) ? '❤️ Favorited' : '🤍 Favorite'}
-          </button>
-          <button class="add-to-list-btn ${AppData.decorShoppingList.has(mood.id) ? 'active' : ''}" 
-                  onclick="handleDecorShoppingList('${mood.id}')">
-            ${AppData.decorShoppingList.has(mood.id) ? '✓ In Shopping List' : '+ Add to Shopping List'}
-          </button>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddMoodBoardForm()">➕ Add Mood Board</button>
         </div>
-      </div>
-    `).join('');
+      `;
+    } else {
+      // Controls at the top
+      const controlsHtml = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <button class="btn" onclick="showAddMoodBoardForm()">➕ Add Mood Board</button>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+              <input type="checkbox" id="autosave-toggle-decor" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+              <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+            </label>
+            <button class="btn" onclick="handleImportDecor()">📂 Import</button>
+            <button class="btn" onclick="exportDecor()">📥 Export</button>
+            <button class="btn btn-secondary" onclick="handleResetDecor()">🔄 Reset</button>
+          </div>
+        </div>
+      `;
+      
+      // Render mood board
+      const moodHtml = AppData.decor.moodBoard.map(mood => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <h3 style="margin: 0;">${mood.name}</h3>
+            <div>
+              <button class="btn-sm" onclick="editMoodBoard('${mood.id}')" title="Edit mood board">✏️</button>
+              <button class="btn-sm" onclick="deleteMoodBoard('${mood.id}')" title="Delete mood board">🗑️</button>
+            </div>
+          </div>
+          <p>${mood.description}</p>
+          <div style="display: flex; gap: 10px; margin: 10px 0;">
+            ${mood.colors.map(color => 
+              `<div style="width: 50px; height: 50px; background: ${color}; border-radius: 5px;"></div>`
+            ).join('')}
+          </div>
+          <ul>
+            ${mood.items.map(item => `<li>${item}</li>`).join('')}
+          </ul>
+          <div class="item-controls">
+            <button class="favorite-btn ${AppData.decorFavorites.has(mood.id) ? 'active' : ''}" 
+                    onclick="handleDecorFavorite('${mood.id}')">
+              ${AppData.decorFavorites.has(mood.id) ? '❤️ Favorited' : '🤍 Favorite'}
+            </button>
+            <button class="add-to-list-btn ${AppData.decorShoppingList.has(mood.id) ? 'active' : ''}" 
+                    onclick="handleDecorShoppingList('${mood.id}')">
+              ${AppData.decorShoppingList.has(mood.id) ? '✓ In Shopping List' : '+ Add to Shopping List'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+      
+      document.getElementById('mood-board').innerHTML = controlsHtml + moodHtml;
+    }
     
-    document.getElementById('mood-board').innerHTML = moodHtml;
-    
-    // Add export button
-    const exportSection = `
-      <div style="text-align: center; margin-top: 20px;">
-        <button class="export-btn" onclick="exportDecorJSON()">
-          📥 Export Decor Selections
-        </button>
-        <p style="margin-top: 10px; font-size: 14px; color: #666;">
-          Downloads your favorited items and shopping list as decor.json
-        </p>
-      </div>
-    `;
-    document.getElementById('mood-board').innerHTML += exportSection;
-    
-    // Render shopping list
-    const shoppingHtml = AppData.decor.shoppingList.map(category => `
-      <div class="card">
-        <h3>${category.category}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Estimated Cost</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${category.items.map(item => `
+    // Render shopping list with CRUD
+    if (!AppData.decor.shoppingList || AppData.decor.shoppingList.length === 0) {
+      document.getElementById('shopping-list').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No shopping list items yet!</strong> Click "Add Category" below to start your shopping list.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddShoppingCategoryForm()">➕ Add Category</button>
+        </div>
+      `;
+    } else {
+      const shoppingControlsHtml = `
+        <div style="margin-bottom: 20px;">
+          <button class="btn" onclick="showAddShoppingCategoryForm()">➕ Add Category</button>
+        </div>
+      `;
+      
+      const shoppingHtml = AppData.decor.shoppingList.map((category, catIndex) => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0;">${category.category}</h3>
+            <div>
+              <button class="btn-sm" onclick="showAddShoppingItemForm(${catIndex})" title="Add item to category">➕</button>
+              <button class="btn-sm" onclick="deleteShoppingCategory(${catIndex})" title="Delete category">🗑️</button>
+            </div>
+          </div>
+          <table>
+            <thead>
               <tr>
-                <td>${item.item}</td>
-                <td>${item.quantity}</td>
-                <td>$${item.estimated}</td>
-                <td>${item.purchased ? '✓ Purchased' : 'Pending'}</td>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Estimated Cost</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    `).join('');
+            </thead>
+            <tbody>
+              ${category.items.map((item, itemIndex) => `
+                <tr>
+                  <td>${item.item}</td>
+                  <td>${item.quantity}</td>
+                  <td>$${item.estimated}</td>
+                  <td>${item.purchased ? '✓ Purchased' : 'Pending'}</td>
+                  <td>
+                    <button class="btn-sm" onclick="editShoppingItem(${catIndex}, ${itemIndex})" title="Edit item">✏️</button>
+                    <button class="btn-sm" onclick="deleteShoppingItem(${catIndex}, ${itemIndex})" title="Delete item">🗑️</button>
+                    <button class="btn-sm" onclick="togglePurchased(${catIndex}, ${itemIndex})" title="Toggle purchased">${item.purchased ? '↩️' : '✓'}</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `).join('');
+      
+      document.getElementById('shopping-list').innerHTML = shoppingControlsHtml + shoppingHtml;
+    }
     
-    document.getElementById('shopping-list').innerHTML = shoppingHtml;
-    
-    // Render vendors
-    const vendorsHtml = AppData.decor.vendors.map(vendor => `
-      <div class="card">
-        <h3>${vendor.name}</h3>
-        <p><strong>Type:</strong> ${vendor.type}</p>
-        <p><strong>Contact:</strong> ${vendor.contact}</p>
-        <p><strong>Phone:</strong> ${vendor.phone}</p>
-        <p>${vendor.notes}</p>
-      </div>
-    `).join('');
-    
-    document.getElementById('vendors').innerHTML = vendorsHtml;
+    // Render vendors (from separate vendors.json)
+    if (!AppData.vendors || AppData.vendors.length === 0) {
+      document.getElementById('vendors').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No vendors yet!</strong> Use the Admin panel to manage vendors.
+        </div>
+      `;
+    } else {
+      const vendorsHtml = AppData.vendors.map(vendor => `
+        <div class="card">
+          <h3>${vendor.name}</h3>
+          <p><strong>Type:</strong> ${vendor.type}</p>
+          <p><strong>Contact:</strong> ${vendor.contact}</p>
+          <p><strong>Phone:</strong> ${vendor.phone}</p>
+          <p>${vendor.notes}</p>
+          ${vendor.website ? `<p><a href="${vendor.website}" target="_blank">Visit Website</a></p>` : ''}
+        </div>
+      `).join('');
+      
+      document.getElementById('vendors').innerHTML = vendorsHtml;
+    }
   },
   
   // Render food page
@@ -469,11 +530,51 @@ const Render = {
   
   // Render schedule page
   schedule: function() {
+    if (!AppData.schedule.timeline || AppData.schedule.timeline.length === 0) {
+      document.getElementById('schedule-timeline').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No timeline items yet!</strong> Click "Add Timeline Item" below to start building your schedule.
+        </div>
+        <div style="text-align: center; margin: 20px 0;">
+          <button class="btn" onclick="showAddTimelineForm()">➕ Add Timeline Item</button>
+        </div>
+      `;
+      return;
+    }
+    
+    // Controls at the top
+    const controlsHtml = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <button class="btn" onclick="showAddTimelineForm()">➕ Add Timeline Item</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <input type="checkbox" id="autosave-toggle-schedule" ${AppData.autosaveEnabled ? 'checked' : ''} onchange="handleAutosaveToggle()">
+            <span>Autosave ${AppData.autosaveEnabled ? '✓' : ''}</span>
+          </label>
+          <button class="btn" onclick="handleImportSchedule()">📂 Import</button>
+          <button class="btn" onclick="exportSchedule()">📥 Export</button>
+          <button class="btn btn-secondary" onclick="handleResetSchedule()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    
     const scheduleHtml = AppData.schedule.timeline.map((block, index) => `
       <div class="card">
-        <h3>${block.time} - ${block.title}</h3>
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div style="flex: 1;">
+            <h3 style="margin: 0 0 10px 0;">${block.time} - ${block.title}</h3>
+          </div>
+          <div>
+            <button class="btn-sm" onclick="editTimelineItem(${index})" title="Edit timeline item">✏️</button>
+            <button class="btn-sm" onclick="deleteTimelineItem(${index})" title="Delete timeline item">🗑️</button>
+          </div>
+        </div>
         <p><strong>Duration:</strong> ${block.duration}</p>
         <p>${block.description}</p>
+        ${block.phase ? `<p><strong>Phase:</strong> <span class="badge badge-info">${block.phase}</span></p>` : ''}
+        ${block.envelope_instruction ? `<p><strong>Envelope:</strong> <em>${block.envelope_instruction}</em></p>` : ''}
         <h4>Activities:</h4>
         <ul>
           ${block.activities.map(activity => `<li>${activity}</li>`).join('')}
@@ -483,7 +584,7 @@ const Render = {
       </div>
     `).join('');
     
-    document.getElementById('schedule-timeline').innerHTML = scheduleHtml;
+    document.getElementById('schedule-timeline').innerHTML = controlsHtml + scheduleHtml;
   },
   
   // Render guests page

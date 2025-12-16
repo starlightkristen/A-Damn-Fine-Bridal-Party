@@ -1040,6 +1040,560 @@ async function handleResetDataset(datasetName) {
   }
 }
 
+// ============================================================================
+// DECOR CRUD FUNCTIONS
+// ============================================================================
+
+// Add mood board
+function showAddMoodBoardForm() {
+  const formHtml = `
+    <div id="decor-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Add New Mood Board</h2>
+        <form id="mood-form" onsubmit="handleSaveMoodBoard(event, null)">
+          <div style="display: grid; gap: 15px;">
+            <div>
+              <label><strong>Name *</strong></label>
+              <input type="text" name="name" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Description</strong></label>
+              <textarea name="description" rows="3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+            <div>
+              <label><strong>Colors (comma-separated hex codes)</strong></label>
+              <input type="text" name="colors" placeholder="e.g., #8B0000, #C79810, #2C1810" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Items (comma-separated)</strong></label>
+              <textarea name="items" rows="3" placeholder="e.g., Burgundy velvet curtains, Gold candelabras" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeDecorEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Mood Board</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+function editMoodBoard(moodId) {
+  const mood = AppData.decor.moodBoard.find(m => m.id === moodId);
+  if (!mood) return;
+  
+  const formHtml = `
+    <div id="decor-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Edit Mood Board: ${mood.name}</h2>
+        <form id="mood-form" onsubmit="handleSaveMoodBoard(event, '${moodId}')">
+          <div style="display: grid; gap: 15px;">
+            <div>
+              <label><strong>Name *</strong></label>
+              <input type="text" name="name" value="${mood.name}" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Description</strong></label>
+              <textarea name="description" rows="3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${mood.description || ''}</textarea>
+            </div>
+            <div>
+              <label><strong>Colors (comma-separated hex codes)</strong></label>
+              <input type="text" name="colors" value="${mood.colors.join(', ')}" placeholder="e.g., #8B0000, #C79810, #2C1810" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Items (comma-separated)</strong></label>
+              <textarea name="items" rows="3" placeholder="e.g., Burgundy velvet curtains, Gold candelabras" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${mood.items.join(', ')}</textarea>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeDecorEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+function handleSaveMoodBoard(event, moodId) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const moodData = {
+    name: formData.get('name'),
+    description: formData.get('description') || '',
+    colors: formData.get('colors') ? formData.get('colors').split(',').map(s => s.trim()).filter(s => s) : [],
+    items: formData.get('items') ? formData.get('items').split(',').map(s => s.trim()).filter(s => s) : []
+  };
+  
+  if (moodId === null) {
+    const newId = 'mood-' + Date.now();
+    moodData.id = newId;
+    AppData.decor.moodBoard.push(moodData);
+  } else {
+    const index = AppData.decor.moodBoard.findIndex(m => m.id === moodId);
+    if (index !== -1) {
+      AppData.decor.moodBoard[index] = { ...AppData.decor.moodBoard[index], ...moodData };
+    }
+  }
+  
+  saveToLocalStorage();
+  closeDecorEditor();
+  
+  if (window.Render && window.Render.decor) {
+    window.Render.decor();
+  }
+}
+
+function deleteMoodBoard(moodId) {
+  const mood = AppData.decor.moodBoard.find(m => m.id === moodId);
+  if (!mood) return;
+  
+  if (confirm(`Delete "${mood.name}" mood board?`)) {
+    AppData.decor.moodBoard = AppData.decor.moodBoard.filter(m => m.id !== moodId);
+    AppData.decorFavorites.delete(moodId);
+    AppData.decorShoppingList.delete(moodId);
+    saveToLocalStorage();
+    
+    if (window.Render && window.Render.decor) {
+      window.Render.decor();
+    }
+  }
+}
+
+// Shopping list CRUD
+function showAddShoppingCategoryForm() {
+  const formHtml = `
+    <div id="decor-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 100%;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Add Shopping Category</h2>
+        <form id="category-form" onsubmit="handleSaveShoppingCategory(event)">
+          <div>
+            <label><strong>Category Name *</strong></label>
+            <input type="text" name="category" required placeholder="e.g., Linens, Lighting, Centerpieces" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeDecorEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Add Category</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+function handleSaveShoppingCategory(event) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  AppData.decor.shoppingList.push({
+    category: formData.get('category'),
+    items: []
+  });
+  
+  saveToLocalStorage();
+  closeDecorEditor();
+  
+  if (window.Render && window.Render.decor) {
+    window.Render.decor();
+  }
+}
+
+function deleteShoppingCategory(catIndex) {
+  const category = AppData.decor.shoppingList[catIndex];
+  if (confirm(`Delete category "${category.category}" and all its items?`)) {
+    AppData.decor.shoppingList.splice(catIndex, 1);
+    saveToLocalStorage();
+    
+    if (window.Render && window.Render.decor) {
+      window.Render.decor();
+    }
+  }
+}
+
+function showAddShoppingItemForm(catIndex) {
+  const category = AppData.decor.shoppingList[catIndex];
+  const formHtml = `
+    <div id="decor-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; width: 100%;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Add Item to ${category.category}</h2>
+        <form id="item-form" onsubmit="handleSaveShoppingItem(event, ${catIndex}, null)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Item *</strong></label>
+              <input type="text" name="item" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Quantity *</strong></label>
+              <input type="text" name="quantity" required placeholder="e.g., 4, bulk" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Estimated Cost *</strong></label>
+              <input type="number" name="estimated" required min="0" step="0.01" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeDecorEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Add Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+function editShoppingItem(catIndex, itemIndex) {
+  const item = AppData.decor.shoppingList[catIndex].items[itemIndex];
+  const category = AppData.decor.shoppingList[catIndex];
+  
+  const formHtml = `
+    <div id="decor-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; width: 100%;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Edit ${item.item}</h2>
+        <form id="item-form" onsubmit="handleSaveShoppingItem(event, ${catIndex}, ${itemIndex})">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Item *</strong></label>
+              <input type="text" name="item" value="${item.item}" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Quantity *</strong></label>
+              <input type="text" name="quantity" value="${item.quantity}" required placeholder="e.g., 4, bulk" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Estimated Cost *</strong></label>
+              <input type="number" name="estimated" value="${item.estimated}" required min="0" step="0.01" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeDecorEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+function handleSaveShoppingItem(event, catIndex, itemIndex) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const itemData = {
+    item: formData.get('item'),
+    quantity: formData.get('quantity'),
+    estimated: parseFloat(formData.get('estimated')),
+    purchased: itemIndex !== null ? AppData.decor.shoppingList[catIndex].items[itemIndex].purchased : false
+  };
+  
+  if (itemIndex === null) {
+    AppData.decor.shoppingList[catIndex].items.push(itemData);
+  } else {
+    AppData.decor.shoppingList[catIndex].items[itemIndex] = itemData;
+  }
+  
+  saveToLocalStorage();
+  closeDecorEditor();
+  
+  if (window.Render && window.Render.decor) {
+    window.Render.decor();
+  }
+}
+
+function deleteShoppingItem(catIndex, itemIndex) {
+  const item = AppData.decor.shoppingList[catIndex].items[itemIndex];
+  if (confirm(`Delete "${item.item}"?`)) {
+    AppData.decor.shoppingList[catIndex].items.splice(itemIndex, 1);
+    saveToLocalStorage();
+    
+    if (window.Render && window.Render.decor) {
+      window.Render.decor();
+    }
+  }
+}
+
+function togglePurchased(catIndex, itemIndex) {
+  AppData.decor.shoppingList[catIndex].items[itemIndex].purchased = 
+    !AppData.decor.shoppingList[catIndex].items[itemIndex].purchased;
+  saveToLocalStorage();
+  
+  if (window.Render && window.Render.decor) {
+    window.Render.decor();
+  }
+}
+
+function closeDecorEditor() {
+  const modal = document.getElementById('decor-editor-modal');
+  if (modal) modal.remove();
+}
+
+async function handleImportDecor() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset('decor', file);
+      
+      if (confirm(`Import decor data with ${data.moodBoard?.length || 0} mood boards and ${data.shoppingList?.length || 0} shopping categories?`)) {
+        applyImportedData('decor', data);
+        
+        if (window.Render && window.Render.decor) {
+          window.Render.decor();
+        }
+        
+        alert('Decor imported successfully!');
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+async function handleResetDecor() {
+  if (confirm('Reset decor to repository defaults?')) {
+    await resetToDefaults('decor');
+    
+    if (window.Render && window.Render.decor) {
+      window.Render.decor();
+    }
+    
+    alert('Decor reset to defaults!');
+  }
+}
+
+// ============================================================================
+// SCHEDULE CRUD FUNCTIONS
+// ============================================================================
+
+function showAddTimelineForm() {
+  const formHtml = `
+    <div id="schedule-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Add Timeline Item</h2>
+        <form id="timeline-form" onsubmit="handleSaveTimelineItem(event, null)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label><strong>Time *</strong></label>
+              <input type="text" name="time" required placeholder="e.g., 0:00 - 0:15" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Duration *</strong></label>
+              <input type="text" name="duration" required placeholder="e.g., 15 minutes" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Title *</strong></label>
+              <input type="text" name="title" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Description</strong></label>
+              <textarea name="description" rows="3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Activities (one per line)</strong></label>
+              <textarea name="activities" rows="4" placeholder="Activity 1&#10;Activity 2&#10;Activity 3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Music</strong></label>
+              <input type="text" name="music" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Phase</strong></label>
+              <select name="phase" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">None</option>
+                <option value="intro">Intro</option>
+                <option value="mid">Mid</option>
+                <option value="pre-final">Pre-Final</option>
+                <option value="final">Final</option>
+              </select>
+            </div>
+            <div>
+              <label><strong>Envelope Instruction</strong></label>
+              <input type="text" name="envelope_instruction" placeholder="Optional" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Notes</strong></label>
+              <textarea name="notes" rows="2" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeScheduleEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Add Timeline Item</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+function editTimelineItem(index) {
+  const item = AppData.schedule.timeline[index];
+  
+  const formHtml = `
+    <div id="schedule-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Edit Timeline Item</h2>
+        <form id="timeline-form" onsubmit="handleSaveTimelineItem(event, ${index})">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+              <label><strong>Time *</strong></label>
+              <input type="text" name="time" value="${item.time}" required placeholder="e.g., 0:00 - 0:15" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Duration *</strong></label>
+              <input type="text" name="duration" value="${item.duration}" required placeholder="e.g., 15 minutes" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Title *</strong></label>
+              <input type="text" name="title" value="${item.title}" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Description</strong></label>
+              <textarea name="description" rows="3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${item.description || ''}</textarea>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Activities (one per line)</strong></label>
+              <textarea name="activities" rows="4" placeholder="Activity 1&#10;Activity 2&#10;Activity 3" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${(item.activities || []).join('\n')}</textarea>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Music</strong></label>
+              <input type="text" name="music" value="${item.music || ''}" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Phase</strong></label>
+              <select name="phase" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">None</option>
+                <option value="intro" ${item.phase === 'intro' ? 'selected' : ''}>Intro</option>
+                <option value="mid" ${item.phase === 'mid' ? 'selected' : ''}>Mid</option>
+                <option value="pre-final" ${item.phase === 'pre-final' ? 'selected' : ''}>Pre-Final</option>
+                <option value="final" ${item.phase === 'final' ? 'selected' : ''}>Final</option>
+              </select>
+            </div>
+            <div>
+              <label><strong>Envelope Instruction</strong></label>
+              <input type="text" name="envelope_instruction" value="${item.envelope_instruction || ''}" placeholder="Optional" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label><strong>Notes</strong></label>
+              <textarea name="notes" rows="2" style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${item.notes || ''}</textarea>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closeScheduleEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+function handleSaveTimelineItem(event, index) {
+  event.preventDefault();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const itemData = {
+    time: formData.get('time'),
+    title: formData.get('title'),
+    duration: formData.get('duration'),
+    description: formData.get('description') || '',
+    activities: formData.get('activities') ? formData.get('activities').split('\n').filter(s => s.trim()) : [],
+    music: formData.get('music') || '',
+    notes: formData.get('notes') || '',
+    phase: formData.get('phase') || undefined,
+    envelope_instruction: formData.get('envelope_instruction') || undefined
+  };
+  
+  if (index === null) {
+    AppData.schedule.timeline.push(itemData);
+  } else {
+    AppData.schedule.timeline[index] = itemData;
+  }
+  
+  saveToLocalStorage();
+  closeScheduleEditor();
+  
+  if (window.Render && window.Render.schedule) {
+    window.Render.schedule();
+  }
+}
+
+function deleteTimelineItem(index) {
+  const item = AppData.schedule.timeline[index];
+  if (confirm(`Delete timeline item "${item.title}"?`)) {
+    AppData.schedule.timeline.splice(index, 1);
+    saveToLocalStorage();
+    
+    if (window.Render && window.Render.schedule) {
+      window.Render.schedule();
+    }
+  }
+}
+
+function closeScheduleEditor() {
+  const modal = document.getElementById('schedule-editor-modal');
+  if (modal) modal.remove();
+}
+
+async function handleImportSchedule() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  
+  input.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    try {
+      const data = await importDataset('schedule', file);
+      
+      if (confirm(`Import schedule with ${data.timeline?.length || 0} timeline items?`)) {
+        applyImportedData('schedule', data);
+        
+        if (window.Render && window.Render.schedule) {
+          window.Render.schedule();
+        }
+        
+        alert('Schedule imported successfully!');
+      }
+    } catch (error) {
+      alert(`Import failed: ${error.message}`);
+    }
+  };
+  
+  input.click();
+}
+
+async function handleResetSchedule() {
+  if (confirm('Reset schedule to repository defaults?')) {
+    await resetToDefaults('schedule');
+    
+    if (window.Render && window.Render.schedule) {
+      window.Render.schedule();
+    }
+    
+    alert('Schedule reset to defaults!');
+  }
+}
+
 // Role preference functions
 function setRolePreference(guestId, characterId) {
   if (!AppData.rolePreferences[guestId]) {
@@ -1801,6 +2355,30 @@ if (typeof module !== 'undefined' && module.exports) {
     closeMenuEditor,
     handleImportMenu,
     handleResetMenu,
+    // Decor CRUD functions
+    showAddMoodBoardForm,
+    editMoodBoard,
+    handleSaveMoodBoard,
+    deleteMoodBoard,
+    showAddShoppingCategoryForm,
+    handleSaveShoppingCategory,
+    deleteShoppingCategory,
+    showAddShoppingItemForm,
+    editShoppingItem,
+    handleSaveShoppingItem,
+    deleteShoppingItem,
+    togglePurchased,
+    closeDecorEditor,
+    handleImportDecor,
+    handleResetDecor,
+    // Schedule CRUD functions
+    showAddTimelineForm,
+    editTimelineItem,
+    handleSaveTimelineItem,
+    deleteTimelineItem,
+    closeScheduleEditor,
+    handleImportSchedule,
+    handleResetSchedule,
     // Admin Data Manager functions
     handleExportDataset,
     handleImportDataset,
