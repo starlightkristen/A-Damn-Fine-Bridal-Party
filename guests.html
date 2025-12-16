@@ -29,17 +29,6 @@
             <h2>👥 Guest List</h2>
             <p>Manage guests, track RSVPs, assign characters, and generate personalized invitations.</p>
             
-            <div class="flex-between" style="margin-bottom: 20px;">
-                <div>
-                    <a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues/new?template=guest-list.yml" class="btn" target="_blank">Submit New Guests</a>
-                    <button onclick="autoAssignAll()" class="btn btn-secondary">Auto-Assign Characters</button>
-                </div>
-            </div>
-
-            <div class="alert alert-info">
-                <strong>How to Add Guests:</strong> Click "Submit New Guests" to open a GitHub issue form where you can submit multiple guest details (name, email, dietary restrictions). The information will be tracked in GitHub Issues with the "guest-list" label.
-            </div>
-
             <div id="guest-table">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -133,17 +122,6 @@
             document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
             document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
             document.getElementById('stat-pending').textContent = stats.pendingGuests;
-            
-            // Render character guide dynamically
-            const characterGuideHtml = AppData.characters.length > 0 ?
-                `<ul class="item-list">
-                    ${AppData.characters.map(char => `
-                        <li><strong>${char.name} (${char.role}):</strong> ${char.personality}</li>
-                    `).join('')}
-                </ul>` :
-                '<p style="color: #999;">No characters available. Please add characters to the characters.json file.</p>';
-            
-            document.getElementById('character-list-guide').innerHTML = characterGuideHtml;
         });
     </script>
 </body>
