@@ -2274,7 +2274,7 @@ async function saveToFirestore() {
 
 // Save current state to localStorage (fallback)
 function saveToLocalStorage() {
-  if (!AppData.autosaveEnabled) return;
+  if (!AppData.autosaveEnabled && !FIREBASE_ENABLED) return;
   
   const dataToSave = {
     guests: AppData.guests,
@@ -2288,7 +2288,24 @@ function saveToLocalStorage() {
     packets: AppData.packets
   };
   
-  localStorage.setItem('appData', JSON.stringify(dataToSave));
+  // If Firebase is enabled, use Firestore; otherwise use localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    // Save all datasets to Firestore
+    Promise.all([
+      FirebaseManager.saveData('guests', AppData.guests),
+      FirebaseManager.saveData('characters', AppData.characters),
+      FirebaseManager.saveData('decor', AppData.decor),
+      FirebaseManager.saveData('vendors', AppData.vendors),
+      FirebaseManager.saveData('menu', AppData.menu),
+      FirebaseManager.saveData('schedule', AppData.schedule),
+      FirebaseManager.saveData('story', AppData.story),
+      FirebaseManager.saveData('clues', AppData.clues),
+      FirebaseManager.saveData('packets', AppData.packets)
+    ]).catch(err => console.error('Error saving to Firestore:', err));
+  } else {
+    // Fallback to localStorage
+    localStorage.setItem('appData', JSON.stringify(dataToSave));
+  }
 }
 
 // Reset to defaults from repo

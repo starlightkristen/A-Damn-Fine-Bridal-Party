@@ -151,12 +151,12 @@
         // Initialize the app when DOM is ready
         document.addEventListener('DOMContentLoaded', async () => {
             // Setup logout button if Firebase is enabled
-            if (FIREBASE_ENABLED && FirebaseManager) {
+            if (FIREBASE_ENABLED && FirebaseManager && FirebaseManager.currentUser) {
                 const logoutBtn = document.getElementById('logoutBtn');
                 const userInfo = document.getElementById('userInfo');
                 const userEmail = document.getElementById('userEmail');
                 
-                if (logoutBtn && FirebaseManager.currentUser) {
+                if (logoutBtn) {
                     userEmail.textContent = FirebaseManager.currentUser.email;
                     userInfo.style.display = 'block';
                     logoutBtn.addEventListener('click', () => {
