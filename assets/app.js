@@ -969,7 +969,7 @@ function editMenuItem(itemId) {
 }
 
 // Handle save menu item (add or edit)
-function handleSaveMenuItem(event, itemId) {
+async function handleSaveMenuItem(event, itemId) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -997,7 +997,16 @@ function handleSaveMenuItem(event, itemId) {
     }
   }
   
-  saveToLocalStorage();
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart('menu');
+    }
+    await FirebaseManager.saveData('menu', AppData.menu);
+  } else {
+    saveToLocalStorage();
+  }
+  
   closeMenuEditor();
   
   // Re-render menu
@@ -1007,7 +1016,7 @@ function handleSaveMenuItem(event, itemId) {
 }
 
 // Delete menu item with confirmation
-function deleteMenuItem(itemId) {
+async function deleteMenuItem(itemId) {
   const item = AppData.menu.menuItems.find(i => i.id === itemId);
   if (!item) return;
   
@@ -1018,7 +1027,15 @@ function deleteMenuItem(itemId) {
     AppData.menuFavorites.delete(itemId);
     AppData.menuFeatured.delete(itemId);
     
-    saveToLocalStorage();
+    // Save to Firestore or localStorage
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart('menu');
+      }
+      await FirebaseManager.saveData('menu', AppData.menu);
+    } else {
+      saveToLocalStorage();
+    }
     
     // Re-render
     if (window.Render && window.Render.food) {
@@ -1261,7 +1278,7 @@ function editMoodBoard(moodId) {
   document.body.insertAdjacentHTML('beforeend', formHtml);
 }
 
-function handleSaveMoodBoard(event, moodId) {
+async function handleSaveMoodBoard(event, moodId) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -1284,7 +1301,16 @@ function handleSaveMoodBoard(event, moodId) {
     }
   }
   
-  saveToLocalStorage();
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart('decor');
+    }
+    await FirebaseManager.saveData('decor', AppData.decor);
+  } else {
+    saveToLocalStorage();
+  }
+  
   closeDecorEditor();
   
   if (window.Render && window.Render.decor) {
@@ -1292,7 +1318,7 @@ function handleSaveMoodBoard(event, moodId) {
   }
 }
 
-function deleteMoodBoard(moodId) {
+async function deleteMoodBoard(moodId) {
   const mood = AppData.decor.moodBoard.find(m => m.id === moodId);
   if (!mood) return;
   
@@ -1300,7 +1326,16 @@ function deleteMoodBoard(moodId) {
     AppData.decor.moodBoard = AppData.decor.moodBoard.filter(m => m.id !== moodId);
     AppData.decorFavorites.delete(moodId);
     AppData.decorShoppingList.delete(moodId);
-    saveToLocalStorage();
+    
+    // Save to Firestore or localStorage
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart('decor');
+      }
+      await FirebaseManager.saveData('decor', AppData.decor);
+    } else {
+      saveToLocalStorage();
+    }
     
     if (window.Render && window.Render.decor) {
       window.Render.decor();
@@ -1330,7 +1365,7 @@ function showAddShoppingCategoryForm() {
   document.body.insertAdjacentHTML('beforeend', formHtml);
 }
 
-function handleSaveShoppingCategory(event) {
+async function handleSaveShoppingCategory(event) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -1340,7 +1375,16 @@ function handleSaveShoppingCategory(event) {
     items: []
   });
   
-  saveToLocalStorage();
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart('decor');
+    }
+    await FirebaseManager.saveData('decor', AppData.decor);
+  } else {
+    saveToLocalStorage();
+  }
+  
   closeDecorEditor();
   
   if (window.Render && window.Render.decor) {
@@ -1348,11 +1392,20 @@ function handleSaveShoppingCategory(event) {
   }
 }
 
-function deleteShoppingCategory(catIndex) {
+async function deleteShoppingCategory(catIndex) {
   const category = AppData.decor.shoppingList[catIndex];
   if (confirm(`Delete category "${category.category}" and all its items?`)) {
     AppData.decor.shoppingList.splice(catIndex, 1);
-    saveToLocalStorage();
+    
+    // Save to Firestore or localStorage
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart('decor');
+      }
+      await FirebaseManager.saveData('decor', AppData.decor);
+    } else {
+      saveToLocalStorage();
+    }
     
     if (window.Render && window.Render.decor) {
       window.Render.decor();
@@ -1426,7 +1479,7 @@ function editShoppingItem(catIndex, itemIndex) {
   document.body.insertAdjacentHTML('beforeend', formHtml);
 }
 
-function handleSaveShoppingItem(event, catIndex, itemIndex) {
+async function handleSaveShoppingItem(event, catIndex, itemIndex) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -1444,7 +1497,16 @@ function handleSaveShoppingItem(event, catIndex, itemIndex) {
     AppData.decor.shoppingList[catIndex].items[itemIndex] = itemData;
   }
   
-  saveToLocalStorage();
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart('decor');
+    }
+    await FirebaseManager.saveData('decor', AppData.decor);
+  } else {
+    saveToLocalStorage();
+  }
+  
   closeDecorEditor();
   
   if (window.Render && window.Render.decor) {
@@ -1452,11 +1514,20 @@ function handleSaveShoppingItem(event, catIndex, itemIndex) {
   }
 }
 
-function deleteShoppingItem(catIndex, itemIndex) {
+async function deleteShoppingItem(catIndex, itemIndex) {
   const item = AppData.decor.shoppingList[catIndex].items[itemIndex];
   if (confirm(`Delete "${item.item}"?`)) {
     AppData.decor.shoppingList[catIndex].items.splice(itemIndex, 1);
-    saveToLocalStorage();
+    
+    // Save to Firestore or localStorage
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart('decor');
+      }
+      await FirebaseManager.saveData('decor', AppData.decor);
+    } else {
+      saveToLocalStorage();
+    }
     
     if (window.Render && window.Render.decor) {
       window.Render.decor();
@@ -1464,10 +1535,19 @@ function deleteShoppingItem(catIndex, itemIndex) {
   }
 }
 
-function togglePurchased(catIndex, itemIndex) {
+async function togglePurchased(catIndex, itemIndex) {
   AppData.decor.shoppingList[catIndex].items[itemIndex].purchased = 
     !AppData.decor.shoppingList[catIndex].items[itemIndex].purchased;
-  saveToLocalStorage();
+  
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart('decor');
+    }
+    await FirebaseManager.saveData('decor', AppData.decor);
+  } else {
+    saveToLocalStorage();
+  }
   
   if (window.Render && window.Render.decor) {
     window.Render.decor();
@@ -1648,7 +1728,7 @@ function editTimelineItem(index) {
   document.body.insertAdjacentHTML('beforeend', formHtml);
 }
 
-function handleSaveTimelineItem(event, index) {
+async function handleSaveTimelineItem(event, index) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -1671,7 +1751,16 @@ function handleSaveTimelineItem(event, index) {
     AppData.schedule.timeline[index] = itemData;
   }
   
-  saveToLocalStorage();
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    if (typeof window.notifySaveStart === 'function') {
+      window.notifySaveStart('schedule');
+    }
+    await FirebaseManager.saveData('schedule', AppData.schedule);
+  } else {
+    saveToLocalStorage();
+  }
+  
   closeScheduleEditor();
   
   if (window.Render && window.Render.schedule) {
@@ -1679,11 +1768,20 @@ function handleSaveTimelineItem(event, index) {
   }
 }
 
-function deleteTimelineItem(index) {
+async function deleteTimelineItem(index) {
   const item = AppData.schedule.timeline[index];
   if (confirm(`Delete timeline item "${item.title}"?`)) {
     AppData.schedule.timeline.splice(index, 1);
-    saveToLocalStorage();
+    
+    // Save to Firestore or localStorage
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart('schedule');
+      }
+      await FirebaseManager.saveData('schedule', AppData.schedule);
+    } else {
+      saveToLocalStorage();
+    }
     
     if (window.Render && window.Render.schedule) {
       window.Render.schedule();
