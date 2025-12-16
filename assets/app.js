@@ -1131,7 +1131,7 @@ function handleSaveMoodBoard(event, moodId) {
   };
   
   if (moodId === null) {
-    const newId = 'mood-' + Date.now();
+    const newId = 'mood-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     moodData.id = newId;
     AppData.decor.moodBoard.push(moodData);
   } else {

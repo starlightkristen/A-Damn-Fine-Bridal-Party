@@ -246,7 +246,7 @@ const Render = {
       document.getElementById('shopping-list').innerHTML = shoppingControlsHtml + shoppingHtml;
     }
     
-    // Render vendors (from separate vendors.json)
+    // Render vendors (from AppData.vendors loaded from vendors.json)
     if (!AppData.vendors || AppData.vendors.length === 0) {
       document.getElementById('vendors').innerHTML = `
         <div class="alert alert-info">
