@@ -1,122 +1,162 @@
 [
   {
     "id": "clue-001",
-    "holder_id": "socialite",
-    "type": "implicates",
-    "text": "A receipt from the local jeweler showing a purchase made the morning of the party. The item? A silver locket with an unusual engraving.",
+    "holder_id": "waitress",
+    "type": "timeline",
+    "text": "A diner receipt shows Morgan bought a whole cherry pie at 6:30 AM the day Cassandra died—unusual timing.",
     "reveal_phase": "intro",
     "target_id": "owner",
-    "proof_level": "weak",
-    "trade_hint": "Will trade for information about the secret meeting"
+    "proof_level": "medium",
+    "trade_hint": "Looking for info about recipe origins"
   },
   {
     "id": "clue-002",
     "holder_id": "detective",
     "type": "eliminates",
-    "text": "An alibi confirmed by security footage showing the deputy at the sheriff's station during the estimated time of the incident.",
+    "text": "Security footage confirms the deputy was at the station all morning—he couldn't have been involved.",
     "reveal_phase": "intro",
     "target_id": "deputy",
     "proof_level": "strong",
-    "trade_hint": "Will share freely with anyone who asks politely"
+    "trade_hint": "Sharing freely to help the investigation"
   },
   {
     "id": "clue-003",
-    "holder_id": "waitress",
-    "type": "timeline",
-    "text": "A diner order slip timestamped 6:47 AM, showing someone ordered two slices of cherry pie 'to go' - unusual for that early.",
+    "holder_id": "log-lady",
+    "type": "motive",
+    "text": "The log whispers of stolen recipes and false heritage. Someone claimed another's work as their own family treasure.",
     "reveal_phase": "intro",
-    "target_id": null,
+    "target_id": "owner",
     "proof_level": "medium",
-    "trade_hint": "Looking for information about suspicious phone calls"
+    "trade_hint": "The log speaks truth to those who listen"
   },
   {
     "id": "clue-004",
-    "holder_id": "log-lady",
-    "type": "motive",
-    "text": "The log speaks of financial desperation and whispers of a business deal gone wrong. Someone needed money... badly.",
-    "reveal_phase": "mid",
+    "holder_id": "socialite",
+    "type": "implicates",
+    "text": "Overheard Morgan telling investors her 'grandmother's secret recipe' would make them rich. But Morgan's family isn't from here...",
+    "reveal_phase": "intro",
     "target_id": "owner",
-    "proof_level": "medium",
-    "trade_hint": "The log only speaks to those who believe"
+    "proof_level": "weak",
+    "trade_hint": "Trade for something about the blogger's investigation"
   },
   {
     "id": "clue-005",
-    "holder_id": "owner",
-    "type": "red_herring",
-    "text": "A mysterious letter addressed to the socialite, hinting at an old scandal that could ruin her reputation if revealed.",
-    "reveal_phase": "mid",
-    "target_id": "socialite",
-    "proof_level": "weak",
-    "trade_hint": "Will only trade with someone who has dirt on the detective"
-  },
-  {
-    "id": "clue-006",
     "holder_id": "deputy",
     "type": "timeline",
-    "text": "A witness statement claiming they saw someone entering the mill late at night, three days before the party.",
+    "text": "Witness saw Morgan and Cassandra arguing outside the pie shop two days ago. Cassandra was waving papers.",
     "reveal_phase": "mid",
     "target_id": "owner",
     "proof_level": "medium",
-    "trade_hint": "Needs evidence to support the investigation"
+    "trade_hint": "Need corroboration before filing official report"
+  },
+  {
+    "id": "clue-006",
+    "holder_id": "waitress",
+    "type": "twist",
+    "text": "Norma mentioned her secret cherry pie recipe went missing from her kitchen last month. She suspected theft but had no proof.",
+    "reveal_phase": "mid",
+    "target_id": null,
+    "proof_level": "strong",
+    "trade_hint": "This connects to bigger questions about recipes"
   },
   {
     "id": "clue-007",
-    "holder_id": "socialite",
-    "type": "motive",
-    "text": "A contract showing a significant debt owed to a local creditor, with payment overdue by three months.",
-    "reveal_phase": "pre-final",
+    "holder_id": "log-lady",
+    "type": "twist",
+    "text": "The log saw the truth in photographs: secret pictures of recipe cards, taken without permission. Evidence of theft.",
+    "reveal_phase": "mid",
     "target_id": "owner",
     "proof_level": "strong",
-    "trade_hint": "Information is power - will trade for guarantees of silence"
+    "trade_hint": "The log reveals all secrets eventually"
   },
   {
     "id": "clue-008",
     "holder_id": "detective",
     "type": "implicates",
-    "text": "Fingerprints found on a suspicious package that match records from a previous investigation.",
-    "reveal_phase": "pre-final",
+    "text": "Cassandra's notes mention interviewing Norma about her recipes—and finding discrepancies with Morgan's 'family' version.",
+    "reveal_phase": "mid",
     "target_id": "owner",
     "proof_level": "strong",
-    "trade_hint": "Official evidence - will only share if necessary for justice"
+    "trade_hint": "Blogger evidence—crucial to understanding motive"
   },
   {
     "id": "clue-009",
-    "holder_id": "waitress",
-    "type": "twist",
-    "text": "A phone message left at the diner: 'Tell her I know what she did. The truth comes out tonight.' Voice unidentified.",
-    "reveal_phase": "pre-final",
-    "target_id": null,
-    "proof_level": "strong",
-    "trade_hint": "This is serious - will share with trustworthy investigators only"
+    "holder_id": "owner",
+    "type": "red_herring",
+    "text": "A rumor that the socialite was jealous of Cassandra's blog success and wanted to sabotage her reputation.",
+    "reveal_phase": "mid",
+    "target_id": "socialite",
+    "proof_level": "weak",
+    "trade_hint": "Trying to shift focus away from real issues"
   },
   {
     "id": "clue-010",
-    "holder_id": "log-lady",
-    "type": "twist",
-    "text": "The log reveals that the victim knew about the business deal and threatened to expose the fraud to authorities.",
-    "reveal_phase": "final",
+    "holder_id": "socialite",
+    "type": "motive",
+    "text": "Found investor contracts promising Morgan $50K for her 'authentic heritage pie business'—all based on that recipe.",
+    "reveal_phase": "pre-final",
     "target_id": "owner",
     "proof_level": "strong",
-    "trade_hint": "The log's final prophecy - given freely to all"
+    "trade_hint": "Financial motive is clear—trade for timeline evidence"
   },
   {
     "id": "clue-011",
-    "holder_id": "owner",
-    "type": "red_herring",
-    "text": "A diary entry suggesting the waitress had a grudge against the victim over a past romantic entanglement.",
-    "reveal_phase": "final",
-    "target_id": "waitress",
-    "proof_level": "weak",
-    "trade_hint": "A desperate attempt to divert attention"
+    "holder_id": "detective",
+    "type": "implicates",
+    "text": "Lab report: the poisoned pie slice matches the recipe Morgan claimed as her own. Same unique spice blend.",
+    "reveal_phase": "pre-final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "Forensic evidence—only sharing with serious investigators"
   },
   {
     "id": "clue-012",
     "holder_id": "deputy",
     "type": "implicates",
-    "text": "Security logs showing unauthorized access to the mill's safe on the night before the party.",
+    "text": "Found Cassandra's phone: last text says 'Meeting Morgan at shop to discuss the photos. She says she can explain.'",
+    "reveal_phase": "pre-final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "Critical timeline evidence placing them together"
+  },
+  {
+    "id": "clue-013",
+    "holder_id": "waitress",
+    "type": "twist",
+    "text": "A threatening voicemail to Cassandra: 'Drop the story or you'll regret it.' Voice sounds like Morgan trying to disguise it.",
     "reveal_phase": "final",
     "target_id": "owner",
     "proof_level": "strong",
-    "trade_hint": "Critical evidence - must be preserved for the case"
+    "trade_hint": "Scary evidence—sharing with everyone now"
+  },
+  {
+    "id": "clue-014",
+    "holder_id": "owner",
+    "type": "red_herring",
+    "text": "The waitress was late to work the morning Cassandra died—maybe she had time to do something suspicious?",
+    "reveal_phase": "final",
+    "target_id": "waitress",
+    "proof_level": "weak",
+    "trade_hint": "Desperate deflection—ignore this"
+  },
+  {
+    "id": "clue-015",
+    "holder_id": "log-lady",
+    "type": "twist",
+    "text": "The log reveals Morgan's final desperate act: silencing the blogger to protect the lie and the investors' money.",
+    "reveal_phase": "final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "The log's final truth—shared freely with all"
+  },
+  {
+    "id": "clue-016",
+    "holder_id": "socialite",
+    "type": "implicates",
+    "text": "Cassandra's published draft titled 'The Great Recipe Heist' names Morgan Blackwood and includes photo evidence.",
+    "reveal_phase": "final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "The smoking gun—proof Morgan had everything to lose"
   }
 ]
