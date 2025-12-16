@@ -37,15 +37,15 @@ This fully interactive static site provides everything needed to plan and execut
 - **Global Data Manager**: Centralized admin panel for all 9 datasets
 
 ### Datasets with CRUD Support
-1. ✅ **Guests** - Full editor with all fields (name, email, phone, address, RSVP, dietary, accessibility, roleVibe, seating)
-2. ✅ **Menu** - Add/edit/delete menu items with dynamic categories
-3. **Decor** - Mood boards and shopping list (import/export available)
-4. **Vendors** - Vendor contacts (import/export available via admin)
-5. **Characters** - Mystery roles (import/export available)
-6. **Schedule** - Event timeline (import/export available)
-7. **Story** - Mystery plot (import/export available)
-8. **Clues** - Mystery clues (import/export available)
-9. **Packets** - Character packets (import/export available)
+1. ✅ **Guests** - Full inline editor with all fields (name, email, phone, address, RSVP, dietary, accessibility, roleVibe, seating)
+2. ✅ **Menu** - Full inline editor with dynamic categories (add/edit/delete menu items)
+3. ✅ **Decor** - Full inline editor for mood boards and shopping list (add/edit/delete categories and items)
+4. ✅ **Schedule** - Full inline editor for timeline (add/edit/delete timeline items with all fields)
+5. ✅ **Story** - Import/export/reset via mystery page and admin panel
+6. ✅ **Clues** - Import/export/reset via mystery page and admin panel
+7. ✅ **Packets** - Import/export/reset via mystery page and admin panel
+8. ✅ **Vendors** - Import/export/reset via admin panel (separate from decor)
+9. ✅ **Characters** - Import/export/reset via admin panel
 
 ## 🎨 Theme Colors
 
@@ -158,6 +158,72 @@ The `.nojekyll` file ensures GitHub Pages serves the site correctly without Jeky
 - **☆ Star** - Mark favorites
 - **🏆 Feature** - Designate featured items with gold border
 - **Import/Export/Reset** - Same as guest editor
+
+### Decor Editor (decor.html)
+
+**Mood Boards:**
+1. Click **"➕ Add Mood Board"** to create a new theme
+2. Fill in name, description, colors (comma-separated hex codes), and items (comma-separated)
+3. Edit with **"✏️"** or delete with **"🗑️"**
+4. Use **"🤍 Favorite"** and **"+ Add to Shopping List"** interactive toggles
+
+**Shopping List:**
+1. Click **"➕ Add Category"** to create a new shopping category (e.g., Linens, Lighting)
+2. Within each category, click **"➕"** to add items
+3. Edit item details: item name, quantity, estimated cost
+4. Toggle **"✓ Purchased"** status with checkbox button
+5. Delete items or entire categories with **"🗑️"**
+
+**Import/Export/Reset:**
+- Same functionality as other editors
+- Preserves favorites and shopping list selections
+
+### Schedule Editor (schedule.html)
+
+**Adding Timeline Items:**
+1. Click **"➕ Add Timeline Item"** button
+2. Fill in the comprehensive form:
+   - Time (e.g., "0:00 - 0:15") and duration
+   - Title and description
+   - Activities (one per line)
+   - Music notes
+   - Phase (dropdown: intro, mid, pre-final, final)
+   - Envelope instruction (for mystery phase items)
+   - Host notes
+3. Click **"Add Timeline Item"**
+
+**Editing/Deleting:**
+- **"✏️ Edit"** - Modify any timeline item
+- **"🗑️"** - Delete with confirmation
+
+**Features:**
+- Supports multi-phase timeline blocks
+- Activities rendered as bullet list
+- Phase badges color-coded
+- Import/Export/Reset functionality
+
+### Mystery Data Management (mystery.html + admin.html)
+
+**Story, Clues, and Packets:**
+- Managed primarily through **Import/Export** workflow
+- Edit JSON files externally and import with validation
+- Access via mystery.html quick actions or admin panel Global Data Manager
+
+**Export Buttons:**
+- **📥 Export Story** - Download story.json
+- **📥 Export Clues** - Download clues.json  
+- **📥 Export Packets** - Download packets.json
+
+**Import Process:**
+1. Click **"📂 Import"** button
+2. Select JSON file
+3. Preview shows item count
+4. Confirm to apply changes
+5. Schema validation prevents invalid data
+
+**Reset:**
+- Restore repository defaults for any dataset
+- Confirmation dialog prevents accidental resets
 
 ### Global Data Manager (admin.html)
 
