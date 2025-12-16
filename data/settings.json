@@ -1,0 +1,26 @@
+{
+  "twinPeaksFlavor": "standard",
+  "pg13Mode": true,
+  "phaseDurations": {
+    "intro": 20,
+    "mid": 20,
+    "preFinal": 15,
+    "final": 15
+  },
+  "hintBoost": true,
+  "rehearsalMode": false,
+  "cupcakeOrder": [
+    "MORGAN STOLE RECIPE",
+    "FROM NORMA",
+    "SECRET PHOTOS",
+    "PIE BUSINESS",
+    "FALSE HERITAGE",
+    "INVESTORS HERE",
+    "CASSANDRA FOUND PROOF",
+    "POISONED SLICE",
+    "MORGAN BLACKWOOD",
+    "IS GUILTY",
+    "RECIPE RETURNS",
+    "LOVE WINS"
+  ]
+}

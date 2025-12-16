@@ -6,9 +6,13 @@
       "category": "Dessert",
       "description": "Mini cherry pies served warm with a flaky crust - the most iconic Twin Peaks treat",
       "serves": 40,
-      "prepTime": "90 minutes",
+      "prep": "90 minutes",
       "allergens": ["Gluten", "Dairy"],
-      "dietaryOptions": ["Can be made gluten-free with alternative crust"]
+      "tags": [],
+      "source": "DIY",
+      "notes": "",
+      "shortlist": false,
+      "final": true
     },
     {
       "id": "damn-fine-coffee",
@@ -16,9 +20,13 @@
       "category": "Beverage",
       "description": "Premium dark roast coffee bar with cream, sugar, and flavored syrups",
       "serves": "unlimited",
-      "prepTime": "30 minutes",
-      "allergens": ["Dairy (in cream)"],
-      "dietaryOptions": ["Dairy-free milk alternatives available"]
+      "prep": "30 minutes",
+      "allergens": [],
+      "tags": ["V", "VG"],
+      "source": "DIY",
+      "notes": "Dairy-free milk alternatives available",
+      "shortlist": false,
+      "final": true
     },
     {
       "id": "donut-bar",
@@ -26,9 +34,13 @@
       "category": "Dessert",
       "description": "Assorted donut holes with coffee glaze, powdered sugar, and chocolate drizzle",
       "serves": 50,
-      "prepTime": "20 minutes (purchased)",
+      "prep": "20 minutes",
       "allergens": ["Gluten", "Dairy", "Eggs"],
-      "dietaryOptions": ["Gluten-free options available"]
+      "tags": [],
+      "source": "cater",
+      "notes": "Gluten-free options available",
+      "shortlist": false,
+      "final": true
     },
     {
       "id": "diner-sandwiches",
@@ -36,9 +48,13 @@
       "category": "Main",
       "description": "Assorted finger sandwiches: turkey club, BLT, grilled cheese, veggie",
       "serves": 35,
-      "prepTime": "60 minutes",
+      "prep": "60 minutes",
       "allergens": ["Gluten", "Dairy"],
-      "dietaryOptions": ["Vegetarian and gluten-free options included"]
+      "tags": ["V"],
+      "source": "DIY",
+      "notes": "Vegetarian and gluten-free options included",
+      "shortlist": false,
+      "final": true
     },
     {
       "id": "lodge-salad",
@@ -46,9 +62,13 @@
       "category": "Side",
       "description": "Mixed greens with candied pecans, dried cherries, goat cheese, and cherry vinaigrette",
       "serves": 35,
-      "prepTime": "30 minutes",
+      "prep": "30 minutes",
       "allergens": ["Dairy", "Tree Nuts"],
-      "dietaryOptions": ["Vegan option without cheese"]
+      "tags": ["V"],
+      "source": "DIY",
+      "notes": "Vegan option without cheese",
+      "shortlist": false,
+      "final": true
     },
     {
       "id": "cheese-board",
@@ -56,9 +76,13 @@
       "category": "Appetizer",
       "description": "Local cheeses, crackers, fresh fruit, honey, and nuts",
       "serves": 35,
-      "prepTime": "45 minutes",
+      "prep": "45 minutes",
       "allergens": ["Dairy", "Gluten", "Tree Nuts"],
-      "dietaryOptions": ["Can accommodate dairy-free guests"]
+      "tags": ["V"],
+      "source": "DIY",
+      "notes": "Can accommodate dairy-free guests",
+      "shortlist": false,
+      "final": true
     },
     {
       "id": "forest-fruits",
@@ -66,9 +90,13 @@
       "category": "Appetizer",
       "description": "Seasonal fresh fruit with emphasis on berries and cherries",
       "serves": 35,
-      "prepTime": "30 minutes",
+      "prep": "30 minutes",
       "allergens": [],
-      "dietaryOptions": ["Vegan, gluten-free, allergy-friendly"]
+      "tags": ["V", "VG", "GF", "DF"],
+      "source": "DIY",
+      "notes": "Vegan, gluten-free, allergy-friendly",
+      "shortlist": false,
+      "final": true
     },
     {
       "id": "hot-chocolate",
@@ -76,9 +104,13 @@
       "category": "Beverage",
       "description": "Rich hot chocolate with optional liqueur additions and whipped cream",
       "serves": "unlimited",
-      "prepTime": "20 minutes",
+      "prep": "20 minutes",
       "allergens": ["Dairy"],
-      "dietaryOptions": ["Non-alcoholic and dairy-free options available"]
+      "tags": ["V"],
+      "source": "DIY",
+      "notes": "Non-alcoholic and dairy-free options available",
+      "shortlist": false,
+      "final": true
     }
   ],
   "allergyMap": {

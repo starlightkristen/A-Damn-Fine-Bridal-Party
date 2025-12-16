@@ -18,6 +18,8 @@ const AppData = {
   story: {},
   clues: [],
   packets: [],
+  settings: {},
+  roles: {},
   // In-memory state for interactive features
   decorFavorites: new Set(),
   decorShoppingList: new Set(),
@@ -25,6 +27,8 @@ const AppData = {
   menuFeatured: new Set(),
   rolePreferences: {}, // guestId -> characterId mapping
   currentPhase: 'intro', // Track current mystery phase
+  phaseTimerState: null, // Track phase timer state
+  cupcakeRevealIndex: 0, // Track cupcake reveal progress
   // Autosave settings
   autosaveEnabled: false,
   // Original defaults for reset
@@ -65,7 +69,7 @@ async function loadData() {
       const meta = await FirebaseManager.readMeta();
       const isSeeded = meta && meta.seeded === true;
       
-      const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets'];
+      const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets', 'settings', 'roles'];
       
       if (isSeeded) {
         // Data has been seeded, load from Firestore
@@ -89,6 +93,8 @@ async function loadData() {
         AppData.story = loaded.story || {};
         AppData.clues = loaded.clues || [];
         AppData.packets = loaded.packets || [];
+        AppData.settings = loaded.settings || {};
+        AppData.roles = loaded.roles || { assignments: {} };
         
         // Set up real-time listeners for all datasets
         for (const dataset of datasets) {
@@ -105,7 +111,7 @@ async function loadData() {
       } else {
         // First time - seed from JSON files
         console.log('First load detected - seeding Firestore from JSON files...');
-        const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+        const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
           fetch('./data/guests.json').then(r => r.json()),
           fetch('./data/characters.json').then(r => r.json()),
           fetch('./data/decor.json').then(r => r.json()),
@@ -114,7 +120,9 @@ async function loadData() {
           fetch('./data/schedule.json').then(r => r.json()),
           fetch('./data/story.json').then(r => r.json()),
           fetch('./data/clues.json').then(r => r.json()),
-          fetch('./data/packets.json').then(r => r.json())
+          fetch('./data/packets.json').then(r => r.json()),
+          fetch('./data/settings.json').then(r => r.json()),
+          fetch('./data/roles.json').then(r => r.json())
         ]);
         
         AppData.guests = guests;
@@ -126,6 +134,8 @@ async function loadData() {
         AppData.story = story;
         AppData.clues = clues;
         AppData.packets = packets;
+        AppData.settings = settings;
+        AppData.roles = roles;
         
         // Save to Firestore (one-time seeding)
         console.log('Saving initial data to Firestore...');
@@ -138,7 +148,9 @@ async function loadData() {
           FirebaseManager.saveData('schedule', schedule),
           FirebaseManager.saveData('story', story),
           FirebaseManager.saveData('clues', clues),
-          FirebaseManager.saveData('packets', packets)
+          FirebaseManager.saveData('packets', packets),
+          FirebaseManager.saveData('settings', settings),
+          FirebaseManager.saveData('roles', roles)
         ]);
         
         // Mark as seeded
@@ -163,7 +175,7 @@ async function loadData() {
     } else {
       // Firebase disabled - load from JSON files
       console.log('Firebase disabled - loading data from JSON files...');
-      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
         fetch('./data/guests.json').then(r => r.json()),
         fetch('./data/characters.json').then(r => r.json()),
         fetch('./data/decor.json').then(r => r.json()),
@@ -172,7 +184,9 @@ async function loadData() {
         fetch('./data/schedule.json').then(r => r.json()),
         fetch('./data/story.json').then(r => r.json()),
         fetch('./data/clues.json').then(r => r.json()),
-        fetch('./data/packets.json').then(r => r.json())
+        fetch('./data/packets.json').then(r => r.json()),
+        fetch('./data/settings.json').then(r => r.json()),
+        fetch('./data/roles.json').then(r => r.json())
       ]);
       
       AppData.guests = guests;
@@ -184,11 +198,13 @@ async function loadData() {
       AppData.story = story;
       AppData.clues = clues;
       AppData.packets = packets;
+      AppData.settings = settings;
+      AppData.roles = roles;
     }
     
     // Store defaults for reset functionality
     if (!AppData.defaults.guests) {
-      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets] = await Promise.all([
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
         fetch('./data/guests.json').then(r => r.json()),
         fetch('./data/characters.json').then(r => r.json()),
         fetch('./data/decor.json').then(r => r.json()),
@@ -197,7 +213,9 @@ async function loadData() {
         fetch('./data/schedule.json').then(r => r.json()),
         fetch('./data/story.json').then(r => r.json()),
         fetch('./data/clues.json').then(r => r.json()),
-        fetch('./data/packets.json').then(r => r.json())
+        fetch('./data/packets.json').then(r => r.json()),
+        fetch('./data/settings.json').then(r => r.json()),
+        fetch('./data/roles.json').then(r => r.json())
       ]);
       
       AppData.defaults = {
@@ -209,7 +227,9 @@ async function loadData() {
         schedule: JSON.parse(JSON.stringify(schedule)),
         story: JSON.parse(JSON.stringify(story)),
         clues: JSON.parse(JSON.stringify(clues)),
-        packets: JSON.parse(JSON.stringify(packets))
+        packets: JSON.parse(JSON.stringify(packets)),
+        settings: JSON.parse(JSON.stringify(settings)),
+        roles: JSON.parse(JSON.stringify(roles))
       };
     }
     

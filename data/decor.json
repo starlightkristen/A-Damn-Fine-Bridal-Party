@@ -1,4 +1,70 @@
 {
+  "sections": [
+    {
+      "id": "theme",
+      "name": "Theme",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    },
+    {
+      "id": "color-palette",
+      "name": "Color Palette",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    },
+    {
+      "id": "textures",
+      "name": "Textures",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    },
+    {
+      "id": "lighting",
+      "name": "Lighting",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    },
+    {
+      "id": "centerpieces",
+      "name": "Centerpieces",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    },
+    {
+      "id": "signage",
+      "name": "Signage",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    },
+    {
+      "id": "photo-backdrop",
+      "name": "Photo Backdrop",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    },
+    {
+      "id": "table-settings",
+      "name": "Table Settings",
+      "selectedOptions": [],
+      "customIdea": "",
+      "notes": "",
+      "status": "draft"
+    }
+  ],
   "moodBoard": [
     {
       "id": "velvet-gold",
