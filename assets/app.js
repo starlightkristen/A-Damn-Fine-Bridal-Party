@@ -3269,6 +3269,90 @@ async function toggleDecorSectionStatus(sectionId) {
 }
 
 // ============================================================================
+// Menu Planner - Controller Functions
+// ============================================================================
+
+// Toggle menu item shortlist status
+async function toggleMenuShortlist(itemId) {
+  const item = AppData.menu.menuItems?.find(i => i.id === itemId);
+  if (!item) return false;
+  
+  item.shortlist = !item.shortlist;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('menu', AppData.menu);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Toggle menu item final status
+async function toggleMenuFinal(itemId) {
+  const item = AppData.menu.menuItems?.find(i => i.id === itemId);
+  if (!item) return false;
+  
+  item.final = !item.final;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('menu', AppData.menu);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Calculate dietary coverage
+function calculateDietaryCoverage() {
+  if (!AppData.menu.menuItems) return {};
+  
+  const finalItems = AppData.menu.menuItems.filter(i => i.final);
+  const coverage = {
+    V: 0,   // Vegetarian
+    VG: 0,  // Vegan
+    GF: 0,  // Gluten-free
+    DF: 0   // Dairy-free
+  };
+  
+  finalItems.forEach(item => {
+    if (item.tags) {
+      if (item.tags.includes('V')) coverage.V++;
+      if (item.tags.includes('VG')) coverage.VG++;
+      if (item.tags.includes('GF')) coverage.GF++;
+      if (item.tags.includes('DF')) coverage.DF++;
+    }
+  });
+  
+  return {
+    totalFinal: finalItems.length,
+    ...coverage
+  };
+}
+
+// Calculate category totals
+function calculateCategoryTotals() {
+  if (!AppData.menu.menuItems) return {};
+  
+  const categories = {};
+  
+  AppData.menu.menuItems.forEach(item => {
+    const cat = item.category || 'Other';
+    if (!categories[cat]) {
+      categories[cat] = { total: 0, shortlist: 0, final: 0 };
+    }
+    categories[cat].total++;
+    if (item.shortlist) categories[cat].shortlist++;
+    if (item.final) categories[cat].final++;
+  });
+  
+  return categories;
+}
+
+// ============================================================================
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {

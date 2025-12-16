@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Planner - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Menu Planning Tool</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>🍽️ Menu Planner</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <p>Organize your menu by category with dietary tags and allergen information.</p>
+                <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
+            </div>
+            
+            <div id="menu-planner-items">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading menu items...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Dietary Coverage Summary</h2>
+            <div id="dietary-summary">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Category Totals</h2>
+            <div id="category-totals">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating...</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn" onclick="printMenuPreview()">🖨️ Print Menu Preview</button>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

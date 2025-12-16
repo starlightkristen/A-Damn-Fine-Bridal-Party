@@ -464,6 +464,150 @@ const Render = {
     }
   },
   
+  // Render Menu Planner page
+  'menu-planner': function() {
+    if (!AppData.menu.menuItems || AppData.menu.menuItems.length === 0) {
+      document.getElementById('menu-planner-items').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No menu items yet!</strong> Click "Add Menu Item" above to start.
+        </div>
+      `;
+      document.getElementById('dietary-summary').innerHTML = '<p>No items to analyze.</p>';
+      document.getElementById('category-totals').innerHTML = '<p>No items to categorize.</p>';
+      return;
+    }
+    
+    // Group by category
+    const categories = {};
+    AppData.menu.menuItems.forEach(item => {
+      const cat = item.category || 'Other';
+      if (!categories[cat]) categories[cat] = [];
+      categories[cat].push(item);
+    });
+    
+    // Render items by category
+    let html = '';
+    ['Appetizer', 'Main', 'Side', 'Dessert', 'Beverage', 'Other'].forEach(catName => {
+      if (!categories[catName] || categories[catName].length === 0) return;
+      
+      html += `
+        <div style="margin-bottom: 30px;">
+          <h3 style="color: #8B0000; border-bottom: 2px solid #8B0000; padding-bottom: 5px;">${catName}s</h3>
+          <div style="display: grid; gap: 15px; margin-top: 15px;">
+      `;
+      
+      categories[catName].forEach(item => {
+        const tagBadges = (item.tags || []).map(tag => {
+          const colors = { V: '#0B4F3F', VG: '#228B22', GF: '#DAA520', DF: '#4682B4' };
+          return `<span style="background: ${colors[tag] || '#999'}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px;">${tag}</span>`;
+        }).join(' ');
+        
+        const allergenList = (item.allergens || []).length > 0 
+          ? `<p style="color: #8B0000; font-size: 13px; margin: 5px 0;"><strong>⚠️ Allergens:</strong> ${item.allergens.join(', ')}</p>`
+          : '';
+        
+        const shortlistBadge = item.shortlist 
+          ? '<span style="background: #FFD700; color: #000; padding: 3px 10px; border-radius: 3px; font-size: 12px;">SHORTLIST ⭐</span>'
+          : '';
+        
+        const finalBadge = item.final 
+          ? '<span style="background: #0B4F3F; color: white; padding: 3px 10px; border-radius: 3px; font-size: 12px;">FINAL ✓</span>'
+          : '';
+        
+        html += `
+          <div style="border: 1px solid ${item.final ? '#0B4F3F' : '#ddd'}; border-radius: 4px; padding: 15px; background: white;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+              <div>
+                <strong style="font-size: 16px;">${item.name}</strong>
+                <div style="margin-top: 5px;">${tagBadges}</div>
+              </div>
+              <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                ${shortlistBadge}
+                ${finalBadge}
+              </div>
+            </div>
+            <p style="margin: 8px 0; color: #666;">${item.description || ''}</p>
+            ${allergenList}
+            <div style="display: flex; gap: 15px; margin: 8px 0; font-size: 13px; color: #666;">
+              <span><strong>Serves:</strong> ${item.serves || 'N/A'}</span>
+              <span><strong>Prep:</strong> ${item.prep || 'N/A'}</span>
+              <span><strong>Source:</strong> ${item.source || 'N/A'}</span>
+            </div>
+            ${item.notes ? `<p style="font-size: 13px; color: #666; font-style: italic; margin: 8px 0;">Note: ${item.notes}</p>` : ''}
+            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+              <button class="btn btn-secondary" onclick="handleMenuToggleShortlist('${item.id}')" style="font-size: 13px; padding: 5px 12px;">
+                ${item.shortlist ? '⭐ Remove from Shortlist' : '⭐ Add to Shortlist'}
+              </button>
+              <button class="btn ${item.final ? 'btn-secondary' : ''}" onclick="handleMenuToggleFinal('${item.id}')" style="font-size: 13px; padding: 5px 12px;">
+                ${item.final ? '✓ Unmark Final' : '✓ Mark as Final'}
+              </button>
+              <button class="btn btn-secondary" onclick="showEditMenuItemForm('${item.id}')" style="font-size: 13px; padding: 5px 12px;">✏️ Edit</button>
+              <button class="btn btn-secondary" onclick="deleteMenuItem('${item.id}')" style="font-size: 13px; padding: 5px 12px; color: #8B0000;">🗑️ Delete</button>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += '</div></div>';
+    });
+    
+    document.getElementById('menu-planner-items').innerHTML = html;
+    
+    // Render dietary summary
+    const coverage = calculateDietaryCoverage();
+    const coverageHtml = `
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>${coverage.totalFinal}</h3>
+          <p>Final Items</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.V}</h3>
+          <p>Vegetarian 🌱</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.VG}</h3>
+          <p>Vegan 🥗</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.GF}</h3>
+          <p>Gluten-Free 🌾</p>
+        </div>
+        <div class="stat-card">
+          <h3>${coverage.DF}</h3>
+          <p>Dairy-Free 🥛</p>
+        </div>
+      </div>
+    `;
+    document.getElementById('dietary-summary').innerHTML = coverageHtml;
+    
+    // Render category totals
+    const catTotals = calculateCategoryTotals();
+    const totalsHtml = `
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f5f5f5; border-bottom: 2px solid #8B0000;">
+            <th style="padding: 10px; text-align: left;">Category</th>
+            <th style="padding: 10px; text-align: center;">Total</th>
+            <th style="padding: 10px; text-align: center;">Shortlist</th>
+            <th style="padding: 10px; text-align: center;">Final</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Object.keys(catTotals).map(cat => `
+            <tr style="border-bottom: 1px solid #ddd;">
+              <td style="padding: 10px;"><strong>${cat}</strong></td>
+              <td style="padding: 10px; text-align: center;">${catTotals[cat].total}</td>
+              <td style="padding: 10px; text-align: center;">${catTotals[cat].shortlist}</td>
+              <td style="padding: 10px; text-align: center;">${catTotals[cat].final}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    document.getElementById('category-totals').innerHTML = totalsHtml;
+  },
+  
   // Render mystery page
   mystery: function() {
     // Add data management controls at the top
@@ -1330,3 +1474,95 @@ window.handleAdvancePhase = function() {
     alert('Already at the final phase!');
   }
 };
+
+// ============================================================================
+// Menu Planner Handlers
+// ============================================================================
+
+window.handleMenuToggleShortlist = async function(itemId) {
+  await toggleMenuShortlist(itemId);
+  // Re-render the page to show updated status
+  if (window.renderPage) {
+    window.renderPage('menu-planner');
+  }
+};
+
+window.handleMenuToggleFinal = async function(itemId) {
+  await toggleMenuFinal(itemId);
+  // Re-render the page to show updated status
+  if (window.renderPage) {
+    window.renderPage('menu-planner');
+  }
+};
+
+window.printMenuPreview = function() {
+  const finalItems = (AppData.menu.menuItems || []).filter(i => i.final);
+  
+  // Group by category
+  const categories = {};
+  finalItems.forEach(item => {
+    const cat = item.category || 'Other';
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(item);
+  });
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Menu - A Damn Fine Bridal Party</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+          h1 { color: #8B0000; border-bottom: 3px solid #8B0000; padding-bottom: 10px; }
+          h2 { color: #0B4F3F; margin-top: 30px; }
+          .category { margin-bottom: 30px; page-break-inside: avoid; }
+          .menu-item { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+          .menu-item h3 { margin: 0; color: #333; }
+          .tags { display: inline-flex; gap: 5px; margin-top: 5px; }
+          .tag { background: #0B4F3F; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; }
+          .allergen { color: #8B0000; font-weight: bold; }
+          @media print {
+            body { padding: 20px; }
+            .category { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🌲 Menu - A Damn Fine Bridal Party</h1>
+        <p><em>Generated on ${new Date().toLocaleDateString()}</em></p>
+        
+        ${['Appetizer', 'Main', 'Side', 'Dessert', 'Beverage', 'Other'].map(catName => {
+          if (!categories[catName] || categories[catName].length === 0) return '';
+          return `
+            <div class="category">
+              <h2>${catName}s</h2>
+              ${categories[catName].map(item => `
+                <div class="menu-item">
+                  <h3>${item.name}</h3>
+                  ${(item.tags && item.tags.length > 0) ? `
+                    <div class="tags">
+                      ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                  ` : ''}
+                  <p>${item.description || ''}</p>
+                  ${(item.allergens && item.allergens.length > 0) ? `
+                    <p class="allergen">⚠️ Contains: ${item.allergens.join(', ')}</p>
+                  ` : ''}
+                  <p><em>Serves: ${item.serves || 'N/A'}</em></p>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }).join('')}
+        
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #8B0000;">
+          <h3>Dietary Information</h3>
+          <p>V = Vegetarian | VG = Vegan | GF = Gluten-Free | DF = Dairy-Free</p>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
