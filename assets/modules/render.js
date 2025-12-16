@@ -553,7 +553,6 @@ const Render = {
               <button class="btn ${item.final ? 'btn-secondary' : ''}" onclick="handleMenuToggleFinal('${item.id}')" style="font-size: 13px; padding: 5px 12px;">
                 ${item.final ? '✓ Unmark Final' : '✓ Mark as Final'}
               </button>
-              <button class="btn btn-secondary" onclick="showEditMenuItemForm('${item.id}')" style="font-size: 13px; padding: 5px 12px;">✏️ Edit</button>
               <button class="btn btn-secondary" onclick="deleteMenuItem('${item.id}')" style="font-size: 13px; padding: 5px 12px; color: #8B0000;">🗑️ Delete</button>
             </div>
           </div>
