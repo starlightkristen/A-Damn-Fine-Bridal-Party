@@ -1352,8 +1352,99 @@ const Render = {
     `;
     
     document.getElementById('data-links').innerHTML = dataManager;
+    
+    // Render settings panel
+    renderSettingsPanel();
   }
 };
+
+// Helper function to render settings panel
+function renderSettingsPanel() {
+  const settings = AppData.settings || {};
+  const phaseDurations = settings.phaseDurations || { intro: 20, mid: 20, preFinal: 15, final: 15 };
+  
+  const settingsHtml = `
+    <div style="display: grid; gap: 20px;">
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>🌲 Twin Peaks Flavor</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Adjust the Twin Peaks mysticism level in Log Lady prophecies and flavor text.</p>
+        <div style="display: flex; gap: 10px;">
+          ${['light', 'standard', 'extra'].map(flavor => `
+            <button class="btn ${(settings.twinPeaksFlavor || 'standard') === flavor ? '' : 'btn-secondary'}" 
+                    onclick="handleAdminSettingChange('twinPeaksFlavor', '${flavor}')">
+              ${flavor.charAt(0).toUpperCase() + flavor.slice(1)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>⏱️ Phase Durations (minutes)</h3>
+        <div style="display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Intro Phase:</strong></label>
+            <input type="number" value="${phaseDurations.intro}" 
+                   onchange="handleAdminPhaseDurationChange('intro', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Mid Phase:</strong></label>
+            <input type="number" value="${phaseDurations.mid}" 
+                   onchange="handleAdminPhaseDurationChange('mid', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Pre-Final Phase:</strong></label>
+            <input type="number" value="${phaseDurations.preFinal}" 
+                   onchange="handleAdminPhaseDurationChange('preFinal', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Final Phase:</strong></label>
+            <input type="number" value="${phaseDurations.final}" 
+                   onchange="handleAdminPhaseDurationChange('final', this.value)"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+        </div>
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>🎭 Rehearsal Mode</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Simulate the event without saving changes to Firestore.</p>
+        <label style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" ${settings.rehearsalMode ? 'checked' : ''} 
+                 onchange="handleAdminSettingChange('rehearsalMode', this.checked)">
+          <span>Enable Rehearsal Mode</span>
+        </label>
+        ${settings.rehearsalMode ? '<p style="color: #8B0000; margin-top: 10px;"><strong>⚠️ Changes will NOT be saved!</strong></p>' : ''}
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>💡 Hint Boost</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Enable extra Log Lady prophecies for guests who get stuck.</p>
+        <label style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" ${settings.hintBoost !== false ? 'checked' : ''} 
+                 onchange="handleAdminSettingChange('hintBoost', this.checked)">
+          <span>Enable Hint Boost</span>
+        </label>
+      </div>
+      
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>🛡️ PG-13 Mode</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Keep all content family-friendly (always enforced).</p>
+        <label style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" checked disabled>
+          <span>PG-13 Mode (Always Active)</span>
+        </label>
+      </div>
+    </div>
+  `;
+  
+  const panel = document.getElementById('settings-panel');
+  if (panel) {
+    panel.innerHTML = settingsHtml;
+  }
+}
 
 // Page rendering dispatcher
 window.renderPage = function(page) {
@@ -1947,4 +2038,22 @@ window.printCupcakeTags = function() {
 window.handleFlavorChange = async function(flavor) {
   await updateSettings({ twinPeaksFlavor: flavor });
   if (window.renderPage) window.renderPage('host-controls');
+};
+
+// ============================================================================
+// Admin Settings Handlers
+// ============================================================================
+
+window.handleAdminSettingChange = async function(key, value) {
+  const newSettings = {};
+  newSettings[key] = value;
+  await updateSettings(newSettings);
+  renderSettingsPanel();
+};
+
+window.handleAdminPhaseDurationChange = async function(phase, value) {
+  const phaseDurations = AppData.settings.phaseDurations || {};
+  phaseDurations[phase] = parseInt(value);
+  await updateSettings({ phaseDurations });
+  renderSettingsPanel();
 };
