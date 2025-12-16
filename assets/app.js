@@ -658,31 +658,37 @@ async function handleSaveGuest(event, guestId) {
     }
   }
   
-  // Save to Firestore or localStorage
-  if (FIREBASE_ENABLED && FirebaseManager) {
-    // Show saving indicator
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart('guests');
+  // Save to Firestore or localStorage with error handling
+  try {
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      // Show saving indicator
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart('guests');
+      }
+      await FirebaseManager.saveData('guests', AppData.guests);
+    } else {
+      saveToLocalStorage();
     }
-    await FirebaseManager.saveData('guests', AppData.guests);
-  } else {
-    saveToLocalStorage();
-  }
-  
-  closeGuestEditor();
-  
-  // Re-render guests table
-  if (window.Render && window.Render.guests) {
-    window.Render.guests();
-  }
-  
-  // Update stats if they exist
-  const stats = calculateStats();
-  if (document.getElementById('stat-total')) {
-    document.getElementById('stat-total').textContent = stats.totalGuests;
-    document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
-    document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
-    document.getElementById('stat-pending').textContent = stats.pendingGuests;
+    
+    closeGuestEditor();
+    
+    // Re-render guests table
+    if (window.Render && window.Render.guests) {
+      window.Render.guests();
+    }
+    
+    // Update stats if they exist
+    const stats = calculateStats();
+    if (document.getElementById('stat-total')) {
+      document.getElementById('stat-total').textContent = stats.totalGuests;
+      document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
+      document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
+      document.getElementById('stat-pending').textContent = stats.pendingGuests;
+    }
+  } catch (error) {
+    console.error('Error saving guest:', error);
+    alert('Failed to save guest: ' + error.message);
+    // Don't close editor on error so user can retry
   }
 }
 
@@ -2900,10 +2906,12 @@ window.notifySaveSuccess = function(datasetName) {
 // Notify save error
 window.notifySaveError = function(datasetName, error) {
   SaveStatus.currentState = 'error';
-  SaveStatus.error = error.message || 'Network error';
+  // Sanitize error message to prevent XSS
+  const errorMsg = (error && error.message) ? String(error.message).substring(0, 100) : 'Network error';
+  SaveStatus.error = errorMsg.replace(/[<>]/g, ''); // Remove potential HTML tags
   updateSaveStatusDisplay();
   
-  // Show error toast
+  // Show error toast with sanitized message
   showErrorToast(`Failed to save ${datasetName}: ${SaveStatus.error}`);
   
   // Auto-revert to idle after 10 seconds
