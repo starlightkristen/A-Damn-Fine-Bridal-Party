@@ -3353,6 +3353,131 @@ function calculateCategoryTotals() {
 }
 
 // ============================================================================
+// Role Assignment Functions
+// ============================================================================
+
+// Assign role to guest
+async function assignRoleToGuest(guestId, characterId) {
+  const guest = AppData.guests.find(g => g.id === guestId);
+  if (!guest) return false;
+  
+  guest.assignedCharacter = characterId;
+  
+  // Also update roles.assignments for tracking
+  if (!AppData.roles.assignments) {
+    AppData.roles.assignments = {};
+  }
+  AppData.roles.assignments[guestId] = characterId;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await Promise.all([
+      FirebaseManager.saveData('guests', AppData.guests),
+      FirebaseManager.saveData('roles', AppData.roles)
+    ]);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Swap roles between two guests
+async function swapGuestRoles(guestId1, guestId2) {
+  const guest1 = AppData.guests.find(g => g.id === guestId1);
+  const guest2 = AppData.guests.find(g => g.id === guestId2);
+  
+  if (!guest1 || !guest2) return false;
+  
+  const temp = guest1.assignedCharacter;
+  guest1.assignedCharacter = guest2.assignedCharacter;
+  guest2.assignedCharacter = temp;
+  
+  // Update roles.assignments
+  if (!AppData.roles.assignments) {
+    AppData.roles.assignments = {};
+  }
+  AppData.roles.assignments[guestId1] = guest1.assignedCharacter;
+  AppData.roles.assignments[guestId2] = guest2.assignedCharacter;
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await Promise.all([
+      FirebaseManager.saveData('guests', AppData.guests),
+      FirebaseManager.saveData('roles', AppData.roles)
+    ]);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// ============================================================================
+// Host Controls Functions
+// ============================================================================
+
+// Update settings
+async function updateSettings(newSettings) {
+  AppData.settings = {
+    ...AppData.settings,
+    ...newSettings
+  };
+  
+  // Save to Firestore if enabled and not in rehearsal mode
+  if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
+    window.notifySaveStart?.();
+    await FirebaseManager.saveData('settings', AppData.settings);
+    window.notifySaveSuccess?.();
+  }
+  
+  return true;
+}
+
+// Advance cupcake reveal
+function advanceCupcakeReveal() {
+  if (!AppData.cupcakeRevealIndex) {
+    AppData.cupcakeRevealIndex = 0;
+  }
+  
+  const cupcakeOrder = AppData.settings.cupcakeOrder || AppData.story.cupcakeReveal || [];
+  
+  if (AppData.cupcakeRevealIndex < cupcakeOrder.length) {
+    AppData.cupcakeRevealIndex++;
+    return cupcakeOrder[AppData.cupcakeRevealIndex - 1];
+  }
+  
+  return null;
+}
+
+// Reset cupcake reveal
+function resetCupcakeReveal() {
+  AppData.cupcakeRevealIndex = 0;
+}
+
+// Get flavor-adjusted text
+function getFlavorText(baseText, flavor) {
+  // Adjust text based on Twin Peaks flavor setting
+  const flavorLevel = flavor || AppData.settings.twinPeaksFlavor || 'standard';
+  
+  if (flavorLevel === 'light') {
+    // Tone down mysterious language
+    return baseText.replace(/mystic|prophecy|otherworldly/gi, 'interesting');
+  } else if (flavorLevel === 'extra') {
+    // Add more Twin Peaks flavor
+    const extras = [
+      ' The owls are watching.',
+      ' The log has spoken.',
+      ' Fire walk with me.',
+      ' Through the darkness of future past.'
+    ];
+    return baseText + extras[Math.floor(Math.random() * extras.length)];
+  }
+  
+  return baseText; // standard
+}
+
+// ============================================================================
 // Export functions for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Assignment - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Guest & Role Assignment Manager</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>👥 Role Assignment Matrix</h2>
+            <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <button class="btn btn-secondary" onclick="filterAssignments('all')" id="filter-all">All</button>
+                    <button class="btn btn-secondary" onclick="filterAssignments('assigned')" id="filter-assigned">Assigned</button>
+                    <button class="btn btn-secondary" onclick="filterAssignments('unassigned')" id="filter-unassigned">Unassigned</button>
+                </div>
+                <button class="btn" onclick="autoAssignRoles()">🎲 Auto-Assign Roles</button>
+            </div>
+            
+            <div id="role-assignment-matrix">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading assignment matrix...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📦 Print Packets</h2>
+            <p>Select guests to print comprehensive character packets including all envelope phases:</p>
+            <div id="packet-print-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading guest list...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

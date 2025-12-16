@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Controls - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Live Event Host Controls</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>⏱️ Phase Timer</h2>
+            <div id="phase-timer-controls">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading timer...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💡 Hint Controls</h2>
+            <p>Trigger an extra Log Lady prophecy if guests are stuck:</p>
+            <div id="hint-controls">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading hints...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🧁 Cupcake Reveal Controller</h2>
+            <p>Step through the dramatic cupcake message reveal:</p>
+            <div id="cupcake-controller">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading cupcake controller...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🌲 Twin Peaks Flavor Dial</h2>
+            <p>Adjust the Twin Peaks tone (affects Log Lady prophecies and flavor text):</p>
+            <div id="flavor-controls">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading flavor controls...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-warning" id="rehearsal-mode-indicator" style="display: none;">
+            <strong>🎭 REHEARSAL MODE ACTIVE</strong>
+            <p>Changes will not be saved to Firestore. Disable in Settings to save changes.</p>
+        </div>
+    </div>
+
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

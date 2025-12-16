@@ -608,6 +608,166 @@ const Render = {
     document.getElementById('category-totals').innerHTML = totalsHtml;
   },
   
+  // Render Role Assignment page
+  'role-assignment': function() {
+    const assignedGuests = AppData.guests.filter(g => g.assignedCharacter);
+    const unassignedGuests = AppData.guests.filter(g => !g.assignedCharacter);
+    
+    let html = `
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f5f5f5; border-bottom: 2px solid #8B0000;">
+            <th style="padding: 10px; text-align: left;">Guest</th>
+            <th style="padding: 10px; text-align: left;">Assigned Role</th>
+            <th style="padding: 10px; text-align: center;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    AppData.guests.forEach(guest => {
+      const character = guest.assignedCharacter 
+        ? AppData.characters.find(c => c.id === guest.assignedCharacter)
+        : null;
+      
+      html += `
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 10px;"><strong>${guest.name}</strong></td>
+          <td style="padding: 10px;">
+            <select onchange="handleRoleAssign(${guest.id}, this.value)" style="width: 100%; padding: 5px;">
+              <option value="">-- No Role --</option>
+              ${AppData.characters.map(c => `
+                <option value="${c.id}" ${guest.assignedCharacter === c.id ? 'selected' : ''}>
+                  ${c.name} (${c.role})
+                </option>
+              `).join('')}
+            </select>
+          </td>
+          <td style="padding: 10px; text-align: center;">
+            ${character ? `<button class="btn btn-secondary" onclick="printGuestPacket(${guest.id})" style="font-size: 13px;">📦 Print Packet</button>` : ''}
+          </td>
+        </tr>
+      `;
+    });
+    
+    html += '</tbody></table>';
+    document.getElementById('role-assignment-matrix').innerHTML = html;
+    
+    // Packet print list
+    const packetListHtml = assignedGuests.map(guest => {
+      const character = AppData.characters.find(c => c.id === guest.assignedCharacter);
+      return `
+        <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
+          <strong>${guest.name}</strong> → ${character?.name || 'Unknown'} (${character?.role || ''})
+          <button class="btn" onclick="printGuestPacket(${guest.id})" style="margin-left: 15px;">📦 Print Packet</button>
+        </div>
+      `;
+    }).join('');
+    
+    document.getElementById('packet-print-list').innerHTML = packetListHtml || '<p>No guests with assigned roles yet.</p>';
+  },
+  
+  // Render Host Controls page
+  'host-controls': function() {
+    // Show rehearsal mode indicator if active
+    if (AppData.settings.rehearsalMode) {
+      document.getElementById('rehearsal-mode-indicator').style.display = 'block';
+    }
+    
+    // Phase Timer
+    const phaseDurations = AppData.settings.phaseDurations || { intro: 20, mid: 20, preFinal: 15, final: 15 };
+    const currentPhase = AppData.currentPhase || 'intro';
+    
+    const timerHtml = `
+      <div style="text-align: center; padding: 30px; background: #f5f5f5; border-radius: 8px;">
+        <h3 style="color: #8B0000;">Current Phase: ${currentPhase.toUpperCase()}</h3>
+        <p style="font-size: 18px; margin: 15px 0;">Duration: ${phaseDurations[currentPhase]} minutes</p>
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          <button class="btn" onclick="handlePhaseStart()">▶️ Start Timer</button>
+          <button class="btn btn-secondary" onclick="handlePhaseNext()">⏭️ Next Phase</button>
+          <button class="btn btn-secondary" onclick="handlePhaseReset()">🔄 Reset</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('phase-timer-controls').innerHTML = timerHtml;
+    
+    // Hint Controls
+    const hintBoostEnabled = AppData.settings.hintBoost !== false;
+    const hintsHtml = `
+      <div style="padding: 20px; background: #fff9e6; border: 2px solid #C79810; border-radius: 8px;">
+        <p>Extra Log Lady prophecies to help stuck guests:</p>
+        <div style="margin: 15px 0;">
+          <label style="display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" ${hintBoostEnabled ? 'checked' : ''} onchange="handleHintBoostToggle(this.checked)">
+            <span>Enable Hint Boost</span>
+          </label>
+        </div>
+        <button class="btn" onclick="handleBroadcastHint()" ${!hintBoostEnabled ? 'disabled' : ''}>
+          📢 Broadcast Log Lady Hint
+        </button>
+        <div id="hint-display" style="margin-top: 15px; padding: 15px; background: white; border-radius: 4px; font-style: italic; display: none;"></div>
+      </div>
+    `;
+    document.getElementById('hint-controls').innerHTML = hintsHtml;
+    
+    // Cupcake Controller
+    const cupcakeOrder = AppData.settings.cupcakeOrder || AppData.story.cupcakeReveal || [];
+    const currentIndex = AppData.cupcakeRevealIndex || 0;
+    
+    const cupcakeHtml = `
+      <div style="padding: 20px;">
+        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+          <h3>Current Position: ${currentIndex} / ${cupcakeOrder.length}</h3>
+          <div style="font-size: 24px; font-weight: bold; color: #8B0000; margin: 15px 0;">
+            ${currentIndex > 0 ? cupcakeOrder[currentIndex - 1] : 'Ready to start...'}
+          </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn" onclick="handleCupcakeNext()" ${currentIndex >= cupcakeOrder.length ? 'disabled' : ''}>
+            ➡️ Reveal Next (${currentIndex + 1}/${cupcakeOrder.length})
+          </button>
+          <button class="btn btn-secondary" onclick="handleCupcakeReset()">🔄 Reset Order</button>
+          <button class="btn btn-secondary" onclick="printCupcakeTags()">🖨️ Print Tags</button>
+        </div>
+        <div style="margin-top: 20px;">
+          <details>
+            <summary style="cursor: pointer; padding: 10px; background: #f5f5f5; border-radius: 4px;">
+              View All Cupcake Lines (${cupcakeOrder.length})
+            </summary>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+              ${cupcakeOrder.map((line, i) => `
+                <li style="padding: 5px; ${i < currentIndex ? 'color: #999; text-decoration: line-through;' : ''}">${line}</li>
+              `).join('')}
+            </ol>
+          </details>
+        </div>
+      </div>
+    `;
+    document.getElementById('cupcake-controller').innerHTML = cupcakeHtml;
+    
+    // Twin Peaks Flavor
+    const currentFlavor = AppData.settings.twinPeaksFlavor || 'standard';
+    const flavorHtml = `
+      <div style="padding: 20px; text-align: center;">
+        <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+          ${['light', 'standard', 'extra'].map(flavor => `
+            <button class="btn ${currentFlavor === flavor ? '' : 'btn-secondary'}" 
+                    onclick="handleFlavorChange('${flavor}')"
+                    style="min-width: 120px;">
+              ${flavor.charAt(0).toUpperCase() + flavor.slice(1)}
+            </button>
+          `).join('')}
+        </div>
+        <p style="color: #666; font-size: 14px;">
+          ${currentFlavor === 'light' ? 'Light: Toned-down mysterious language' : 
+            currentFlavor === 'extra' ? 'Extra: Full Twin Peaks mysticism' :
+            'Standard: Balanced Twin Peaks atmosphere'}
+        </p>
+      </div>
+    `;
+    document.getElementById('flavor-controls').innerHTML = flavorHtml;
+  },
+  
   // Render mystery page
   mystery: function() {
     // Add data management controls at the top
@@ -1566,3 +1726,225 @@ window.printMenuPreview = function() {
   printWindow.print();
 };
 
+
+// ============================================================================
+// Role Assignment Handlers
+// ============================================================================
+
+window.handleRoleAssign = async function(guestId, characterId) {
+  await assignRoleToGuest(guestId, characterId || null);
+  if (window.renderPage) {
+    window.renderPage('role-assignment');
+  }
+};
+
+window.filterAssignments = function(filter) {
+  // Simple filter UI update
+  document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+    btn.classList.add('btn-secondary');
+  });
+  document.getElementById(`filter-${filter}`).classList.remove('btn-secondary');
+  
+  // For now, just re-render (could add actual filtering logic)
+  if (window.renderPage) {
+    window.renderPage('role-assignment');
+  }
+};
+
+window.autoAssignRoles = function() {
+  autoAssignCharacters();
+  if (window.renderPage) {
+    window.renderPage('role-assignment');
+  }
+};
+
+window.printGuestPacket = function(guestId) {
+  const guest = AppData.guests.find(g => g.id === guestId);
+  if (!guest || !guest.assignedCharacter) {
+    alert('Guest must have an assigned role to print packet.');
+    return;
+  }
+  
+  const character = AppData.characters.find(c => c.id === guest.assignedCharacter);
+  const packet = AppData.packets.find(p => p.character_id === guest.assignedCharacter);
+  
+  if (!character || !packet) {
+    alert('Character packet data not found.');
+    return;
+  }
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Character Packet - ${guest.name}</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 40px; }
+          .page-break { page-break-after: always; }
+          h1 { color: #8B0000; border-bottom: 3px solid #8B0000; padding-bottom: 10px; }
+          h2 { color: #0B4F3F; margin-top: 30px; }
+          .envelope { padding: 30px; border: 2px solid #8B0000; margin: 20px 0; page-break-inside: avoid; }
+          .intro { background: #fff9e6; padding: 20px; border-radius: 8px; margin: 20px 0; }
+          @media print {
+            body { padding: 20px; }
+            .page-break { page-break-after: always; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🌲 Character Packet for ${guest.name}</h1>
+        
+        <div class="intro">
+          <h2>${packet.intro_profile.name}</h2>
+          <h3>${packet.intro_profile.role}</h3>
+          <p><em>${packet.intro_profile.tagline}</em></p>
+          <p>${packet.intro_profile.overview}</p>
+          
+          <h4>Costume Essentials:</h4>
+          <ul>
+            ${(packet.intro_profile.costume_essentials || []).map(item => `<li>${item}</li>`).join('')}
+          </ul>
+          
+          <p><strong>Secret Preview:</strong> ${packet.intro_profile.secret_preview}</p>
+        </div>
+        
+        <div class="page-break"></div>
+        
+        ${(packet.envelopes || []).map((env, idx) => `
+          <div class="envelope">
+            <h2>Envelope ${idx + 1}: ${env.title}</h2>
+            <h3>Phase: ${env.phase.toUpperCase()}</h3>
+            <p><strong>Contents:</strong></p>
+            <p>${env.contents}</p>
+            <p><strong>Instructions:</strong></p>
+            <p>${env.instructions}</p>
+          </div>
+          ${idx < packet.envelopes.length - 1 ? '<div class="page-break"></div>' : ''}
+        `).join('')}
+        
+        <div class="page-break"></div>
+        
+        <div style="padding: 20px; background: #f5f5f5; border-radius: 8px;">
+          <h2>Costume Tips for ${character.name}</h2>
+          <p>${character.costume || 'No specific costume requirements.'}</p>
+        </div>
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+// ============================================================================
+// Host Controls Handlers
+// ============================================================================
+
+window.handlePhaseStart = function() {
+  const phase = AppData.currentPhase || 'intro';
+  const duration = AppData.settings.phaseDurations?.[phase] || 20;
+  alert(`Starting ${phase.toUpperCase()} phase - Duration: ${duration} minutes\n\nUse a separate timer app for actual timing.`);
+};
+
+window.handlePhaseNext = function() {
+  const phases = ['intro', 'mid', 'preFinal', 'final'];
+  const currentIndex = phases.indexOf(AppData.currentPhase || 'intro');
+  if (currentIndex < phases.length - 1) {
+    AppData.currentPhase = phases[currentIndex + 1];
+    alert(`Advanced to phase: ${AppData.currentPhase.toUpperCase()}`);
+    if (window.renderPage) window.renderPage('host-controls');
+  } else {
+    alert('Already at final phase!');
+  }
+};
+
+window.handlePhaseReset = function() {
+  AppData.currentPhase = 'intro';
+  alert('Phase reset to INTRO');
+  if (window.renderPage) window.renderPage('host-controls');
+};
+
+window.handleHintBoostToggle = async function(enabled) {
+  await updateSettings({ hintBoost: enabled });
+  if (window.renderPage) window.renderPage('host-controls');
+};
+
+window.handleBroadcastHint = function() {
+  const hints = [
+    "The log knows who held the poison. Look for the elegant one.",
+    "False heritage claims hide dark truths. Follow the money.",
+    "Someone's grandmother's recipe wasn't theirs at all.",
+    "The pie business depends on a lie. Cassandra found proof."
+  ];
+  const hint = hints[Math.floor(Math.random() * hints.length)];
+  
+  const flavoredHint = getFlavorText(hint, AppData.settings.twinPeaksFlavor);
+  
+  const display = document.getElementById('hint-display');
+  if (display) {
+    display.textContent = `"${flavoredHint}"`;
+    display.style.display = 'block';
+  }
+  
+  alert(`Log Lady Prophecy:\n\n"${flavoredHint}"\n\nShare this hint with your guests!`);
+};
+
+window.handleCupcakeNext = function() {
+  const revealed = advanceCupcakeReveal();
+  if (revealed) {
+    alert(`Cupcake Reveal ${AppData.cupcakeRevealIndex}:\n\n"${revealed}"`);
+    if (window.renderPage) window.renderPage('host-controls');
+  }
+};
+
+window.handleCupcakeReset = function() {
+  resetCupcakeReveal();
+  alert('Cupcake reveal order reset!');
+  if (window.renderPage) window.renderPage('host-controls');
+};
+
+window.printCupcakeTags = function() {
+  const cupcakeOrder = AppData.settings.cupcakeOrder || AppData.story.cupcakeReveal || [];
+  
+  const printWindow = window.open('', '', 'width=800,height=600');
+  printWindow.document.write(`
+    <html>
+      <head>
+        <title>Cupcake Tags</title>
+        <style>
+          body { font-family: Georgia, serif; padding: 20px; }
+          .tag { 
+            border: 2px dashed #8B0000; 
+            padding: 30px; 
+            margin: 20px; 
+            text-align: center; 
+            font-size: 24px; 
+            font-weight: bold;
+            page-break-inside: avoid;
+            display: inline-block;
+            width: 300px;
+          }
+          @media print {
+            .tag { page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <h1>🧁 Cupcake Reveal Tags</h1>
+        <p>Cut these out and attach to cupcakes in order:</p>
+        ${cupcakeOrder.map((line, idx) => `
+          <div class="tag">
+            <div style="font-size: 16px; color: #666;">Tag ${idx + 1}</div>
+            <div style="margin-top: 15px;">${line}</div>
+          </div>
+        `).join('')}
+      </body>
+    </html>
+  `);
+  printWindow.document.close();
+  printWindow.print();
+};
+
+window.handleFlavorChange = async function(flavor) {
+  await updateSettings({ twinPeaksFlavor: flavor });
+  if (window.renderPage) window.renderPage('host-controls');
+};
