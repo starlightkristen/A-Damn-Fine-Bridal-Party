@@ -44,6 +44,9 @@ const FirebaseManager = {
   db,
   currentUser: null,
   listeners: {},
+  lastWriteTimestamps: {}, // Track last write timestamp per dataset for conflict resolution
+  isSaving: false, // Global save lock
+  saveQueue: [], // Queue for pending saves
 
   // Initialize authentication state checking
   init() {
@@ -74,14 +77,55 @@ const FirebaseManager = {
     }
   },
 
-  // Load data from Firestore
+  // Read metadata document
+  async readMeta() {
+    try {
+      const docRef = doc(db, 'app', 'meta');
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        return docSnap.data();
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Error reading metadata:', error);
+      return null;
+    }
+  },
+
+  // Write metadata document
+  async writeMeta(metaData) {
+    try {
+      const docRef = doc(db, 'app', 'meta');
+      await setDoc(docRef, {
+        ...metaData,
+        lastUpdated: new Date().toISOString()
+      }, { merge: true });
+      console.log('Metadata saved successfully');
+      return true;
+    } catch (error) {
+      console.error('Error writing metadata:', error);
+      return false;
+    }
+  },
+
+  // Load data from Firestore with version info
   async loadData(datasetName) {
     try {
       const docRef = doc(db, 'datasets', datasetName);
       const docSnap = await getDoc(docRef);
       
       if (docSnap.exists()) {
-        return docSnap.data().data;
+        const docData = docSnap.data();
+        // Store the version and timestamp for conflict resolution
+        if (docData.version !== undefined) {
+          this.lastWriteTimestamps[datasetName] = {
+            updatedAt: docData.updatedAt,
+            version: docData.version
+          };
+        }
+        return docData.data;
       } else {
         // Document doesn't exist, return null (will load from JSON files)
         return null;
@@ -92,24 +136,51 @@ const FirebaseManager = {
     }
   },
 
-  // Save data to Firestore
+  // Save data to Firestore with versioning
   async saveData(datasetName, data) {
     try {
       const docRef = doc(db, 'datasets', datasetName);
+      
+      // Get current version
+      const docSnap = await getDoc(docRef);
+      const currentVersion = docSnap.exists() ? (docSnap.data().version || 0) : 0;
+      const newVersion = currentVersion + 1;
+      const updatedAt = new Date().toISOString();
+      
       await setDoc(docRef, {
         data: data,
-        updatedAt: new Date().toISOString(),
+        updatedAt: updatedAt,
+        version: newVersion,
         updatedBy: this.currentUser?.email || 'unknown'
       });
-      console.log(`${datasetName} saved successfully`);
+      
+      // Update local tracking
+      this.lastWriteTimestamps[datasetName] = {
+        updatedAt: updatedAt,
+        version: newVersion
+      };
+      
+      console.log(`${datasetName} saved successfully (v${newVersion})`);
+      
+      // Notify UI of successful save
+      if (typeof window.notifySaveSuccess === 'function') {
+        window.notifySaveSuccess(datasetName);
+      }
+      
       return true;
     } catch (error) {
       console.error(`Error saving ${datasetName}:`, error);
+      
+      // Notify UI of failed save
+      if (typeof window.notifySaveError === 'function') {
+        window.notifySaveError(datasetName, error);
+      }
+      
       return false;
     }
   },
 
-  // Set up real-time listener for a dataset
+  // Set up real-time listener for a dataset with conflict protection
   listenToData(datasetName, callback) {
     const docRef = doc(db, 'datasets', datasetName);
     
@@ -118,10 +189,32 @@ const FirebaseManager = {
       this.listeners[datasetName]();
     }
     
-    // Set up new listener
+    // Set up new listener with version checking
     this.listeners[datasetName] = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        callback(docSnap.data().data);
+        const incomingData = docSnap.data();
+        const incomingVersion = incomingData.version || 0;
+        const incomingTimestamp = incomingData.updatedAt;
+        
+        // Check if we have a more recent local write
+        const lastWrite = this.lastWriteTimestamps[datasetName];
+        if (lastWrite && lastWrite.version) {
+          // Primary check: Compare versions - ignore if incoming is older or same
+          // Version number is the source of truth for conflict resolution
+          if (incomingVersion <= lastWrite.version) {
+            console.log(`Ignoring stale update for ${datasetName} (incoming v${incomingVersion} <= local v${lastWrite.version})`);
+            return;
+          }
+        }
+        
+        // Update local tracking
+        this.lastWriteTimestamps[datasetName] = {
+          updatedAt: incomingTimestamp,
+          version: incomingVersion
+        };
+        
+        console.log(`Applying Firestore update for ${datasetName} (v${incomingVersion})`);
+        callback(incomingData.data);
       }
     }, (error) => {
       console.error(`Error listening to ${datasetName}:`, error);

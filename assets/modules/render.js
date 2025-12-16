@@ -971,6 +971,21 @@ window.renderPage = function(page) {
   }
 };
 
+// Re-render current page (called by Firestore listeners)
+window.renderCurrentPage = function() {
+  const page = getPageName();
+  if (window.renderPage && typeof window.renderPage === 'function') {
+    window.renderPage(page);
+  }
+};
+
+// Get current page name from URL
+function getPageName() {
+  const path = window.location.pathname;
+  const page = path.split('/').pop().replace('.html', '') || 'index';
+  return page;
+}
+
 // Helper functions for button actions
 window.printCharacterPacket = function(characterId) {
   const character = AppData.characters.find(c => c.id === characterId);
