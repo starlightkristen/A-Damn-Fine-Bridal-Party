@@ -733,21 +733,19 @@ const Render = {
     if (characterGuideElement) {
       const characterGuideHtml = AppData.characters && AppData.characters.length > 0 ?
         `<ul class="item-list">
-          ${(() => {
-            // Create assignment map for O(1) lookups
-            const assignmentMap = new Map(
-              (AppData.guests || []).map(g => [g.assignedCharacter, g])
-            );
-            return AppData.characters.map(char => {
-              const assignedGuest = assignmentMap.get(char.id);
-              return `
-                <li>
-                  <strong>${char.name || 'Unknown'} (${char.role || 'Unknown Role'}):</strong> ${char.personality || 'No description'}
-                  ${assignedGuest ? `<span style="color: var(--forest-emerald); margin-left: 10px;">✓ Assigned to ${assignedGuest.name}</span>` : ''}
-                </li>
-              `;
-            }).join('');
-          })()}
+          ${AppData.characters.map(char => {
+            // Find all guests assigned to this character
+            const assignedGuests = (AppData.guests || []).filter(g => g.assignedCharacter === char.id);
+            const assignmentStatus = assignedGuests.length > 0 ?
+              `<span style="color: var(--forest-emerald); margin-left: 10px;">✓ Assigned to ${assignedGuests.map(g => g.name).join(', ')}</span>` :
+              '';
+            return `
+              <li>
+                <strong>${char.name || 'Unknown'} (${char.role || 'Unknown Role'}):</strong> ${char.personality || 'No description'}
+                ${assignmentStatus}
+              </li>
+            `;
+          }).join('')}
         </ul>` :
         '<div class="alert alert-info">No characters available. Please add characters via <strong>Admin → Data Manager</strong>.</div>';
       
