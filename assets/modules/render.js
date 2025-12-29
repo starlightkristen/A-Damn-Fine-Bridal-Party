@@ -428,8 +428,9 @@ const Render = {
     // Controls at the top
     const controlsHtml = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-        <div>
+        <div style="display: flex; gap: 10px;">
           <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
+          <button class="btn btn-secondary" onclick="showPrepTimelineForm()">⏱️ Add Prep Phase</button>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
           <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
@@ -522,16 +523,28 @@ const Render = {
     
     // Render prep timeline if it exists
     if (AppData.menu.prepTimeline && AppData.menu.prepTimeline.length > 0) {
-      const timelineHtml = AppData.menu.prepTimeline.map(phase => `
+      const timelineHtml = AppData.menu.prepTimeline.map((phase, index) => `
         <div class="card">
-          <h3>${phase.time}</h3>
-          <ul class="item-list">
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <h3 style="margin: 0;">${phase.time}</h3>
+            <div>
+              <button class="btn-sm" onclick="showPrepTimelineForm(${index})" title="Edit prep phase">✏️</button>
+              <button class="btn-sm" onclick="deletePrepPhase(${index})" title="Delete prep phase">🗑️</button>
+            </div>
+          </div>
+          <ul class="item-list" style="margin-top: 15px;">
             ${phase.tasks.map(task => `<li>${task}</li>`).join('')}
           </ul>
         </div>
       `).join('');
       
       document.getElementById('prep-timeline').innerHTML = timelineHtml;
+    } else {
+      document.getElementById('prep-timeline').innerHTML = `
+        <div class="alert alert-info">
+          <strong>No prep phases added yet!</strong> Click "Add Prep Phase" above to start our kitchen schedule.
+        </div>
+      `;
     }
   },
   

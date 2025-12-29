@@ -1184,6 +1184,94 @@ function closeMenuEditor() {
   }
 }
 
+// ============================================================================
+// PREP TIMELINE CRUD FUNCTIONS
+// ============================================================================
+
+// Show add/edit prep timeline phase form
+function showPrepTimelineForm(index = null) {
+  const phase = index !== null ? AppData.menu.prepTimeline[index] : { time: '', tasks: [] };
+  
+  const formHtml = `
+    <div id="prep-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; overflow-y: auto; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 700px; width: 100%; max-height: 90vh; overflow-y: auto;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">${index !== null ? 'Edit' : 'Add'} Prep Phase</h2>
+        <form id="prep-form" onsubmit="handleSavePrepPhase(event, ${index})">
+          <div style="display: grid; gap: 15px;">
+            <div>
+              <label><strong>Time Phase *</strong> (e.g., Day Before, Morning of, 2 Hours Before)</label>
+              <input type="text" name="time" value="${phase.time}" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+            <div>
+              <label><strong>Tasks *</strong> (One per line)</label>
+              <textarea name="tasks" rows="6" required style="width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px;">${phase.tasks.join('\n')}</textarea>
+            </div>
+          </div>
+          <div style="margin-top: 20px; text-align: right;">
+            <button type="button" onclick="closePrepEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Phase</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+// Handle save prep phase
+async function handleSavePrepPhase(event, index) {
+  event.preventDefault();
+  pushToHistory();
+  const form = event.target;
+  const formData = new FormData(form);
+  
+  const phaseData = {
+    time: formData.get('time'),
+    tasks: formData.get('tasks').split('\n').map(t => t.trim()).filter(t => t)
+  };
+  
+  if (index === null) {
+    if (!AppData.menu.prepTimeline) AppData.menu.prepTimeline = [];
+    AppData.menu.prepTimeline.push(phaseData);
+  } else {
+    AppData.menu.prepTimeline[index] = phaseData;
+  }
+  
+  // Save to Firestore or localStorage
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    if (typeof window.notifySaveStart === 'function') window.notifySaveStart('menu');
+    await FirebaseManager.saveData('menu', AppData.menu);
+  } else {
+    saveToLocalStorage();
+  }
+  
+  closePrepEditor();
+  if (window.Render && window.Render.food) window.Render.food();
+}
+
+// Delete prep phase
+async function deletePrepPhase(index) {
+  if (confirm('Are you sure you want to delete this prep phase?')) {
+    pushToHistory();
+    AppData.menu.prepTimeline.splice(index, 1);
+    
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      if (typeof window.notifySaveStart === 'function') window.notifySaveStart('menu');
+      await FirebaseManager.saveData('menu', AppData.menu);
+    } else {
+      saveToLocalStorage();
+    }
+    
+    if (window.Render && window.Render.food) window.Render.food();
+  }
+}
+
+function closePrepEditor() {
+  const modal = document.getElementById('prep-editor-modal');
+  if (modal) modal.remove();
+}
+
 // Handle import menu
 async function handleImportMenu() {
   const input = document.createElement('input');
