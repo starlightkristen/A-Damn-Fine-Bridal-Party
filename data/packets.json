@@ -227,5 +227,43 @@
         "instructions": "Present your evidence proudly. You played a key role in solving this case. Prepare for cupcake reveal."
       }
     ]
+  },
+  {
+    "character_id": "generic",
+    "intro_profile": {
+      "name": "Twin Peaks Resident",
+      "role": "Local Investigator",
+      "tagline": "Everyone in this town has a story",
+      "overview": "You are a long-time resident of Twin Peaks. You've seen the town change, but you've never seen anything like this. Special Agent Cooper has asked for your help in talking to the suspects—you know them better than he does, after all.",
+      "costume_essentials": ["Plaid shirt", "Work boots", "Thermos of coffee"],
+      "personality_notes": "Friendly but persistent. You know how to get people talking over a cup of joe.",
+      "secret_preview": "You've heard whispers at the diner about Norma's missing recipes..."
+    },
+    "envelopes": [
+      {
+        "phase": "intro",
+        "title": "Envelope 1: Citizen Deputized",
+        "contents": "Agent Cooper has asked you to keep an eye on Morgan Blackwood. She seems overly concerned about the blogger's absence. Talk to the other residents and see if anyone saw Cassandra this morning.",
+        "instructions": "Interview Shelly at the diner. Ask if she saw anyone buying pies early this morning."
+      },
+      {
+        "phase": "mid",
+        "title": "Envelope 2: Gathering Local Rumors",
+        "contents": "The word on the street is that Norma's secret recipe was stolen. Morgan's new business is suspiciously successful. Connect with the Deputy to see if there's any official word on the theft.",
+        "instructions": "Compare notes with Deputy Andy. Ask him about witness statements or arguments."
+      },
+      {
+        "phase": "pre-final",
+        "title": "Envelope 3: Pressing the Suspects",
+        "contents": "The evidence is mounting. Forensic reports and missing phone records all point to the pie shop. It's time to ask Morgan directly about her 'heritage' recipe.",
+        "instructions": "Confront Morgan about where her recipe really came from. Watch her reaction carefully."
+      },
+      {
+        "phase": "final",
+        "title": "Envelope 4: The Truth Comes Out",
+        "contents": "The case is solved. You've helped the law enforcement team prove that Morgan is the thief and the murderer. The cupcakes will reveal the final proof for all to see.",
+        "instructions": "Gather with the other residents for the cupcake reveal. Justice is finally coming to Twin Peaks."
+      }
+    ]
   }
 ]

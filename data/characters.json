@@ -58,5 +58,15 @@
     "secret": "You have Cassandra's phone showing her last text to Morgan, and witness statements about their argument.",
     "personality": "Kind-hearted, helpful, earnest",
     "objective": "Help solve the case by sharing your evidence and supporting the investigation"
+  },
+  {
+    "id": "generic",
+    "name": "Twin Peaks Resident",
+    "role": "Local Investigator",
+    "briefing": "You are a local resident of Twin Peaks. You've known these people for years, and you're shocked by the tragedy. Since the Sheriff's station is overwhelmed, you've been deputized to help Special Agent Cooper and Deputy Andy solve this case.",
+    "costume": "Plaid shirts, denim, warm PNW layers, or 1950s casual wear",
+    "secret": "You don't have a personal secret yet, but you have sharp ears. You've heard rumors about recipe theft at the diner.",
+    "personality": "Curious, helpful, protective of the town",
+    "objective": "Interview the key suspects (Audrey, Shelly, Morgan) and help piece together the timeline"
   }
 ]
