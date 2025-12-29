@@ -141,6 +141,11 @@ const FirebaseManager = {
     try {
       const docRef = doc(db, 'datasets', datasetName);
       
+      // Sanitize data to remove undefined values (Firestore doesn't allow them)
+      const sanitizedData = JSON.parse(JSON.stringify(data, (key, value) => {
+        return value === undefined ? null : value;
+      }));
+      
       // Get current version
       const docSnap = await getDoc(docRef);
       const currentVersion = docSnap.exists() ? (docSnap.data().version || 0) : 0;
@@ -148,7 +153,7 @@ const FirebaseManager = {
       const updatedAt = new Date().toISOString();
       
       await setDoc(docRef, {
-        data: data,
+        data: sanitizedData,
         updatedAt: updatedAt,
         version: newVersion,
         updatedBy: this.currentUser?.email || 'unknown'
