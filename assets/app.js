@@ -481,19 +481,14 @@ function generateInviteText(guestId) {
   invite += `"The owls are not what they seem..."\n\n`;
   
   if (character) {
-    const packet = getPacketForCharacter(character.id);
-    if (packet && packet.intro_profile) {
-      invite += `🎭 YOUR SECRET CHARACTER ASSIGNMENT:\n`;
-      invite += `${packet.intro_profile.name} - ${packet.intro_profile.role}\n`;
-      invite += `"${packet.intro_profile.tagline}"\n\n`;
-      invite += `${packet.intro_profile.overview}\n\n`;
-      invite += `Costume Essentials: ${packet.intro_profile.costume_essentials.join(', ')}\n\n`;
-      invite += `Come prepared to solve a mystery and stay in character!\n\n`;
-    } else {
-      invite += `🎭 YOUR SECRET CHARACTER ASSIGNMENT:\n`;
-      invite += `${character.name} - ${character.role}\n`;
-      invite += `Come prepared to solve a mystery and stay in character!\n\n`;
-    }
+    invite += `🎭 YOUR SECRET CHARACTER ASSIGNMENT:\n`;
+    invite += `Character: ${character.name}\n`;
+    invite += `Role: ${character.role}\n\n`;
+    invite += `✨ COSTUME IDEAS:\n`;
+    invite += `${character.costume || 'Think 1950s Pacific Northwest - plaid, vintage, mysterious elegance.'}\n\n`;
+    invite += `📜 YOUR BRIEFING:\n`;
+    invite += `${character.briefing}\n\n`;
+    invite += `Come prepared to solve a mystery and stay in character! You'll receive more confidential info (like your secrets and objective) in a sealed envelope when you arrive.\n\n`;
   }
   
   invite += `Join us for:\n`;
@@ -509,9 +504,6 @@ function generateInviteText(guestId) {
   if (guest.dietary && guest.dietary !== 'None') {
     invite += `We have your dietary needs noted: ${guest.dietary}\n\n`;
   }
-  
-  invite += `Dress Code: Channel your inner Twin Peaks character!\n`;
-  invite += `Think 1950s Pacific Northwest - plaid, vintage, mysterious elegance.\n\n`;
   
   invite += `"Every day, once a day, give yourself a present."\n`;
   invite += `- Special Agent Dale Cooper\n\n`;
