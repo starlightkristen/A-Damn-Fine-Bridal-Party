@@ -508,8 +508,9 @@ function generateInviteText(guestId) {
   invite += `🎉 Celebration, secrets, and surprises\n`;
   invite += `🌲 Twin Peaks atmosphere and Pacific Northwest charm\n\n`;
   
-  invite += `📅 Date & Time: [TO BE ANNOUNCED]\n`;
-  invite += `📍 Location: [TO BE ANNOUNCED]\n`;
+  invite += `📅 Date: ${AppData.settings.eventDate || '[TO BE ANNOUNCED]'}\n`;
+  invite += `⏰ Time: ${AppData.settings.eventTime || '[TO BE ANNOUNCED]'}\n`;
+  invite += `📍 Location: ${AppData.settings.eventLocation || '[TO BE ANNOUNCED]'}\n`;
   invite += `🔗 RSVP: [LINK TO BE PROVIDED]\n\n`;
   
   if (guest.dietary && guest.dietary !== 'None') {

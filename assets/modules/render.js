@@ -1468,6 +1468,34 @@ function renderSettingsPanel() {
   const settingsHtml = `
     <div style="display: grid; gap: 20px;">
       <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
+        <h3>📅 Event Details</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 15px;">These details will appear on the personalized invites.</p>
+        <div style="display: grid; gap: 15px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Event Date:</strong></label>
+            <input type="text" value="${escapeHtml(settings.eventDate || '[TO BE ANNOUNCED]')}" 
+                   onchange="handleAdminSettingChange('eventDate', this.value)"
+                   placeholder="e.g., Saturday, June 14th"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 5px;"><strong>Event Time:</strong></label>
+            <input type="text" value="${escapeHtml(settings.eventTime || '[TO BE ANNOUNCED]')}" 
+                   onchange="handleAdminSettingChange('eventTime', this.value)"
+                   placeholder="e.g., 2:00 PM - 4:00 PM"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label style="display: block; margin-bottom: 5px;"><strong>Location:</strong></label>
+            <input type="text" value="${escapeHtml(settings.eventLocation || '[TO BE ANNOUNCED]')}" 
+                   onchange="handleAdminSettingChange('eventLocation', this.value)"
+                   placeholder="e.g., 123 Blue Pine Mountain Road"
+                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+          </div>
+        </div>
+      </div>
+
+      <div style="border: 1px solid #ddd; padding: 20px; border-radius: 4px; background: white;">
         <h3>🌲 Twin Peaks Flavor</h3>
         <p style="color: #666; font-size: 14px; margin-bottom: 15px;">Adjust the Twin Peaks mysticism level in Log Lady prophecies and flavor text.</p>
         <div style="display: flex; gap: 10px;">
@@ -1692,17 +1720,6 @@ function renderScheduleBackupPlans() {
         
         <h3 style="font-size: 1.1em; color: var(--dark-wood); margin-top: 15px;">Adjusting the Clock:</h3>
         <p>${escapeHtml(plans.runningLong || 'No plan set.')}</p>
-      </div>
-      
-      <div class="alert alert-danger" style="margin-top: 20px;">
-        <strong>🔥 Safety Note - The Cupcake Reveal:</strong>
-        <p>Since we're using a kitchen torch, let's be careful:</p>
-        <ul>
-          <li>We should practice the "reveal" together beforehand.</li>
-          <li>Keep the torch away from anything flammable (decorations, napkins, etc.).</li>
-          <li>Let's keep a damp towel or extinguisher nearby just in case.</li>
-          <li>We'll handle the torch ourselves—no guests allowed!</li>
-        </ul>
       </div>
     </div>
   `;
