@@ -117,7 +117,7 @@ const Render = {
     document.getElementById('dashboard-stats').innerHTML = `
       <div class="stat-card">
         <h3>${stats.totalGuests}</h3>
-        <p>Total Guests</p>
+        <p>Total Residents</p>
       </div>
       <div class="stat-card">
         <h3>${stats.confirmedGuests}</h3>
@@ -140,7 +140,7 @@ const Render = {
     if (!AppData.decor.moodBoard || AppData.decor.moodBoard.length === 0) {
       document.getElementById('mood-board').innerHTML = `
         <div class="alert alert-info">
-          <strong>No mood boards yet!</strong> Click "Add Mood Board" below to start planning your decor.
+          <strong>We haven't created any mood boards yet!</strong> Click "Add Mood Board" below to start our decor vision.
         </div>
         <div style="text-align: center; margin: 20px 0;">
           <button class="btn" onclick="showAddMoodBoardForm()">➕ Add Mood Board</button>
@@ -204,7 +204,7 @@ const Render = {
     if (!AppData.decor.shoppingList || AppData.decor.shoppingList.length === 0) {
       document.getElementById('shopping-list').innerHTML = `
         <div class="alert alert-info">
-          <strong>No shopping list items yet!</strong> Click "Add Category" below to start your shopping list.
+          <strong>Our shopping list is empty for now.</strong> Click "Add Category" below to start organizing our supplies.
         </div>
         <div style="text-align: center; margin: 20px 0;">
           <button class="btn" onclick="showAddShoppingCategoryForm()">➕ Add Category</button>
@@ -374,7 +374,7 @@ const Render = {
     if (!AppData.menu.menuItems || AppData.menu.menuItems.length === 0) {
       document.getElementById('menu-items').innerHTML = `
         <div class="alert alert-info">
-          <strong>No menu items yet!</strong> Click "Add Menu Item" below to start building your menu.
+          <strong>We haven't added any menu items yet!</strong> Click "Add Menu Item" below to start our food list.
         </div>
         <div style="text-align: center; margin: 20px 0;">
           <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
@@ -467,7 +467,7 @@ const Render = {
     if (guestsWithDietary.length === 0) {
       document.getElementById('allergy-map').innerHTML = `
         <div class="alert alert-success">
-          <strong>No dietary restrictions reported!</strong> All guests can enjoy the full menu.
+          <strong>Everyone's all set!</strong> No dietary restrictions reported yet.
         </div>
       `;
     } else {
@@ -489,7 +489,7 @@ const Render = {
               <li><strong>${escapeHtml(need)}:</strong> ${dietaryMap[need].map(name => escapeHtml(name)).join(', ')}</li>
             `).join('')}
           </ul>
-          <p><em>This list is automatically updated from your Guest List. All menu items indicate allergens and dietary options.</em></p>
+          <p><em>This list updates automatically as we add to our resident list. All menu items indicate allergens and dietary options.</em></p>
         </div>
       `;
       document.getElementById('allergy-map').innerHTML = mapHtml;
@@ -1049,7 +1049,7 @@ const Render = {
     if (!AppData.guests || AppData.guests.length === 0) {
       document.getElementById('guest-table').innerHTML = `
         <div class="alert alert-info">
-          <strong>No guests yet!</strong> Click "Add Guest" below to start building your guest list.
+          <strong>Our resident list is empty for now.</strong> Click "Add Guest" below to start building our list.
         </div>
         <div style="text-align: center; margin: 20px 0;">
           <button class="btn" onclick="showAddGuestForm()">➕ Add Guest</button>
@@ -1194,9 +1194,9 @@ const Render = {
     const errors = validateData();
     
     const validationHtml = errors.length === 0 ? 
-      '<div class="alert alert-success">✓ All data is valid!</div>' :
+      '<div class="alert alert-success">✓ All case files look great!</div>' :
       `<div class="alert alert-danger">
-        <strong>Validation Errors:</strong>
+        <strong>Case File Errors:</strong>
         <ul>${errors.map(err => `<li>${err}</li>`).join('')}</ul>
       </div>`;
     
@@ -1207,104 +1207,104 @@ const Render = {
     const stats = calculateStats();
     const decisionModeHtml = `
       <div class="card">
-        <h2>🎯 Decision Mode - Guided Planning Flow</h2>
-        <p>Follow this step-by-step guide to make all your planning decisions. Track your progress and export when ready!</p>
+        <h2>🎯 Our Planning Roadmap</h2>
+        <p>Marlena, here's our step-by-step guide to bringing everything together. We can track our progress here as we go!</p>
         
         <div class="decision-step ${progress.decorFavorited >= 33 ? 'completed' : ''}">
-          <h3>Step 1: Decor Selection</h3>
+          <h3>Step 1: Our Decor Vision</h3>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${progress.decorFavorited}%;">
               ${progress.decorFavorited}% Favorited
             </div>
           </div>
           <p><strong>Status:</strong> ${progress.decorFavorited >= 33 ? '✓ Complete' : `${AppData.decorFavorites.size} of ${AppData.decor.moodBoard ? AppData.decor.moodBoard.length : 0} mood boards favorited`}</p>
-          <p>Choose your favorite decor themes and add items to your shopping list.</p>
+          <p>Choose our favorite decor themes and add items to our shared shopping list.</p>
           <a href="decor.html" class="btn">Go to Decor Planning</a>
         </div>
         
         <div class="decision-step ${progress.menuFeatured >= 25 ? 'completed' : ''}">
-          <h3>Step 2: Menu Curation</h3>
+          <h3>Step 2: Curation of the Menu</h3>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${progress.menuFeatured}%;">
               ${progress.menuFeatured}% Featured
             </div>
           </div>
           <p><strong>Status:</strong> ${progress.menuFeatured >= 25 ? '✓ Complete' : `${AppData.menuFeatured.size} menu items featured`}</p>
-          <p>Star your favorites and feature the items you want on the final menu.</p>
+          <p>Star our favorites and feature the items we want on the final menu.</p>
           <a href="food.html" class="btn">Go to Menu Planning</a>
         </div>
         
         <div class="decision-step ${progress.rolesAssigned >= 80 ? 'completed' : ''}">
-          <h3>Step 3: Character Assignments</h3>
+          <h3>Step 3: Assigning the Characters</h3>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${progress.rolesAssigned}%;">
               ${progress.rolesAssigned}% Assigned
             </div>
           </div>
-          <p><strong>Status:</strong> ${progress.rolesAssigned >= 80 ? '✓ Complete' : `${progress.totalAssigned} of ${AppData.guests.length} guests assigned`}</p>
-          <p>Assign mystery character roles to your guests.</p>
+          <p><strong>Status:</strong> ${progress.rolesAssigned >= 80 ? '✓ Complete' : `${progress.totalAssigned} of ${AppData.guests.length} residents assigned`}</p>
+          <p>Assign our hand-crafted mystery roles to our residents.</p>
           <a href="mystery.html" class="btn">Go to Mystery Planning</a>
-          <a href="guests.html" class="btn btn-secondary">Manage Guests</a>
+          <a href="guests.html" class="btn btn-secondary">Manage Residents</a>
         </div>
         
         <div class="decision-step ${stats.percentWithRsvp >= 80 ? 'completed' : ''}">
-          <h3>Step 4: Guest RSVP Tracking</h3>
+          <h3>Step 4: RSVP Tracking</h3>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${stats.percentWithRsvp}%;">
               ${stats.percentWithRsvp}% with RSVP
             </div>
           </div>
-          <p><strong>Status:</strong> ${stats.percentWithRsvp >= 80 ? '✓ Complete' : `${stats.guestsWithRsvp} of ${stats.totalGuests} guests have responded`}</p>
-          <p>Track guest responses and confirm attendance.</p>
-          <a href="guests.html" class="btn">Manage Guest List</a>
+          <p><strong>Status:</strong> ${stats.percentWithRsvp >= 80 ? '✓ Complete' : `${stats.guestsWithRsvp} of ${stats.totalGuests} residents have responded`}</p>
+          <p>Keep track of who's coming to Twin Peaks!</p>
+          <a href="guests.html" class="btn">Manage Resident List</a>
         </div>
         
         <div class="decision-step ${stats.percentWithAddress >= 80 ? 'completed' : ''}">
-          <h3>Step 5: Guest Address Collection</h3>
+          <h3>Step 5: Address Collection</h3>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${stats.percentWithAddress}%;">
               ${stats.percentWithAddress}% with Address
             </div>
           </div>
-          <p><strong>Status:</strong> ${stats.percentWithAddress >= 80 ? '✓ Complete' : `${stats.guestsWithAddress} of ${stats.totalGuests} guests have address on file`}</p>
-          <p>Collect mailing addresses for invitations and thank you cards.</p>
-          <a href="guests.html" class="btn">Update Guest Info</a>
+          <p><strong>Status:</strong> ${stats.percentWithAddress >= 80 ? '✓ Complete' : `${stats.guestsWithAddress} of ${stats.totalGuests} residents have address on file`}</p>
+          <p>Collect addresses for our invitations and thank you cards.</p>
+          <a href="guests.html" class="btn">Update Resident Info</a>
         </div>
         
         <div class="decision-step ${progress.envelopeReadiness >= 100 ? 'completed' : ''}">
-          <h3>Step 6: Mystery Envelope Preparation</h3>
+          <h3>Step 6: Mystery Envelope Prep</h3>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${progress.envelopeReadiness}%;">
               ${progress.envelopeReadiness}% Ready
             </div>
           </div>
           <p><strong>Status:</strong> ${progress.envelopeReadiness >= 100 ? '✓ Complete' : `${progress.guestsWithPackets} of ${progress.totalAssigned} assigned guests have complete envelope packets`}</p>
-          <p>Ensure all guests with assigned roles have 4-envelope packets prepared.</p>
-          <a href="mystery.html" class="btn">View Mystery Phase System</a>
-          <button class="btn btn-secondary" onclick="downloadClueKitZip()">Download Clue Kit</button>
+          <p>Ensure all residents have their 4-envelope packets prepared.</p>
+          <a href="mystery.html" class="btn">View Phase System</a>
+          <button class="btn btn-secondary" onclick="downloadClueKitZip()">Download Our Clue Kit</button>
         </div>
         
         <div class="decision-step">
-          <h3>Step 7: Review Schedule</h3>
-          <p>Finalize your 2-hour timeline and make any necessary adjustments.</p>
-          <a href="schedule.html" class="btn">View Schedule</a>
+          <h3>Step 7: Final Schedule Review</h3>
+          <p>Finalize our 2-hour timeline and make any last adjustments.</p>
+          <a href="schedule.html" class="btn">View Our Schedule</a>
         </div>
         
         <div style="text-align: center; margin-top: 30px; padding: 20px; background: linear-gradient(135deg, var(--deep-cherry-red), var(--dark-wood)); border-radius: 10px;">
-          <h3 style="color: var(--gold); margin-bottom: 15px;">📦 Export Complete Plan</h3>
-          <p style="color: white; margin-bottom: 15px;">Download all your decisions and data as a ZIP file</p>
+          <h3 style="color: var(--gold); margin-bottom: 15px;">📦 Export Our Full Plan</h3>
+          <p style="color: white; margin-bottom: 15px;">Download all our decisions and data as a ZIP backup</p>
           <button class="btn btn-secondary" onclick="downloadAllDataAsZip()" style="font-size: 18px;">
-            ⬇️ Download Current Plan (ZIP)
+            ⬇️ Download Our Plan (ZIP)
           </button>
           <p style="color: var(--cream); margin-top: 10px; font-size: 14px;">
-            Includes all JSON files with your favorites, featured items, and assignments
+            This saves all our favorites, featured items, and assignments to a file.
           </p>
         </div>
       </div>
       
       <div class="card">
-        <h2>🎬 Director's Notes - Mystery Phase Timeline</h2>
-        <p>Quick reference guide for managing the mystery phases during the party:</p>
+        <h2>🎬 Director's Notes - Mystery Timeline</h2>
+        <p>Our quick reference for managing the mystery phases during the party:</p>
         <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 15px 0;">
           <h3 style="color: var(--deep-cherry-red);">Phase Timeline:</h3>
           <div style="display: grid; gap: 15px; margin-top: 15px;">
@@ -1676,21 +1676,21 @@ window.printDecorPlan = function() {
         ${(AppData.decor.sections || []).map(section => `
           <div class="section">
             <h2>
-              ${section.name} 
+              Our ${section.name} 
               ${section.status === 'final' ? '<span class="final-badge">FINAL ✓</span>' : ''}
             </h2>
             ${section.selectedOptions && section.selectedOptions.length > 0 ? `
-              <p><strong>Selections:</strong></p>
+              <p><strong>Our Selections:</strong></p>
               <ul>
                 ${section.selectedOptions.map(opt => `<li>• ${opt}</li>`).join('')}
               </ul>
             ` : ''}
-            ${section.customIdea ? `<p><strong>Custom Idea:</strong> ${section.customIdea}</p>` : ''}
-            ${section.notes ? `<p><strong>Notes:</strong> ${section.notes}</p>` : ''}
+            ${section.customIdea ? `<p><strong>Our Custom Idea:</strong> ${section.customIdea}</p>` : ''}
+            ${section.notes ? `<p><strong>Our Notes:</strong> ${section.notes}</p>` : ''}
           </div>
         `).join('')}
         
-        <h2>Shopping List</h2>
+        <h2>Our Shopping List</h2>
         ${(AppData.decor.shoppingList || []).length > 0 ? `
           <ul>
             ${AppData.decor.shoppingList.map(item => `
@@ -1831,7 +1831,7 @@ window.printMenuPreview = function() {
           if (!categories[catName] || categories[catName].length === 0) return '';
           return `
             <div class="category">
-              <h2>${catName}s</h2>
+              <h2>Our ${catName}s</h2>
               ${categories[catName].map(item => `
                 <div class="menu-item">
                   <h3>${item.name}</h3>
@@ -1842,7 +1842,7 @@ window.printMenuPreview = function() {
                   ` : ''}
                   <p>${item.description || ''}</p>
                   ${(item.allergens && item.allergens.length > 0) ? `
-                    <p class="allergen">⚠️ Contains: ${item.allergens.join(', ')}</p>
+                    <p class="allergen">⚠️ Our Notes: Contains ${item.allergens.join(', ')}</p>
                   ` : ''}
                   <p><em>Serves: ${item.serves || 'N/A'}</em></p>
                 </div>
@@ -1928,20 +1928,20 @@ window.printGuestPacket = function(guestId) {
         </style>
       </head>
       <body>
-        <h1>🌲 Character Packet for ${guest.name}</h1>
+        <h1>🌲 Investigation Briefing for ${guest.name}</h1>
         
         <div class="intro">
           <h2>${packet.intro_profile.name}</h2>
           <h3>${packet.intro_profile.role}</h3>
-          <p><em>${packet.intro_profile.tagline}</em></p>
+          <p><em>"${packet.intro_profile.tagline}"</em></p>
           <p>${packet.intro_profile.overview}</p>
           
-          <h4>Costume Essentials:</h4>
+          <h4>Costume Ideas:</h4>
           <ul>
             ${(packet.intro_profile.costume_essentials || []).map(item => `<li>${item}</li>`).join('')}
           </ul>
           
-          <p><strong>Secret Preview:</strong> ${packet.intro_profile.secret_preview}</p>
+          <p><strong>A Little Secret...</strong> ${packet.intro_profile.secret_preview}</p>
         </div>
         
         <div class="page-break"></div>

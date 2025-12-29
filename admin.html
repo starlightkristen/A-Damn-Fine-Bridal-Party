@@ -14,7 +14,7 @@
     <div class="container">
         <header>
             <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
-            <p>Data Management & Validation</p>
+            <p>Station Headquarters & Master Files</p>
         </header>
 
         <nav>
@@ -25,89 +25,81 @@
                 <li><a href="mystery.html">Mystery</a></li>
                 <li><a href="schedule.html">Schedule</a></li>
                 <li><a href="guests.html">Guests</a></li>
-                <li><a href="admin.html">Admin</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
             </ul>
         </nav>
 
         <div class="card">
-            <h2>🔧 Data Validation</h2>
-            <p>Check for data integrity issues, duplicate IDs, and invalid references:</p>
+            <h2>🔧 Case File Integrity</h2>
+            <p>Scanning for investigation errors, duplicate resident IDs, and missing evidence:</p>
             <div id="validation-results">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Running validation...</p>
+                    <p>Running case scan...</p>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>📁 Data Files</h2>
-            <p>Direct links to all JSON data files for editing:</p>
+            <h2>📁 Event Files</h2>
+            <p>Direct access to our planning data for review:</p>
             <div id="data-links">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Loading data links...</p>
+                    <p>Loading master files...</p>
                 </div>
             </div>
             
             <div class="alert alert-warning">
-                <strong>How to Update Data:</strong>
-                <p>Use the on-site editors on the <strong>Decor</strong>, <strong>Food</strong>, <strong>Mystery</strong>, <strong>Schedule</strong>, and <strong>Guests</strong> pages to add, edit, or remove items. Use the <strong>Export</strong> button to download your JSON data and the <strong>Import</strong> button to load previously saved JSON files. The direct file links below remain available for manual JSON editing when needed.</p>
+                <strong>💡 Quick Tip for Us:</strong>
+                <p>We can use the interactive editors on each page (Decor, Food, Mystery, Schedule, and Guests) to update things instantly. The buttons below are for downloading backups or importing previous versions if we ever need to "rewind" our progress.</p>
             </div>
         </div>
 
         <div class="card">
-            <h2>📊 System Information</h2>
+            <h2>📊 Station Logs</h2>
             <table>
                 <tbody>
                     <tr>
                         <td><strong>Portal Version</strong></td>
-                        <td>1.0.0</td>
+                        <td>1.0.0 (Final)</td>
                     </tr>
                     <tr>
-                        <td><strong>Last Updated</strong></td>
+                        <td><strong>Last Log Entry</strong></td>
                         <td id="last-updated">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>GitHub Repository</strong></td>
-                        <td><a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party" target="_blank">starlightkristen/A-Damn-Fine-Bridal-Party</a></td>
-                    </tr>
-                    <tr>
-                        <td><strong>GitHub Pages URL</strong></td>
-                        <td><a href="https://starlightkristen.github.io/A-Damn-Fine-Bridal-Party/" target="_blank">https://starlightkristen.github.io/A-Damn-Fine-Bridal-Party/</a></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
         <div class="card">
-            <h2>⚙️ Event Settings</h2>
+            <h2>⚙️ Event Configuration</h2>
             <div id="settings-panel">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <p>Loading settings...</p>
+                    <p>Loading configuration...</p>
                 </div>
             </div>
         </div>
 
         <div class="card" id="firebase-sync-status-card" style="display: none;">
-            <h2>🔄 Firebase Sync Status</h2>
+            <h2>🔄 Real-Time Sync Status</h2>
             <table>
                 <tbody>
                     <tr>
-                        <td><strong>Data Source</strong></td>
+                        <td><strong>Cloud Connection</strong></td>
                         <td id="sync-data-source">-</td>
                     </tr>
                     <tr>
-                        <td><strong>Seeded</strong></td>
+                        <td><strong>Data Secured</strong></td>
                         <td id="sync-seeded">-</td>
                     </tr>
                     <tr>
-                        <td><strong>Seeded At</strong></td>
+                        <td><strong>Last Cloud Update</strong></td>
                         <td id="sync-seeded-at">-</td>
                     </tr>
                     <tr>
-                        <td><strong>Seeded By</strong></td>
+                        <td><strong>Updated By Agent</strong></td>
                         <td id="sync-seeded-by">-</td>
                     </tr>
                     <tr>
@@ -117,101 +109,46 @@
                 </tbody>
             </table>
             <div style="margin-top: 20px;">
-                <button onclick="forceSyncFromFirestore()" class="btn">🔄 Force Sync Now</button>
+                <button onclick="forceSyncFromFirestore()" class="btn">🔄 Reload Cloud Data</button>
                 <p style="margin-top: 10px; font-size: 14px; color: #666;">
-                    Force sync will reload all data from Firestore, discarding any unsaved local changes.
+                    This will refresh all data from our shared cloud database.
                 </p>
             </div>
         </div>
 
         <div class="card">
-            <h2>🎯 Quick Actions</h2>
+            <h2>🎯 Direct Dispatch</h2>
             <div class="grid grid-2">
                 <div>
                     <h3>Decor Wizard</h3>
-                    <p>Guided decor planning with curated options</p>
-                    <a href="decor-wizard.html" class="btn">🎨 Start Decor Wizard</a>
+                    <p>Step-by-step decor planning for our vision</p>
+                    <a href="decor-wizard.html" class="btn">🎨 Open Wizard</a>
                 </div>
                 <div>
                     <h3>Menu Planner</h3>
-                    <p>Structured menu planning with dietary tracking</p>
-                    <a href="menu-planner.html" class="btn">🍽️ Start Menu Planner</a>
+                    <p>Finalizing our coffee and pie selections</p>
+                    <a href="menu-planner.html" class="btn">🍽️ Open Planner</a>
                 </div>
                 <div>
                     <h3>Role Assignment</h3>
-                    <p>Assign mystery roles and print guest packets</p>
-                    <a href="role-assignment.html" class="btn">🎭 Manage Roles</a>
+                    <p>Finalizing character roles for our guests</p>
+                    <a href="role-assignment.html" class="btn">🎭 Dispatch Roles</a>
                 </div>
                 <div>
                     <h3>Host Controls</h3>
-                    <p>Live event controls for timing and reveals</p>
-                    <a href="host-controls.html" class="btn">🎬 Host Controls</a>
-                </div>
-                <div>
-                    <h3>GitHub Issues</h3>
-                    <p>Manage guest submissions and planning tasks</p>
-                    <a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues" class="btn" target="_blank">View Issues</a>
-                </div>
-                <div>
-                    <h3>Submit Guests</h3>
-                    <p>Add new guests via the issue form</p>
-                    <a href="https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues/new?template=guest-list.yml" class="btn btn-secondary" target="_blank">Submit Form</a>
+                    <p>Live timing and mystery reveals for the party</p>
+                    <a href="host-controls.html" class="btn">🎬 Open Command Center</a>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>📝 Data Structure Reference</h2>
-            
-            <h3>guests.json</h3>
-            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>{
-  "id": number,
-  "name": "string",
-  "email": "string",
-  "phone": "string | null",
-  "address": {
-    "street": "string",
-    "city": "string",
-    "state": "string",
-    "zip": "string",
-    "country": "string"
-  },
-  "dietary": "string",
-  "dietarySeverity": "allergy | intolerance | preference | null",
-  "accessibility": "string",
-  "roleVibe": "string",
-  "seatingPreferences": "string | null",
-  "notes": "string | null",
-  "assignedCharacter": "string | null",
-  "rsvp": "invited | confirmed | tentative | not attending | pending"
-}</code></pre>
-
-            <h3>characters.json</h3>
-            <pre style="background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto;"><code>{
-  "id": "string",
-  "name": "string",
-  "role": "string",
-  "briefing": "string",
-  "costume": "string",
-  "secret": "string",
-  "personality": "string",
-  "objective": "string"
-}</code></pre>
-
-            <div class="alert alert-info">
-                <strong>Note:</strong> This portal uses client-side JavaScript to fetch and display JSON data. All data persists in the repository files. Changes to character assignments and other interactive features are in-memory only and will reset on page reload unless the JSON files are manually updated.
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>🔒 Limitations & Notes</h2>
+            <h2>🔒 Field Notes & Confidential Info</h2>
             <ul class="item-list">
-                <li><strong>No Backend:</strong> This is a static site with no server-side processing</li>
-                <li><strong>In-Memory Changes:</strong> Interactive modifications (like assigning characters) are temporary unless you update the JSON files</li>
-                <li><strong>Manual Data Updates:</strong> Edit JSON files directly in the repository to make permanent changes</li>
-                <li><strong>Guest Submissions:</strong> Use GitHub Issues with the guest-list template to collect guest information</li>
-                <li><strong>Printable Packets:</strong> Generated client-side using the browser's print dialog</li>
-                <li><strong>Data Persistence:</strong> All data lives in the `/data` directory JSON files</li>
+                <li><strong>No Tech Skills Required:</strong> I've built this so everything we change on the UI saves automatically.</li>
+                <li><strong>Shared Planning:</strong> We can both be in here at once and see each other's updates in real-time.</li>
+                <li><strong>Mystery Surprise:</strong> The mystery details are hidden from the main pages so only we can see the solution!</li>
+                <li><strong>Print Readiness:</strong> All character packets are ready to be printed and sealed whenever we're ready.</li>
             </ul>
         </div>
     </div>
