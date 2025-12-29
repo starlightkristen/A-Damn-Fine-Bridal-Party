@@ -1547,7 +1547,14 @@ function renderInvestigationMap() {
                     return `
                       <tr style="border-bottom: 1px solid #f5f5f5;">
                         <td style="padding: 8px; font-weight: bold; color: var(--deep-cherry-red);">${char?.name || 'Unknown'}</td>
-                        <td style="padding: 8px; color: #666;">${envelope?.contents.substring(0, 80)}...</td>
+                        <td style="padding: 8px; color: #666; cursor: pointer; transition: background 0.2s;" 
+                            onclick="showEnvelopeDetails('${p.character_id}', '${phase}')" 
+                            onmouseover="this.style.background='#fff9e6'" 
+                            onmouseout="this.style.background='transparent'"
+                            title="Click to read full clue">
+                          ${envelope?.contents.substring(0, 80)}... 
+                          <span style="color: var(--gold); font-size: 12px; font-weight: bold; text-decoration: underline; margin-left: 5px;">(Read More)</span>
+                        </td>
                         <td style="padding: 8px;"><span style="background: #fff9e6; border: 1px solid #C79810; padding: 2px 8px; border-radius: 12px; color: #8B4513; font-size: 12px;">👤 ${talkTo}</span></td>
                       </tr>
                     `;
@@ -1563,6 +1570,61 @@ function renderInvestigationMap() {
   
   mapElement.innerHTML = html;
 }
+
+// Show envelope details in a modal
+window.showEnvelopeDetails = function(characterId, phase) {
+  const packet = AppData.packets.find(p => p.character_id === characterId);
+  if (!packet) return;
+  
+  const envelope = packet.envelopes.find(e => e.phase === phase);
+  const char = AppData.characters.find(c => c.id === characterId);
+  
+  const phaseNames = {
+    'intro': 'Phase 1: Arrival',
+    'mid': 'Phase 2: Discovery',
+    'pre-final': 'Phase 3: The Web',
+    'final': 'Phase 4: Truth'
+  };
+  
+  const modalHtml = `
+    <div id="envelope-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: white; border: 4px solid var(--deep-cherry-red); border-radius: 12px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+        <div style="background: var(--deep-cherry-red); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0; font-size: 20px;">📂 Case File: ${char?.name || 'Unknown'}</h2>
+          <button onclick="closeEnvelopeModal()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
+        </div>
+        <div style="padding: 25px;">
+          <div style="margin-bottom: 20px;">
+            <span style="background: #fff9e6; border: 1px solid #C79810; padding: 4px 12px; border-radius: 15px; color: #8B4513; font-weight: bold; font-size: 14px;">
+              ${phaseNames[phase] || phase}
+            </span>
+          </div>
+          
+          <h3 style="color: var(--dark-wood); border-bottom: 2px solid #eee; padding-bottom: 8px; margin-bottom: 15px;">📜 Envelope Contents</h3>
+          <p style="font-size: 16px; line-height: 1.6; background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid var(--gold);">
+            ${envelope?.contents || 'No contents found.'}
+          </p>
+          
+          <h3 style="color: var(--dark-wood); border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 25px; margin-bottom: 15px;">👤 Direct Instructions</h3>
+          <p style="font-size: 16px; line-height: 1.6; font-style: italic; color: #444;">
+            ${envelope?.instructions || 'No instructions found.'}
+          </p>
+          
+          <div style="margin-top: 30px; text-align: center;">
+            <button onclick="closeEnvelopeModal()" class="btn" style="padding: 10px 30px;">Close File</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.closeEnvelopeModal = function() {
+  const modal = document.getElementById('envelope-modal');
+  if (modal) modal.remove();
+};
 
 // Re-render current page (called by Firestore listeners)
 window.renderCurrentPage = function() {
