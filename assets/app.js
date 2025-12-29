@@ -37,8 +37,22 @@ const AppData = {
   // Firebase sync enabled
   firebaseSyncEnabled: FIREBASE_ENABLED,
   // History for undo
-  historyStack: []
+  historyStack: [],
+  // Host email list
+  hostEmails: ['kstehlar@solarainnovations.com', 'marlena@example.com'] // ADD MARLENA'S EMAIL HERE
 };
+
+// Helper to check if current user is a Host
+window.isHost = function() {
+  if (!FIREBASE_ENABLED || !FirebaseManager || !FirebaseManager.currentUser) return false;
+  return AppData.hostEmails.includes(FirebaseManager.currentUser.email.toLowerCase());
+}
+
+// Get display identity for the current user
+function getUserIdentity() {
+  if (isHost()) return `Host (${FirebaseManager.currentUser.email})`;
+  return sessionStorage.getItem('resident_identity') || 'Guest Resident';
+}
 
 // Push current state to history stack
 function pushToHistory() {
@@ -666,6 +680,12 @@ async function initApp() {
   
   // Set active nav link
   setActiveNavLink();
+  
+  // Hide restricted nav links for non-hosts
+  if (!isHost()) {
+    const adminLink = document.querySelector('nav a[href="admin.html"]');
+    if (adminLink) adminLink.parentElement.style.display = 'none';
+  }
   
   // Initialize save status indicator
   if (FIREBASE_ENABLED) {
@@ -3105,7 +3125,15 @@ async function saveToFirestore() {
 // Save page notes
 async function savePageNotes(page, content) {
   if (!AppData.pageNotes) AppData.pageNotes = {};
-  AppData.pageNotes[page] = content;
+  
+  const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const identity = getUserIdentity();
+  
+  AppData.pageNotes[page] = {
+    content: content,
+    lastUpdatedBy: identity,
+    lastUpdatedAt: timestamp
+  };
   
   if (FIREBASE_ENABLED && FirebaseManager) {
     await FirebaseManager.saveData('pageNotes', AppData.pageNotes);

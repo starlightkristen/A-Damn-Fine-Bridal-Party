@@ -18,18 +18,21 @@ function renderPageNotes() {
   if (!container) return;
   
   const page = getPageName();
-  const notes = AppData.pageNotes?.[page] || '';
+  const noteData = AppData.pageNotes?.[page] || { content: '' };
+  const content = typeof noteData === 'string' ? noteData : (noteData.content || '');
+  const meta = noteData.lastUpdatedBy ? `<span style="font-size: 0.8em; color: #999; margin-top: 5px;">Last updated by ${escapeHtml(noteData.lastUpdatedBy)} at ${noteData.lastUpdatedAt}</span>` : '';
   
   container.innerHTML = `
     <div class="card" style="border-left: 4px solid var(--gold); background: #fffdf0;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h2 style="margin: 0; font-size: 1.2em;">📝 Our General Notes</h2>
-        <span style="font-size: 0.8em; color: #666; font-style: italic;">Changes save automatically for both of us</span>
+        <span style="font-size: 0.8em; color: #666; font-style: italic;">Changes save automatically for everyone</span>
       </div>
       <textarea id="page-notes-textarea" 
                 placeholder="Type any general thoughts, reminders, or shared notes here..." 
                 style="width: 100%; min-height: 100px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; line-height: 1.5; resize: vertical;"
-                onchange="savePageNotes('${page}', this.value)">${notes}</textarea>
+                onchange="savePageNotes('${page}', this.value)">${content}</textarea>
+      ${meta}
     </div>
   `;
 }
@@ -837,25 +840,31 @@ const Render = {
   // Render mystery page
   mystery: function() {
     renderPageNotes();
-    // Add data management controls at the top
-    const controlsHtml = `
-      <div class="card">
-        <h3>📦 Mystery Data Management</h3>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-          <button class="btn" onclick="exportStory()">📥 Export Story</button>
-          <button class="btn" onclick="handleImportStory()">📂 Import Story</button>
-          <button class="btn" onclick="exportClues()">📥 Export Clues</button>
-          <button class="btn" onclick="handleImportClues()">📂 Import Clues</button>
-          <button class="btn" onclick="exportPackets()">📥 Export Packets</button>
-          <button class="btn" onclick="handleImportPackets()">📂 Import Packets</button>
-        </div>
-        <p style="margin-top: 10px; font-size: 14px; color: #666;">
-          <strong>Note:</strong> Full CRUD editors for Story, Clues, and Packets can be accessed via the Admin panel's Global Data Manager.
-        </p>
-      </div>
-    `;
     
-    // Render story overview
+    const userIsHost = isHost();
+    
+    // Add data management controls at the top (Only for Hosts)
+    let controlsHtml = '';
+    if (userIsHost) {
+      controlsHtml = `
+        <div class="card">
+          <h3>📦 Mystery Data Management</h3>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+            <button class="btn" onclick="exportStory()">📥 Export Story</button>
+            <button class="btn" onclick="handleImportStory()">📂 Import Story</button>
+            <button class="btn" onclick="exportClues()">📥 Export Clues</button>
+            <button class="btn" onclick="handleImportClues()">📂 Import Clues</button>
+            <button class="btn" onclick="exportPackets()">📥 Export Packets</button>
+            <button class="btn" onclick="handleImportPackets()">📂 Import Packets</button>
+          </div>
+          <p style="margin-top: 10px; font-size: 14px; color: #666;">
+            <strong>Note:</strong> Full CRUD editors for Story, Clues, and Packets can be accessed via the Station HQ.
+          </p>
+        </div>
+      `;
+    }
+    
+    // Render story overview (Redacted for Guests)
     const storyHtml = `
       <div class="card">
         <h2>${AppData.story.title}</h2>
@@ -868,148 +877,183 @@ const Render = {
         <h3>The Murder</h3>
         <p><strong>Victim:</strong> ${AppData.story.theMurder.victim}</p>
         <p>${AppData.story.theMurder.victimDescription}</p>
-        <p><strong>Cause of Death:</strong> ${AppData.story.theMurder.causeOfDeath}</p>
-        <p><strong>Location:</strong> ${AppData.story.theMurder.location}</p>
+        <p><strong>Cause of Death:</strong> ${userIsHost ? AppData.story.theMurder.causeOfDeath : '<span style="background: #333; color: transparent; user-select: none;">[CLASSIFIED]</span>'}</p>
+        <p><strong>Location:</strong> ${userIsHost ? AppData.story.theMurder.location : '<span style="background: #333; color: transparent; user-select: none;">[CLASSIFIED]</span>'}</p>
       </div>
       
+      ${userIsHost ? `
       <div class="card">
         <h3>Solution (Host Only!)</h3>
         <div class="alert alert-danger">
-          <strong>Spoiler Alert:</strong> This section reveals the solution. Keep this page away from guests!
+          <strong>⚠️ FOR OUR EYES ONLY - TOP SECRET!</strong>
         </div>
         <p><strong>Murderer:</strong> ${AppData.story.theMurderer.character}</p>
         <p><strong>Motive:</strong> ${AppData.story.theMurderer.motive}</p>
         <p><strong>Method:</strong> ${AppData.story.theMurderer.method}</p>
         <p>${AppData.story.solution}</p>
       </div>
+      ` : `
+      <div class="card" style="background: #f5f5f5; border: 2px dashed #ccc;">
+        <h3 style="color: #999;">🔍 Solution Files</h3>
+        <p style="color: #999; font-style: italic;">The solution is currently locked. It will be revealed during the cupcake ceremony at the party!</p>
+      </div>
+      `}
     `;
     
     document.getElementById('story-overview').innerHTML = controlsHtml + storyHtml;
     
     // Render character list with role assignment controls
     const unassignedCount = AppData.guests.filter(g => !g.assignedCharacter).length;
-    const assignmentStatus = `
-      <div class="alert ${unassignedCount === 0 ? 'alert-success' : 'alert-warning'}" style="margin-bottom: 20px;">
-        <strong>Assignment Status:</strong> ${AppData.guests.filter(g => g.assignedCharacter).length} of ${AppData.guests.length} guests assigned
-        ${unassignedCount > 0 ? `<br><em>${unassignedCount} guest(s) still need role assignments</em>` : ''}
-      </div>
-      ${unassignedCount > 0 ? `
-        <div style="text-align: center; margin: 20px 0;">
-          <button class="btn" onclick="handleSuggestAssignments()">
-            🎭 Suggest Role Assignments
-          </button>
-          <p style="margin-top: 10px; font-size: 14px; color: #666;">
-            Automatically assigns unassigned guests to available roles
-          </p>
+    let assignmentStatus = '';
+    
+    if (userIsHost) {
+      assignmentStatus = `
+        <div class="alert ${unassignedCount === 0 ? 'alert-success' : 'alert-warning'}" style="margin-bottom: 20px;">
+          <strong>Assignment Status:</strong> ${AppData.guests.filter(g => g.assignedCharacter).length} of ${AppData.guests.length} guests assigned
+          ${unassignedCount > 0 ? `<br><em>${unassignedCount} guest(s) still need role assignments</em>` : ''}
         </div>
-      ` : ''}
-    `;
+        ${unassignedCount > 0 ? `
+          <div style="text-align: center; margin: 20px 0;">
+            <button class="btn" onclick="handleSuggestAssignments()">
+              🎭 Suggest Role Assignments
+            </button>
+            <p style="margin-top: 10px; font-size: 14px; color: #666;">
+              Automatically assigns unassigned guests to available roles
+            </p>
+          </div>
+        ` : ''}
+      `;
+    }
     
     const charactersHtml = AppData.characters.map(char => {
       const assignedGuest = AppData.guests.find(g => g.assignedCharacter === char.id);
+      const isGeneric = char.id.startsWith('resident-');
+      
       return `
-      <div class="character-card">
+      <div class="character-card" style="opacity: ${isGeneric ? '0.8' : '1'};">
         <h4>${char.name}</h4>
         <span class="role">${char.role}</span>
-        ${assignedGuest ? `<p style="color: var(--forest-emerald); font-weight: bold;">✓ Assigned to: ${assignedGuest.name}</p>` : '<p style="color: #999;">Available</p>'}
-        <p><strong>Briefing:</strong> ${char.briefing}</p>
+        ${userIsHost && assignedGuest ? `<p style="color: var(--forest-emerald); font-weight: bold;">✓ Assigned to: ${assignedGuest.name}</p>` : ''}
+        <p><strong>Briefing:</strong> ${userIsHost ? char.briefing : char.briefing.substring(0, 50) + '... <span style="color: #999;">[FULL BRIEFING SENT WITH INVITE]</span>'}</p>
         <p><strong>Costume:</strong> ${char.costume}</p>
         <p><strong>Personality:</strong> ${char.personality}</p>
-        <button class="btn btn-secondary" onclick="printCharacterPacket('${char.id}')">Print Packet</button>
+        ${userIsHost ? `<button class="btn btn-secondary" onclick="printCharacterPacket('${char.id}')">Print Packet</button>` : ''}
       </div>
     `;
     }).join('');
     
     document.getElementById('character-list').innerHTML = assignmentStatus + charactersHtml;
     
-    // Render phase controls
-    const phases = [
-      { id: 'intro', name: 'Introduction', color: '#0B4F3F' },
-      { id: 'mid', name: 'Mid-Investigation', color: '#C79810' },
-      { id: 'pre-final', name: 'Pre-Final', color: '#8B0000' },
-      { id: 'final', name: 'Final Reveal', color: '#8B0000' }
-    ];
-    
-    const currentPhase = AppData.currentPhase || 'intro';
-    const currentIndex = phases.findIndex(p => p.id === currentPhase);
-    
-    const phaseControlsHtml = `
-      <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
-        ${phases.map((phase, index) => {
-          const isActive = phase.id === currentPhase;
-          const isCompleted = index < currentIndex;
-          const backgroundColor = isActive ? phase.color : (isCompleted ? '#999' : '#f0f0f0');
-          const textColor = isActive || isCompleted ? 'white' : '#333';
-          return `
-            <div style="flex: 1; min-width: 150px; padding: 15px; background: ${backgroundColor}; color: ${textColor}; border-radius: 8px; text-align: center;">
-              <h4 style="margin: 0 0 5px 0; color: ${textColor};">${phase.name}</h4>
-              <p style="margin: 0; font-size: 14px;">${isActive ? '▶️ CURRENT' : isCompleted ? '✅ Complete' : '⏳ Upcoming'}</p>
+    // Hide or "Sneak Peak" Phase Controls and Investigation Map for non-hosts
+    if (!userIsHost) {
+      // Show "Sneak Peak" version of the Map (already handled in renderInvestigationMap)
+      renderInvestigationMap();
+      
+      // Hide the envelopes section
+      const envelopeSection = document.getElementById('envelope-list')?.parentElement;
+      if (envelopeSection) envelopeSection.style.display = 'none';
+      
+      // Hide the "Advance Phase" controls
+      const phaseSection = document.getElementById('phase-controls');
+      if (phaseSection) {
+        phaseSection.innerHTML = `
+          <div class="card" style="background: #f9f9f9; text-align: center; padding: 20px;">
+            <h3 style="color: var(--dark-wood);">⏳ Investigation Status</h3>
+            <p style="color: #666; font-style: italic;">"The owls are not what they seem."</p>
+            <p style="margin-top: 10px;">The investigation phases are managed by the Sheriff's Station. New clues will be released during the party!</p>
+          </div>
+        `;
+      }
+    } else {
+      // Render full host version of everything
+      const phases = [
+        { id: 'intro', name: 'Introduction', color: '#0B4F3F' },
+        { id: 'mid', name: 'Mid-Investigation', color: '#C79810' },
+        { id: 'pre-final', name: 'Pre-Final', color: '#8B0000' },
+        { id: 'final', name: 'Final Reveal', color: '#8B0000' }
+      ];
+      
+      const currentPhase = AppData.currentPhase || 'intro';
+      const currentIndex = phases.findIndex(p => p.id === currentPhase);
+      
+      const phaseControlsHtml = `
+        <div style="display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap;">
+          ${phases.map((phase, index) => {
+            const isActive = phase.id === currentPhase;
+            const isCompleted = index < currentIndex;
+            const backgroundColor = isActive ? phase.color : (isCompleted ? '#999' : '#f0f0f0');
+            const textColor = isActive || isCompleted ? 'white' : '#333';
+            return `
+              <div style="flex: 1; min-width: 150px; padding: 15px; background: ${backgroundColor}; color: ${textColor}; border-radius: 8px; text-align: center;">
+                <h4 style="margin: 0 0 5px 0; color: ${textColor};">${phase.name}</h4>
+                <p style="margin: 0; font-size: 14px;">${isActive ? '▶️ CURRENT' : isCompleted ? '✅ Complete' : '⏳ Upcoming'}</p>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0;">
+          ${currentIndex < phases.length - 1 ? `
+            <button class="btn" onclick="handleAdvancePhase()" style="font-size: 16px; padding: 15px 30px;">
+              ▶️ Advance to ${phases[currentIndex + 1].name}
+            </button>
+          ` : `
+            <div class="alert alert-success">
+              <strong>🎉 Mystery Complete!</strong> All phases have been completed.
             </div>
-          `;
-        }).join('')}
-      </div>
-      
-      <div style="text-align: center; margin: 20px 0;">
-        ${currentIndex < phases.length - 1 ? `
-          <button class="btn" onclick="handleAdvancePhase()" style="font-size: 16px; padding: 15px 30px;">
-            ▶️ Advance to ${phases[currentIndex + 1].name}
-          </button>
-        ` : `
-          <div class="alert alert-success">
-            <strong>🎉 Mystery Complete!</strong> All phases have been completed.
-          </div>
-        `}
-      </div>
-      
-      <div class="card" style="background: #f9f9f9; margin-top: 20px;">
-        <h3>Current Phase: ${phases[currentIndex].name}</h3>
-        <h4>Active Clues in This Phase:</h4>
-        ${renderCluesByPhase(currentPhase)}
-        <h4 style="margin-top: 20px;">Director's Notes:</h4>
-        ${renderDirectorNotes(currentPhase)}
-      </div>
-    `;
-    
-    document.getElementById('phase-controls').innerHTML = phaseControlsHtml;
-    
-    // Render master investigation map
-    renderInvestigationMap();
-    
-    // Render anonymous tips
-    renderAnonymousTips();
-    
-    // Render envelope list
-    const envelopeListHtml = AppData.characters.map(char => {
-      const packet = AppData.packets.find(p => p.character_id === char.id);
-      if (!packet || !packet.envelopes) return '';
-      
-      return `
-        <div class="card" style="margin: 15px 0; border-left: 4px solid var(--deep-cherry-red);">
-          <h3>${char.name} (${char.role})</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-            ${packet.envelopes.map((env, index) => {
-              const phaseColors = {
-                'intro': '#0B4F3F',
-                'mid': '#C79810',
-                'pre-final': '#8B0000',
-                'final': '#8B0000'
-              };
-              return `
-                <div style="border: 2px solid ${phaseColors[env.phase]}; border-radius: 8px; padding: 15px; background: white;">
-                  <div style="background: ${phaseColors[env.phase]}; color: white; padding: 5px 10px; border-radius: 4px; margin: -15px -15px 10px -15px; font-weight: bold; text-align: center;">
-                    ${env.phase.toUpperCase()}
-                  </div>
-                  <h4 style="margin: 10px 0 5px 0; font-size: 14px;">${env.title}</h4>
-                  <p style="font-size: 12px; color: #666; margin: 5px 0;">Envelope ${index + 1} of 4</p>
-                </div>
-              `;
-            }).join('')}
-          </div>
+          `}
+        </div>
+        
+        <div class="card" style="background: #f9f9f9; margin-top: 20px;">
+          <h3>Current Phase: ${phases[currentIndex].name}</h3>
+          <h4>Active Clues in This Phase:</h4>
+          ${renderCluesByPhase(currentPhase)}
+          <h4 style="margin-top: 20px;">Director's Notes:</h4>
+          ${renderDirectorNotes(currentPhase)}
         </div>
       `;
-    }).join('');
-    
-    document.getElementById('envelope-list').innerHTML = envelopeListHtml || '<p style="color: #999;">No envelope packets configured.</p>';
+      
+      document.getElementById('phase-controls').innerHTML = phaseControlsHtml;
+      
+      // Render master investigation map
+      renderInvestigationMap();
+      
+      // Render anonymous tips
+      renderAnonymousTips();
+      
+      // Render envelope list
+      const envelopeListHtml = AppData.characters.map(char => {
+        const packet = AppData.packets.find(p => p.character_id === char.id);
+        if (!packet || !packet.envelopes) return '';
+        
+        return `
+          <div class="card" style="margin: 15px 0; border-left: 4px solid var(--deep-cherry-red);">
+            <h3>${char.name} (${char.role})</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+              ${packet.envelopes.map((env, index) => {
+                const phaseColors = {
+                  'intro': '#0B4F3F',
+                  'mid': '#C79810',
+                  'pre-final': '#8B0000',
+                  'final': '#8B0000'
+                };
+                return `
+                  <div style="border: 2px solid ${phaseColors[env.phase]}; border-radius: 8px; padding: 15px; background: white;">
+                    <div style="background: ${phaseColors[env.phase]}; color: white; padding: 5px 10px; border-radius: 4px; margin: -15px -15px 10px -15px; font-weight: bold; text-align: center;">
+                      ${env.phase.toUpperCase()}
+                    </div>
+                    <h4 style="margin: 10px 0 5px 0; font-size: 14px;">${env.title}</h4>
+                    <p style="font-size: 12px; color: #666; margin: 5px 0;">Envelope ${index + 1} of 4</p>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      document.getElementById('envelope-list').innerHTML = envelopeListHtml || '<p style="color: #999;">No envelope packets configured.</p>';
+    }
   },
   
   // Render schedule page
@@ -1811,17 +1855,19 @@ function renderInvestigationMap() {
                     
                     const isGeneric = p.character_id.startsWith('resident-');
                     const displayName = isGeneric ? `${char?.name || 'Resident'} (Villager)` : (char?.name || 'Unknown');
+                    const contents = userIsHost ? (envelope?.contents.substring(0, 80) + '...') : '<span style="background: #ccc; color: transparent; user-select: none;">[CLASSIFIED EVIDENCE]</span>';
+                    const readMore = userIsHost ? `<span style="color: var(--gold); font-size: 12px; font-weight: bold; text-decoration: underline; margin-left: 5px;">(Read More)</span>` : '';
                     
                     return `
                       <tr style="border-bottom: 1px solid #f5f5f5;">
                         <td style="padding: 8px; font-weight: bold; color: ${isGeneric ? 'var(--forest-emerald)' : 'var(--deep-cherry-red)'};">${displayName}</td>
-                        <td style="padding: 8px; color: #666; cursor: pointer; transition: background 0.2s;" 
-                            onclick="showEnvelopeDetails('${p.character_id}', '${phase}')" 
-                            onmouseover="this.style.background='#fff9e6'" 
+                        <td style="padding: 8px; color: #666; ${userIsHost ? 'cursor: pointer;' : ''} transition: background 0.2s;" 
+                            ${userIsHost ? `onclick="showEnvelopeDetails('${p.character_id}', '${phase}')"` : ''} 
+                            onmouseover="${userIsHost ? "this.style.background='#fff9e6'" : ""}" 
                             onmouseout="this.style.background='transparent'"
-                            title="Click to read full clue">
-                          ${envelope?.contents.substring(0, 80)}... 
-                          <span style="color: var(--gold); font-size: 12px; font-weight: bold; text-decoration: underline; margin-left: 5px;">(Read More)</span>
+                            title="${userIsHost ? 'Click to read full clue' : 'Classified Evidence'}">
+                          ${contents} 
+                          ${readMore}
                         </td>
                         <td style="padding: 8px;"><span style="background: #fff9e6; border: 1px solid #C79810; padding: 2px 8px; border-radius: 12px; color: #8B4513; font-size: 12px;">👤 ${talkTo}</span></td>
                       </tr>

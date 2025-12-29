@@ -97,8 +97,21 @@
         <input type="password" id="password" name="password" required autocomplete="current-password">
       </div>
       
-      <button type="submit" class="btn-login" id="loginBtn">Sign In</button>
+      <button type="submit" class="btn-login" id="loginBtn">Host Sign In</button>
     </form>
+
+    <div style="margin: 30px 0; border-top: 1px solid #eee; position: relative;">
+      <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; color: #999; font-size: 14px;">OR</span>
+    </div>
+
+    <div id="residentEntrance">
+      <h3 style="text-align: center; color: var(--forest-emerald); margin-bottom: 15px;">🌲 Resident Entrance</h3>
+      <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 20px;">Enter your phone number to access the village portal</p>
+      <div class="form-group">
+        <input type="tel" id="phoneNumber" placeholder="e.g., 555-0199" style="text-align: center;">
+      </div>
+      <button type="button" class="btn-login" id="residentBtn" style="background: var(--forest-emerald); margin-top: 15px;">Enter Village</button>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -121,15 +134,42 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    // Shared Resident Account Info (Used behind the scenes)
+    const RESIDENT_EMAIL = "resident@damnfineparty.com";
+    const RESIDENT_PASS = "coffeeandpie2025";
+
     // Check if already logged in
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is signed in, redirect to home page
         window.location.href = './index.html';
       }
     });
 
-    // Handle login form submission
+    // Resident Login Logic
+    const residentBtn = document.getElementById('residentBtn');
+    residentBtn.addEventListener('click', async () => {
+      const phone = document.getElementById('phoneNumber').value;
+      if (!phone || phone.length < 7) {
+        alert('Please enter a valid phone number.');
+        return;
+      }
+
+      residentBtn.disabled = true;
+      residentBtn.textContent = 'Opening Gates...';
+      
+      try {
+        // Log into the shared resident account
+        await signInWithEmailAndPassword(auth, RESIDENT_EMAIL, RESIDENT_PASS);
+        // Store phone number for tracking edits
+        sessionStorage.setItem('resident_identity', `Resident (${phone})`);
+      } catch (error) {
+        alert('Entrance failed. Please contact the host.');
+        residentBtn.disabled = false;
+        residentBtn.textContent = 'Enter Village';
+      }
+    });
+
+    // Original Login logic below...
     const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const errorMessage = document.getElementById('errorMessage');
