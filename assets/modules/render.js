@@ -950,6 +950,9 @@ const Render = {
     
     document.getElementById('phase-controls').innerHTML = phaseControlsHtml;
     
+    // Render master investigation map
+    renderInvestigationMap();
+    
     // Render envelope list
     const envelopeListHtml = AppData.characters.map(char => {
       const packet = AppData.packets.find(p => p.character_id === char.id);
@@ -1497,6 +1500,69 @@ window.renderPage = function(page) {
     Render[page]();
   }
 };
+
+// Helper function to render master investigation map
+function renderInvestigationMap() {
+  const mapElement = document.getElementById('investigation-map');
+  if (!mapElement) return;
+  
+  const phases = ['intro', 'mid', 'pre-final', 'final'];
+  const phaseNames = ['Phase 1: Arrival', 'Phase 2: Discovery', 'Phase 3: The Web', 'Phase 4: Truth'];
+  
+  let html = `
+    <div style="display: grid; gap: 20px;">
+      ${phases.map((phase, idx) => {
+        const charactersWithTasks = AppData.packets.filter(p => p.envelopes.some(e => e.phase === phase));
+        
+        return `
+          <div style="background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+            <div style="background: var(--dark-wood); color: var(--gold); padding: 10px 15px; font-weight: bold;">
+              ${phaseNames[idx]}
+            </div>
+            <div style="padding: 15px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                <thead>
+                  <tr style="border-bottom: 2px solid #eee;">
+                    <th style="text-align: left; padding: 8px; width: 150px;">Character</th>
+                    <th style="text-align: left; padding: 8px;">What they KNOW (Envelope)</th>
+                    <th style="text-align: left; padding: 8px;">Who they TALK TO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${charactersWithTasks.map(p => {
+                    const char = AppData.characters.find(c => c.id === p.character_id);
+                    const envelope = p.envelopes.find(e => e.phase === phase);
+                    const instructions = envelope?.instructions || '';
+                    
+                    // Simple logic to extract "who they talk to" from instructions
+                    let talkTo = 'General Mingling';
+                    if (instructions.toLowerCase().includes('interview shelly')) talkTo = 'Shelly (Waitress)';
+                    else if (instructions.toLowerCase().includes('compare notes with deputy')) talkTo = 'Deputy Andy';
+                    else if (instructions.toLowerCase().includes('confront morgan')) talkTo = 'Morgan (Owner)';
+                    else if (instructions.toLowerCase().includes('ask others about recipe')) talkTo = 'Suspects/Residents';
+                    else if (instructions.toLowerCase().includes('share the deputy')) talkTo = 'General Group';
+                    else if (instructions.toLowerCase().includes('reveal norma')) talkTo = 'Suspects/Residents';
+                    else if (instructions.toLowerCase().includes('investigate morgan')) talkTo = 'Morgan (Owner)';
+                    
+                    return `
+                      <tr style="border-bottom: 1px solid #f5f5f5;">
+                        <td style="padding: 8px; font-weight: bold; color: var(--deep-cherry-red);">${char?.name || 'Unknown'}</td>
+                        <td style="padding: 8px; color: #666;">${envelope?.contents.substring(0, 80)}...</td>
+                        <td style="padding: 8px;"><span style="background: #fff9e6; border: 1px solid #C79810; padding: 2px 8px; border-radius: 12px; color: #8B4513; font-size: 12px;">👤 ${talkTo}</span></td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+  
+  mapElement.innerHTML = html;
+}
 
 // Re-render current page (called by Firestore listeners)
 window.renderCurrentPage = function() {
