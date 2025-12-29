@@ -106,8 +106,13 @@
 
     <div id="residentEntrance">
       <h3 style="text-align: center; color: var(--forest-emerald); margin-bottom: 15px;">🌲 Resident Entrance</h3>
-      <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 20px;">Enter your phone number to access the village portal</p>
+      <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 20px;">Enter your name and phone number to access the village portal</p>
       <div class="form-group">
+        <label for="residentName">Full Name</label>
+        <input type="text" id="residentName" placeholder="e.g., Leland Palmer" style="text-align: center; margin-bottom: 15px;">
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
         <input type="tel" id="phoneNumber" placeholder="e.g., 555-0199" style="text-align: center;">
       </div>
       <button type="button" class="btn-login" id="residentBtn" style="background: var(--forest-emerald); margin-top: 15px;">Enter Village</button>
@@ -148,7 +153,13 @@
     // Resident Login Logic
     const residentBtn = document.getElementById('residentBtn');
     residentBtn.addEventListener('click', async () => {
+      const name = document.getElementById('residentName').value;
       const phone = document.getElementById('phoneNumber').value;
+      
+      if (!name || name.trim().length < 2) {
+        alert('Please enter your full name.');
+        return;
+      }
       if (!phone || phone.length < 7) {
         alert('Please enter a valid phone number.');
         return;
@@ -160,8 +171,8 @@
       try {
         // Log into the shared resident account
         await signInWithEmailAndPassword(auth, RESIDENT_EMAIL, RESIDENT_PASS);
-        // Store phone number for tracking edits
-        sessionStorage.setItem('resident_identity', `Resident (${phone})`);
+        // Store name and phone for tracking edits
+        sessionStorage.setItem('resident_identity', `${name.trim()} (${phone})`);
       } catch (error) {
         alert('Entrance failed. Please contact the host.');
         residentBtn.disabled = false;
