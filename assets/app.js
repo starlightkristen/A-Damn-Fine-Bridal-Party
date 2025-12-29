@@ -1340,9 +1340,9 @@ async function handleSaveList(event, dataset, field) {
   } else if (field === 'backup_raw') {
     // Parse back into object
     AppData.schedule.backupPlans = {
-      guestsStuck: newList.find(s => s.startsWith('Stuck:'))?.replace('Stuck:', '').trim(),
-      guestsNotParticipating: newList.find(s => s.startsWith('Energy:'))?.replace('Energy:', '').trim(),
-      runningLong: newList.find(s => s.startsWith('Clock:'))?.replace('Clock:', '').trim()
+      guestsStuck: newList.find(s => s.startsWith('Stuck:'))?.replace('Stuck:', '').trim() || '',
+      guestsNotParticipating: newList.find(s => s.startsWith('Energy:'))?.replace('Energy:', '').trim() || '',
+      runningLong: newList.find(s => s.startsWith('Clock:'))?.replace('Clock:', '').trim() || ''
     };
   } else if (dataset === 'schedule') {
     AppData.schedule[field] = newList;
@@ -2083,8 +2083,8 @@ async function handleSaveTimelineItem(event, index) {
     activities: formData.get('activities') ? formData.get('activities').split('\n').filter(s => s.trim()) : [],
     music: formData.get('music') || '',
     notes: formData.get('notes') || '',
-    phase: formData.get('phase') || undefined,
-    envelope_instruction: formData.get('envelope_instruction') || undefined
+    phase: formData.get('phase') || null,
+    envelope_instruction: formData.get('envelope_instruction') || null
   };
   
   if (index === null) {
