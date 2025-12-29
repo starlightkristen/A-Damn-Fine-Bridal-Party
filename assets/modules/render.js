@@ -282,26 +282,6 @@ const Render = {
       document.getElementById('shopping-list').innerHTML = shoppingControlsHtml + shoppingHtml;
     }
     
-    // Render vendors (from AppData.vendors loaded from vendors.json)
-    if (!AppData.vendors || AppData.vendors.length === 0) {
-      document.getElementById('vendors').innerHTML = `
-        <div class="alert alert-info">
-          <strong>No vendors added yet!</strong> We can use the Station HQ to add any catering or rental details if we decide to use them.
-        </div>
-      `;
-    } else {
-      const vendorsHtml = AppData.vendors.map(vendor => `
-        <div class="card">
-          <h3>${vendor.name}</h3>
-          <p><strong>Type:</strong> ${vendor.type}</p>
-          <p><strong>Contact:</strong> ${vendor.contact}</p>
-          <p><strong>Phone:</strong> ${vendor.phone}</p>
-          <p>${vendor.notes}</p>
-          ${vendor.website ? `<p><a href="${vendor.website}" target="_blank">Visit Website</a></p>` : ''}
-        </div>
-      `).join('');
-      
-      document.getElementById('vendors').innerHTML = vendorsHtml;
     }
   },
   
@@ -1417,7 +1397,6 @@ const Render = {
           { name: 'Guests', dataset: 'guests', icon: '👥', count: AppData.guests.length, file: 'guests.json' },
           { name: 'Characters', dataset: 'characters', icon: '🎭', count: AppData.characters.length, file: 'characters.json' },
           { name: 'Decor', dataset: 'decor', icon: '🎨', count: AppData.decor.moodBoard ? AppData.decor.moodBoard.length : 0, file: 'decor.json' },
-          { name: 'Vendors', dataset: 'vendors', icon: '🏪', count: AppData.vendors.length, file: 'vendors.json' },
           { name: 'Menu', dataset: 'menu', icon: '🍽️', count: AppData.menu.menuItems ? AppData.menu.menuItems.length : 0, file: 'menu.json' },
           { name: 'Schedule', dataset: 'schedule', icon: '📅', count: AppData.schedule.timeline ? AppData.schedule.timeline.length : 0, file: 'schedule.json' },
           { name: 'Story', dataset: 'story', icon: '📖', count: 1, file: 'story.json' },
