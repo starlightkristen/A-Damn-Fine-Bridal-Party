@@ -34,8 +34,88 @@ const AppData = {
   // Original defaults for reset
   defaults: {},
   // Firebase sync enabled
-  firebaseSyncEnabled: FIREBASE_ENABLED
+  firebaseSyncEnabled: FIREBASE_ENABLED,
+  // History for undo
+  historyStack: []
 };
+
+// Push current state to history stack
+function pushToHistory() {
+  try {
+    // Limit stack size to 10
+    if (AppData.historyStack.length >= 10) {
+      AppData.historyStack.shift();
+    }
+    
+    // Save relevant datasets
+    const state = {
+      guests: JSON.parse(JSON.stringify(AppData.guests || [])),
+      decor: JSON.parse(JSON.stringify(AppData.decor || {})),
+      menu: JSON.parse(JSON.stringify(AppData.menu || {})),
+      schedule: JSON.parse(JSON.stringify(AppData.schedule || {})),
+      story: JSON.parse(JSON.stringify(AppData.story || {})),
+      clues: JSON.parse(JSON.stringify(AppData.clues || [])),
+      packets: JSON.parse(JSON.stringify(AppData.packets || [])),
+      settings: JSON.parse(JSON.stringify(AppData.settings || {})),
+      timestamp: new Date().getTime()
+    };
+    
+    AppData.historyStack.push(state);
+    console.log('Action saved to history');
+    
+    // Update UI visibility if button exists
+    const undoBtn = document.getElementById('undo-btn-container');
+    if (undoBtn) undoBtn.style.display = 'block';
+  } catch (e) {
+    console.warn('Failed to save history state:', e);
+  }
+}
+
+// Undo last action
+async function handleUndo() {
+  if (!AppData.historyStack || AppData.historyStack.length === 0) {
+    alert('Nothing to undo!');
+    return;
+  }
+  
+  const prevState = AppData.historyStack.pop();
+  
+  // Restore data
+  AppData.guests = prevState.guests;
+  AppData.decor = prevState.decor;
+  AppData.menu = prevState.menu;
+  AppData.schedule = prevState.schedule;
+  AppData.story = prevState.story;
+  AppData.clues = prevState.clues;
+  AppData.packets = prevState.packets;
+  AppData.settings = prevState.settings;
+  
+  // Sync all restored data to Firebase/localStorage
+  try {
+    if (FIREBASE_ENABLED && FirebaseManager) {
+      if (typeof window.notifySaveStart === 'function') window.notifySaveStart('all');
+      
+      const datasets = ['guests', 'decor', 'menu', 'schedule', 'story', 'clues', 'packets', 'settings'];
+      await Promise.all(datasets.map(ds => FirebaseManager.saveData(ds, AppData[ds])));
+    } else {
+      saveToLocalStorage();
+    }
+    
+    // Re-render
+    if (typeof window.renderCurrentPage === 'function') {
+      window.renderCurrentPage();
+    }
+    
+    // Update UI visibility
+    const undoBtn = document.getElementById('undo-btn-container');
+    if (undoBtn && AppData.historyStack.length === 0) undoBtn.style.display = 'none';
+    
+    alert('Successfully undone last action!');
+  } catch (error) {
+    console.error('Undo sync failed:', error);
+    alert('Undo partial success - UI updated but failed to sync to cloud.');
+  }
+}
 
 // Initialize Firebase if enabled
 async function initFirebase() {
@@ -263,11 +343,28 @@ async function initApp() {
     initSaveStatusIndicator();
   }
   
+  // Inject Undo Button
+  injectUndoButton();
+  
   // Render page-specific content
   const page = getPageName();
   if (window.renderPage && typeof window.renderPage === 'function') {
     window.renderPage(page);
   }
+}
+
+// Inject floating undo button
+function injectUndoButton() {
+  if (document.getElementById('undo-btn-container')) return;
+  
+  const btnHtml = `
+    <div id="undo-btn-container" style="position: fixed; bottom: 30px; right: 30px; z-index: 10000; display: none;">
+      <button onclick="handleUndo()" class="btn" style="background: var(--gold); color: var(--dark-wood); box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 2px solid var(--dark-wood); font-weight: bold; display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px 20px;">
+        ↩️ Undo Last Action
+      </button>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', btnHtml);
 }
 
 // Get current page name from URL
@@ -640,6 +737,7 @@ function editGuest(guestId) {
 // Handle save guest (add or edit)
 async function handleSaveGuest(event, guestId) {
   event.preventDefault();
+  pushToHistory();
   const form = event.target;
   const formData = new FormData(form);
   
@@ -720,6 +818,7 @@ async function deleteGuest(guestId) {
   if (!guest) return;
   
   if (confirm(`Are you sure you want to delete ${guest.name}? This cannot be undone.`)) {
+    pushToHistory();
     AppData.guests = AppData.guests.filter(g => g.id !== guestId);
     
     // Save to Firestore or localStorage
@@ -999,6 +1098,7 @@ function editMenuItem(itemId) {
 // Handle save menu item (add or edit)
 async function handleSaveMenuItem(event, itemId) {
   event.preventDefault();
+  pushToHistory();
   const form = event.target;
   const formData = new FormData(form);
   
@@ -1049,6 +1149,7 @@ async function deleteMenuItem(itemId) {
   if (!item) return;
   
   if (confirm(`Are you sure you want to delete "${item.name}"? This cannot be undone.`)) {
+    pushToHistory();
     AppData.menu.menuItems = AppData.menu.menuItems.filter(i => i.id !== itemId);
     
     // Also remove from favorites/featured sets
@@ -1308,6 +1409,7 @@ function editMoodBoard(moodId) {
 
 async function handleSaveMoodBoard(event, moodId) {
   event.preventDefault();
+  pushToHistory();
   const form = event.target;
   const formData = new FormData(form);
   
@@ -1351,6 +1453,7 @@ async function deleteMoodBoard(moodId) {
   if (!mood) return;
   
   if (confirm(`Delete "${mood.name}" mood board?`)) {
+    pushToHistory();
     AppData.decor.moodBoard = AppData.decor.moodBoard.filter(m => m.id !== moodId);
     AppData.decorFavorites.delete(moodId);
     AppData.decorShoppingList.delete(moodId);
@@ -1395,6 +1498,7 @@ function showAddShoppingCategoryForm() {
 
 async function handleSaveShoppingCategory(event) {
   event.preventDefault();
+  pushToHistory();
   const form = event.target;
   const formData = new FormData(form);
   
@@ -1423,6 +1527,7 @@ async function handleSaveShoppingCategory(event) {
 async function deleteShoppingCategory(catIndex) {
   const category = AppData.decor.shoppingList[catIndex];
   if (confirm(`Delete category "${category.category}" and all its items?`)) {
+    pushToHistory();
     AppData.decor.shoppingList.splice(catIndex, 1);
     
     // Save to Firestore or localStorage
@@ -1509,6 +1614,7 @@ function editShoppingItem(catIndex, itemIndex) {
 
 async function handleSaveShoppingItem(event, catIndex, itemIndex) {
   event.preventDefault();
+  pushToHistory();
   const form = event.target;
   const formData = new FormData(form);
   
@@ -1545,6 +1651,7 @@ async function handleSaveShoppingItem(event, catIndex, itemIndex) {
 async function deleteShoppingItem(catIndex, itemIndex) {
   const item = AppData.decor.shoppingList[catIndex].items[itemIndex];
   if (confirm(`Delete "${item.item}"?`)) {
+    pushToHistory();
     AppData.decor.shoppingList[catIndex].items.splice(itemIndex, 1);
     
     // Save to Firestore or localStorage
@@ -1758,6 +1865,7 @@ function editTimelineItem(index) {
 
 async function handleSaveTimelineItem(event, index) {
   event.preventDefault();
+  pushToHistory();
   const form = event.target;
   const formData = new FormData(form);
   
@@ -1799,6 +1907,7 @@ async function handleSaveTimelineItem(event, index) {
 async function deleteTimelineItem(index) {
   const item = AppData.schedule.timeline[index];
   if (confirm(`Delete timeline item "${item.title}"?`)) {
+    pushToHistory();
     AppData.schedule.timeline.splice(index, 1);
     
     // Save to Firestore or localStorage
@@ -2507,13 +2616,15 @@ function saveToLocalStorage() {
 async function resetToDefaults(datasetName) {
   // Require explicit confirmation
   const confirmMsg = datasetName === 'all' 
-    ? 'Are you sure you want to reset ALL datasets to repository defaults? This will overwrite all current data and cannot be undone.'
-    : `Are you sure you want to reset "${datasetName}" to repository defaults? This will overwrite current data and cannot be undone.`;
+    ? 'Are you sure you want to reset ALL datasets to repository defaults? This will overwrite all current data.'
+    : `Are you sure you want to reset "${datasetName}" to repository defaults? This will overwrite current data.`;
   
   if (!confirm(confirmMsg)) {
     console.log('Reset cancelled by user');
     return false;
   }
+  
+  pushToHistory();
   
   if (!datasetName || datasetName === 'all') {
     // Reset all datasets
@@ -2750,6 +2861,7 @@ function validateImportSchema(datasetName, data) {
 
 // Apply imported data
 function applyImportedData(datasetName, data) {
+  pushToHistory();
   AppData[datasetName] = data;
   saveToLocalStorage();
 }
