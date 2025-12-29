@@ -1830,9 +1830,12 @@ function renderInvestigationMap() {
                     else if (instructions.toLowerCase().includes('reveal norma')) talkTo = 'Suspects/Residents';
                     else if (instructions.toLowerCase().includes('investigate morgan')) talkTo = 'Morgan (Owner)';
                     
+                    const isGeneric = p.character_id === 'generic';
+                    const displayName = isGeneric ? 'Village Residents (Everyone Else)' : (char?.name || 'Unknown');
+                    
                     return `
                       <tr style="border-bottom: 1px solid #f5f5f5;">
-                        <td style="padding: 8px; font-weight: bold; color: var(--deep-cherry-red);">${char?.name || 'Unknown'}</td>
+                        <td style="padding: 8px; font-weight: bold; color: ${isGeneric ? 'var(--forest-emerald)' : 'var(--deep-cherry-red)'};">${displayName}</td>
                         <td style="padding: 8px; color: #666; cursor: pointer; transition: background 0.2s;" 
                             onclick="showEnvelopeDetails('${p.character_id}', '${phase}')" 
                             onmouseover="this.style.background='#fff9e6'" 
