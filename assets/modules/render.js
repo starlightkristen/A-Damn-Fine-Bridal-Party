@@ -461,6 +461,40 @@ const Render = {
     
     document.getElementById('menu-items').innerHTML = controlsHtml + menuHtml;
     
+    // Render dynamic Allergy Map from guest data
+    const guestsWithDietary = AppData.guests.filter(g => g.dietary && g.dietary.toLowerCase() !== 'none');
+    
+    if (guestsWithDietary.length === 0) {
+      document.getElementById('allergy-map').innerHTML = `
+        <div class="alert alert-success">
+          <strong>No dietary restrictions reported!</strong> All guests can enjoy the full menu.
+        </div>
+      `;
+    } else {
+      // Group guests by their dietary needs
+      const dietaryMap = {};
+      guestsWithDietary.forEach(guest => {
+        const needs = guest.dietary.split(',').map(s => s.trim());
+        needs.forEach(need => {
+          if (!dietaryMap[need]) dietaryMap[need] = [];
+          dietaryMap[need].push(guest.name);
+        });
+      });
+      
+      const mapHtml = `
+        <div class="alert alert-warning">
+          <strong>Current Dietary Needs:</strong>
+          <ul>
+            ${Object.keys(dietaryMap).map(need => `
+              <li><strong>${escapeHtml(need)}:</strong> ${dietaryMap[need].map(name => escapeHtml(name)).join(', ')}</li>
+            `).join('')}
+          </ul>
+          <p><em>This list is automatically updated from your Guest List. All menu items indicate allergens and dietary options.</em></p>
+        </div>
+      `;
+      document.getElementById('allergy-map').innerHTML = mapHtml;
+    }
+    
     // Render prep timeline if it exists
     if (AppData.menu.prepTimeline && AppData.menu.prepTimeline.length > 0) {
       const timelineHtml = AppData.menu.prepTimeline.map(phase => `

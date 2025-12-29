@@ -114,10 +114,10 @@
     }
   ],
   "allergyMap": {
-    "Gluten": ["Emily Chen"],
+    "Gluten": [],
     "Dairy": [],
     "Tree Nuts": [],
-    "Vegetarian": ["Sarah Johnson"],
+    "Vegetarian": [],
     "None": []
   },
   "prepTimeline": [
