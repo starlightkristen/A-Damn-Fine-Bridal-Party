@@ -60,13 +60,33 @@
     "objective": "Help solve the case by sharing your evidence and supporting the investigation"
   },
   {
-    "id": "generic",
-    "name": "Twin Peaks Resident",
-    "role": "Local Investigator",
-    "briefing": "You are a local resident of Twin Peaks. You've known these people for years, and you're shocked by the tragedy. Since the Sheriff's station is overwhelmed, you've been deputized to help Special Agent Cooper and Deputy Andy solve this case.",
-    "costume": "Plaid shirts, denim, warm PNW layers, or 1950s casual wear",
-    "secret": "You don't have a personal secret yet, but you have sharp ears. You've heard rumors about recipe theft at the diner.",
-    "personality": "Curious, helpful, protective of the town",
-    "objective": "Interview the key suspects (Audrey, Shelly, Morgan) and help piece together the timeline"
+    "id": "resident-diner",
+    "name": "Diner Regular",
+    "role": "Village Resident",
+    "briefing": "You've eaten breakfast at the Double R Diner every day for twenty years. You know the exact taste of Norma's cherry pie, and you're the first to notice that Morgan's 'heritage' pie is a perfect copy—right down to the secret cinnamon-clove ratio.",
+    "costume": "Plaid shirt, trucker hat, denim jacket, coffee mug in hand",
+    "secret": "You saw Shelly (the waitress) handing a thick envelope of cash to Cassandra (the blogger) last week in a dark corner of the diner.",
+    "personality": "Talkative, loyal to Norma, observant of small habits",
+    "objective": "Confirm the recipe was stolen and find out why Shelly was paying the victim"
+  },
+  {
+    "id": "resident-historian",
+    "name": "Town Historian",
+    "role": "Village Resident",
+    "briefing": "You manage the Twin Peaks Historical Society. You've traced every family tree in the valley back to the 1800s. When Morgan claimed her recipe was a 'Blackwood Family Heritage,' you knew she was lying—the Blackwoods were loggers, not bakers.",
+    "costume": "Tweed blazer, glasses on a chain, old ledger or book, very proper",
+    "secret": "You know that Audrey (the socialite) has been desperately trying to buy up the land under Morgan's shop to expand her family's empire.",
+    "personality": "Meticulous, a bit pedantic, obsessed with 'the record'",
+    "objective": "Expose the false heritage claim and investigate Audrey's motives"
+  },
+  {
+    "id": "resident-ranger",
+    "name": "Forest Ranger",
+    "role": "Village Resident",
+    "briefing": "You patrol the woods around Ghostwood National Forest. You see things at night that most people ignore. On the morning of the tragedy, you saw a dark SUV speeding away from the pie shop at 4:00 AM.",
+    "costume": "Green ranger hat, cargo pants, hiking boots, flashlight (prop)",
+    "secret": "You found a discarded bottle of digitalis (heart medication) in the woods near the shop. You've heard Audrey's father uses that exact brand.",
+    "personality": "Sturdy, quiet, suspicious of 'city folk'",
+    "objective": "Identify the dark SUV and find out who dropped the medicine bottle"
   }
 ]

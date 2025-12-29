@@ -2,24 +2,24 @@
   "title": "Cherry Lies",
   "subtitle": "A Twin Peaks Mystery for Marlena's Bridal Shower",
   "setting": "The bridal shower takes place at a cozy venue reminiscent of the Double R Diner. The guests have gathered to celebrate Marlena, but beneath the cheerful atmosphere lies a tale of stolen recipes, false heritage claims, and deadly ambition.",
-  "overview": "In a town where secrets hide behind warm smiles and cherry pie, someone has crossed a dangerous line. What began as recipe theft has ended in tragedy. When Cassandra, a food blogger investigating local culinary heritage, is found dead from a poisoned pie slice, guests must unravel the truth. Was it about money, pride, or protecting a carefully constructed lie?",
+  "overview": "In a town where secrets hide behind warm smiles and cherry pie, someone has crossed a dangerous line. What began as recipe theft has ended in tragedy. When Cassandra, a food blogger investigating local culinary heritage, is found dead from a poisoned pie slice, guests must unravel the truth. Was it about money, pride, or protecting a legacy? And was Cassandra just a blogger, or did she have a deeper connection to this town?",
   "theMurder": {
-    "concept": "Recipe Theft",
+    "concept": "Legacy & Betrayal",
     "object": "Poisoned Cherry Pie Slice",
     "victim": "Cassandra Vale",
-    "victimDescription": "A food blogger and culinary researcher who was documenting authentic Twin Peaks recipes and family heritage stories for a feature article.",
-    "causeOfDeath": "Poisoned cherry pie slice",
+    "victimDescription": "A food blogger who was actually Norma's secret granddaughter, uncovering the theft of her family's most precious legacy.",
+    "causeOfDeath": "Poisoned cherry pie slice (Digitalis)",
     "timeOfDeath": "Early morning, before the bridal shower began",
     "location": "Outside Morgan's new artisan pie shop"
   },
   "theMurderer": {
     "character": "Morgan Blackwood (Venue Owner)",
-    "motive": "Cassandra discovered that Morgan stole Norma's secret cherry pie recipe and was passing it off as her own 'family heritage' to attract investors for her new pie business. When Cassandra threatened to publish the truth, Morgan's dreams of success—and the investor money already promised—would vanish.",
+    "motive": "Cassandra found proof that Morgan stole the recipe and threatened her $50K investor deal. Morgan stole Audrey's SUV and planted her father's medication to frame the socialite, and tried to frame the waitress by making her secret payments look like hush money.",
     "method": "Poisoned a slice of the stolen cherry pie recipe and gave it to Cassandra as a 'sample' to 'clear things up'",
-    "coverUp": "Morgan is acting concerned about Cassandra's absence while secretly relieved the blogger won't expose her lies"
+    "coverUp": "Morgan is framing Audrey with a planted medicine bottle and framing Shelly by making their business arrangement look suspicious."
   },
-  "solution": "Morgan Blackwood stole Norma's cherished cherry pie recipe and claimed it as her own family heritage to secure investor funding for an artisan pie business. When food blogger Cassandra Vale found proof of the theft through secret photos and interviews, Morgan silenced her with a poisoned pie slice. The cupcake reveal exposes Morgan's guilt, and Norma's recipe is returned to its rightful owner.",
-  "hostNotes": "This PG-13 mystery works for guests unfamiliar with Twin Peaks—the core conflict is universal (theft, lies, and consequences). The Log Lady's mystical warnings add flavor but aren't required knowledge. Time the final envelope opening to happen BEFORE the cupcake reveal so all players understand the solution before the dramatic presentation. If guests struggle, have the Log Lady deliver an extra prophecy.",
+  "solution": "Morgan Blackwood stole Norma's cherished recipe to secure investor funding. When she discovered Cassandra—Norma's secret granddaughter—had proof of the theft, Morgan stole Audrey's SUV to travel to the shop undetected and poisoned Cassandra with digitalis. She planted the medicine bottle to frame Audrey and made Shelly's secret 'spy' payments look like hush money to shift the blame. The cupcakes reveal the layer of lies before confirming Morgan's guilt.",
+  "hostNotes": "This version includes multiple red herrings: Audrey's 'stolen' SUV and medication, and Shelly's 'hush money' (which was actually pay for spying). The major twist is that Cassandra was Norma's granddaughter. Ensure the Ranger reveals the medicine bottle in Phase 2 to heat up the pressure on Audrey!",
   "phases": {
     "intro": {
       "name": "Arrival & First Warnings",
@@ -44,18 +44,18 @@
   },
   "cupcakeReveal": [
     "The recipe was stolen...",
-    "It belonged to Norma Jennings.",
-    "Morgan claimed a false heritage.",
-    "She promised investors a lie.",
-    "Cassandra found the photo proof.",
-    "An argument was overheard.",
-    "A poisoned slice was the silence.",
-    "Forensics match Morgan's spice.",
-    "The phone text places her there.",
-    "Morgan Blackwood is guilty.",
-    "The recipe returns home.",
+    "From Norma's kitchen.",
+    "Cassandra knew the truth.",
+    "She was Norma's blood.",
+    "A stolen SUV in the dark.",
+    "A bottle planted to frame.",
+    "Audrey is innocent.",
+    "Shelly's cash was a spy's pay.",
+    "Morgan's lies are toxic.",
+    "A poisoned sample of success.",
+    "Morgan Blackwood is the killer.",
+    "The legacy returns home.",
     "Secrets can't stay buried.",
-    "Justice for Twin Peaks.",
     "Celebrate Marlena!"
   ],
   "anonymousTips": [

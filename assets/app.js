@@ -193,65 +193,261 @@ async function loadData() {
         
         console.log('Data loaded from Firestore');
         
-        // CRITICAL: Ensure 'generic' role exists for larger guest lists
-        if (!AppData.characters.find(c => c.id === 'generic')) {
-          console.log('Syncing missing "Twin Peaks Resident" role to Firestore...');
-          const genericChar = {
-            "id": "generic",
-            "name": "Twin Peaks Resident",
-            "role": "Local Investigator",
-            "briefing": "You are a local resident of Twin Peaks. You've known these people for years, and you're shocked by the tragedy. Since the Sheriff's station is overwhelmed, you've been deputized to help Special Agent Cooper and Deputy Andy solve this case.",
-            "costume": "Plaid shirts, denim, warm PNW layers, or 1950s casual wear",
-            "secret": "You don't have a personal secret yet, but you have sharp ears. You've heard rumors about recipe theft at the diner.",
-            "personality": "Curious, helpful, protective of the town",
-            "objective": "Interview the key suspects (Audrey, Shelly, Morgan) and help piece together the timeline"
-          };
-          AppData.characters.push(genericChar);
+        // CRITICAL: Ensure new Resident roles exist for larger guest lists
+        if (!AppData.characters.find(c => c.id === 'resident-diner')) {
+          console.log('Syncing missing Resident roles to Firestore...');
+          const newChars = [
+            {
+              "id": "resident-diner",
+              "name": "Diner Regular",
+              "role": "Village Resident",
+              "briefing": "You've eaten breakfast at the Double R Diner every day for twenty years. You know the exact taste of Norma's cherry pie, and you're the first to notice that Morgan's 'heritage' pie is a perfect copy—right down to the secret cinnamon-clove ratio.",
+              "costume": "Plaid shirt, trucker hat, denim jacket, coffee mug in hand",
+              "secret": "You saw Shelly (the waitress) handing a thick envelope of cash to Cassandra (the blogger) last week in a dark corner of the diner.",
+              "personality": "Talkative, loyal to Norma, observant of small habits",
+              "objective": "Confirm the recipe was stolen and find out why Shelly was paying the victim"
+            },
+            {
+              "id": "resident-historian",
+              "name": "Town Historian",
+              "role": "Village Resident",
+              "briefing": "You manage the Twin Peaks Historical Bureau. You've traced every family tree in the valley back to the 1800s. When Morgan claimed her recipe was a 'Blackwood Family Heritage,' you knew she was lying—the Blackwoods were loggers, not bakers.",
+              "costume": "Tweed blazer, glasses on a chain, old ledger or book, very proper",
+              "secret": "You know that Audrey (the socialite) has been desperately trying to buy up the land under Morgan's shop to expand her family's empire.",
+              "personality": "Meticulous, a bit pedantic, obsessed with 'the record'",
+              "objective": "Expose the false heritage claim and investigate Audrey's motives"
+            },
+            {
+              "id": "resident-ranger",
+              "name": "Forest Ranger",
+              "role": "Village Resident",
+              "briefing": "You patrol the woods around Ghostwood National Forest. You see things at night that most people ignore. On the morning of the tragedy, you saw a dark SUV speeding away from the pie shop at 4:00 AM.",
+              "costume": "Green ranger hat, cargo pants, hiking boots, flashlight (prop)",
+              "secret": "You found a discarded bottle of digitalis (heart medication) in the woods near the shop. You've heard Audrey's father uses that exact brand.",
+              "personality": "Sturdy, quiet, suspicious of 'city folk'",
+              "objective": "Identify the dark SUV and find out who dropped the medicine bottle"
+            }
+          ];
+          
+          // Remove old generic if it exists
+          AppData.characters = AppData.characters.filter(c => c.id !== 'generic');
+          
+          // Add new ones
+          AppData.characters.push(...newChars);
           await FirebaseManager.saveData('characters', AppData.characters);
           
-          // Also sync the generic packet if missing
-          if (!AppData.packets.find(p => p.character_id === 'generic')) {
-            const genericPacket = {
-              "character_id": "generic",
+          // Sync packets
+          const newPackets = [
+            {
+              "character_id": "resident-diner",
               "intro_profile": {
-                "name": "Twin Peaks Resident",
-                "role": "Local Investigator",
-                "tagline": "Everyone in this town has a story",
-                "overview": "You are a long-time resident of Twin Peaks. You've seen the town change, but you've never seen anything like this. Special Agent Cooper has asked for your help in talking to the suspects—you know them better than he does, after all.",
-                "costume_essentials": ["Plaid shirt", "Work boots", "Thermos of coffee"],
-                "personality_notes": "Friendly but persistent. You know how to get people talking over a cup of joe.",
-                "secret_preview": "You've heard whispers at the diner about Norma's missing recipes..."
+                "name": "Diner Regular",
+                "role": "Village Resident",
+                "tagline": "The coffee is good, but the gossip is better",
+                "overview": "You've been a fixture at the Double R for decades. You know every face in this town. You were there the morning Morgan bought that pie, but you also saw something else—something that doesn't fit the 'sweet waitress' image Shelly projects.",
+                "costume_essentials": ["Plaid shirt", "Trucker hat", "Coffee mug"],
+                "personality_notes": "A bit of a chatterbox. You love Norma and suspect anyone who tries to compete with her.",
+                "secret_preview": "You saw a secret exchange of cash between Shelly and the victim..."
               },
               "envelopes": [
                 {
                   "phase": "intro",
-                  "title": "Envelope 1: Citizen Deputized",
-                  "contents": "Agent Cooper has asked you to keep an eye on Morgan Blackwood. She seems overly concerned about the blogger's absence. Talk to the other residents and see if anyone saw Cassandra this morning.",
-                  "instructions": "Interview Shelly at the diner. Ask if she saw anyone buying pies early this morning."
+                  "title": "Envelope 1: Morning Observations",
+                  "contents": "You were at the diner at dawn. Morgan was there too, buying a whole pie. But the real shock was seeing Shelly (the waitress) slipping a thick envelope of cash to Cassandra (the blogger). Why would a waitress be paying a researcher?",
+                  "instructions": "Mention seeing Shelly pay Cassandra. Ask Shelly where she got that kind of money."
                 },
                 {
                   "phase": "mid",
-                  "title": "Envelope 2: Gathering Local Rumors",
-                  "contents": "The word on the street is that Norma's secret recipe was stolen. Morgan's new business is suspiciously successful. Connect with the Deputy to see if there's any official word on the theft.",
-                  "instructions": "Compare notes with Deputy Andy. Ask him about witness statements or arguments."
+                  "title": "Envelope 2: The Taste Test",
+                  "contents": "You've tasted the 'Blackwood Heritage' pie. It's Norma's recipe. No doubt about it. You've also heard rumors that Cassandra was planning to write an expose on Shelly's 'extracurricular activities.'",
+                  "instructions": "Confirm the recipe is stolen. Spread the word that Shelly might have had a reason to want Cassandra silent."
                 },
                 {
                   "phase": "pre-final",
-                  "title": "Envelope 3: Pressing the Suspects",
-                  "contents": "The evidence is mounting. Forensic reports and missing phone records all point to the pie shop. It's time to ask Morgan directly about her 'heritage' recipe.",
-                  "instructions": "Confront Morgan about where her recipe really came from. Watch her reaction carefully."
+                  "title": "Envelope 3: Pressure at the Counter",
+                  "contents": "Shelly's been acting nervous. Every time the blogger's name comes up, she drops a spoon. You suspect the cash you saw was hush money—but was it enough?",
+                  "instructions": "Confront Shelly about the hush money. Does she have a receipt or a reason?"
                 },
                 {
                   "phase": "final",
-                  "title": "Envelope 4: The Truth Comes Out",
-                  "contents": "The case is solved. You've helped the law enforcement team prove that Morgan is the thief and the murderer. The cupcakes will reveal the final proof for all to see.",
-                  "instructions": "Gather with the other residents for the cupcake reveal. Justice is finally coming to Twin Peaks."
+                  "title": "Envelope 4: Witness to the End",
+                  "contents": "The truth is coming out. Morgan is the one who stole the recipe, but Shelly was the one who helped Cassandra prove it! The money wasn't hush money—it was payment for the evidence! Morgan killed Cassandra to stop the exchange.",
+                  "instructions": "Clear Shelly's name! Explain that she was Cassandra's secret source. Prepare for the cupcake reveal."
                 }
               ]
-            };
-            AppData.packets.push(genericPacket);
-            await FirebaseManager.saveData('packets', AppData.packets);
-          }
+            },
+            {
+              "character_id": "resident-historian",
+              "intro_profile": {
+                "name": "Town Historian",
+                "role": "Village Resident",
+                "tagline": "The records never lie",
+                "overview": "You are the guardian of Twin Peaks' past. You know who was born where and who owns what land. Morgan's claims of 'family heritage' offended your sense of historical accuracy immediately.",
+                "costume_essentials": ["Tweed jacket", "Old ledger", "Reading glasses"],
+                "personality_notes": "Meticulous and proper. You find 'marketing' to be a form of modern lying.",
+                "secret_preview": "You found a birth record that changes everything about the victim..."
+              },
+              "envelopes": [
+                {
+                  "phase": "intro",
+                  "title": "Envelope 1: The Blackwood Lie",
+                  "contents": "You checked the archives. The Blackwoods were never bakers—they were timber magnates who went bust in the 20s. Morgan's 'grandmother's recipe' is a complete fabrication.",
+                  "instructions": "Expose the false heritage claim. Ask Morgan why she's lying about her family history."
+                },
+                {
+                  "phase": "mid",
+                  "title": "Envelope 2: The Secret Relation",
+                  "contents": "You found a sealed record in the attic. Cassandra Vale wasn't just a blogger—she was Norma Jennings' long-lost granddaughter, given up for adoption decades ago. She came here to reclaim her family's legacy.",
+                  "instructions": "Reveal the TWIST: Cassandra was Norma's relative! This gives her a major motive to take down the recipe thief."
+                },
+                {
+                  "phase": "pre-final",
+                  "title": "Envelope 3: Land and Ambition",
+                  "contents": "Audrey Horne has been making secret inquiries about the property value of Morgan's shop. She wanted that land, and Cassandra's investigation was the perfect wrecking ball to drive the price down.",
+                  "instructions": "Suggest that Audrey might have been using Cassandra to bankrupt Morgan. Ask Audrey if she's happy the blogger is gone."
+                },
+                {
+                  "phase": "final",
+                  "title": "Envelope 4: The Final Chronicle",
+                  "contents": "The history books are being written today. Morgan stole from a family she didn't belong to and killed the last true heir of that recipe. Justice is the only way to close this chapter.",
+                  "instructions": "Announce that the recipe belongs to Norma's bloodline. Prepare for the cupcake reveal."
+                }
+              ]
+            },
+            {
+              "character_id": "resident-ranger",
+              "intro_profile": {
+                "name": "Forest Ranger",
+                "role": "Village Resident",
+                "tagline": "Nature hears every scream",
+                "overview": "You spend your time among the Douglas Firs. You're more comfortable with owls than people. But you saw something in the woods that morning—something that looks like poison.",
+                "costume_essentials": ["Ranger hat", "Flashlight", "Hiking boots"],
+                "personality_notes": "Quiet and watchful. You don't trust easy, especially when people bring 'city medicine' into your woods.",
+                "secret_preview": "You found a medicine bottle that belongs to the socialite's family..."
+              },
+              "envelopes": [
+                {
+                  "phase": "intro",
+                  "title": "Envelope 1: The Dark SUV",
+                  "contents": "At 4:00 AM, a dark SUV—the kind the Hornes drive—was speeding away from the pie shop. The engine was roaring like someone was in a desperate hurry.",
+                  "instructions": "Tell the detective about the dark SUV. Ask Audrey if she was out driving early this morning."
+                },
+                {
+                  "phase": "mid",
+                  "title": "Envelope 2: The Poison in the Pines",
+                  "contents": "You found a discarded bottle of digitalis (heart medication) near the back door of the shop. It's a powerful heart stimulant that can be fatal in the wrong dose. The label is partially torn, but you see the Horne family name.",
+                  "instructions": "Reveal the poison bottle! Confront Audrey about her family's medication. This is a huge red herring!"
+                },
+                {
+                  "phase": "pre-final",
+                  "title": "Envelope 3: Shadows in the Shop",
+                  "contents": "You saw a figure in the window of the shop just before dawn. They were wearing pearls—very distinctive. You assumed it was Morgan, but Audrey Horne also loves her pearls.",
+                  "instructions": "Describe the 'Figure in Pearls.' Point out that it could be Morgan OR Audrey. Sow doubt about who was really in the kitchen."
+                },
+                {
+                  "phase": "final",
+                  "title": "Envelope 4: Clear Skies",
+                  "contents": "The wind changed. You realized Audrey's SUV was stolen that night—Morgan took it to frame her! The digitalis bottle was planted. Morgan is the only one who had the recipe and the access. The forest knows the truth.",
+                  "instructions": "Reveal that the evidence against Audrey was planted! Point the finger firmly at Morgan for the final time."
+                }
+              ]
+            }
+          ];
+          
+          // Remove old generic packet if exists
+          AppData.packets = AppData.packets.filter(p => p.character_id !== 'generic');
+          
+          // Add new ones
+          AppData.packets.push(...newPackets);
+          await FirebaseManager.saveData('packets', AppData.packets);
+          
+          // Also sync new clues
+          const newClues = [
+            {
+              "id": "clue-017",
+              "holder_id": "resident-ranger",
+              "type": "implicates",
+              "text": "Found a discarded bottle of digitalis heart medication in the woods. It has the Horne family name on it. Digitalis is deadly in high doses.",
+              "reveal_phase": "mid",
+              "target_id": "socialite",
+              "proof_level": "strong",
+              "trade_hint": "A dangerous discovery—someone's medicine is at the scene"
+            },
+            {
+              "id": "clue-018",
+              "holder_id": "resident-diner",
+              "type": "implicates",
+              "text": "Saw Shelly the waitress handing a thick envelope of cash to Cassandra. It looked like hush money.",
+              "reveal_phase": "mid",
+              "target_id": "waitress",
+              "proof_level": "medium",
+              "trade_hint": "Waitress secrets—why the payout?"
+            },
+            {
+              "id": "clue-019",
+              "holder_id": "resident-historian",
+              "type": "twist",
+              "text": "Birth records show Cassandra's real mother was Norma's daughter who left town years ago. Cassandra is Norma's granddaughter!",
+              "reveal_phase": "mid",
+              "target_id": null,
+              "proof_level": "strong",
+              "trade_hint": "The blogger had a blood connection to the recipe"
+            },
+            {
+              "id": "clue-020",
+              "holder_id": "detective",
+              "type": "timeline",
+              "text": "Audrey's SUV was reported stolen at 3:00 AM. Someone else was driving it the morning of the murder.",
+              "reveal_phase": "pre-final",
+              "target_id": "owner",
+              "proof_level": "strong",
+              "trade_hint": "The framing attempt begins to crumble"
+            }
+          ];
+          
+          // Add new clues if they don't exist
+          newClues.forEach(nc => {
+            if (!AppData.clues.find(c => c.id === nc.id)) {
+              AppData.clues.push(nc);
+            }
+          });
+          await FirebaseManager.saveData('clues', AppData.clues);
+          
+          // Sync story updates
+          AppData.story.overview = "In a town where secrets hide behind warm smiles and cherry pie, someone has crossed a dangerous line. What began as recipe theft has ended in tragedy. When Cassandra, a food blogger investigating local culinary heritage, is found dead from a poisoned pie slice, guests must unravel the truth. Was it about money, pride, or protecting a legacy? And was Cassandra just a blogger, or did she have a deeper connection to this town?";
+          AppData.story.theMurder = {
+            "concept": "Legacy & Betrayal",
+            "object": "Poisoned Cherry Pie Slice",
+            "victim": "Cassandra Vale",
+            "victimDescription": "A food blogger who was actually Norma's secret granddaughter, uncovering the theft of her family's most precious legacy.",
+            "causeOfDeath": "Poisoned cherry pie slice (Digitalis)",
+            "timeOfDeath": "Early morning, before the bridal shower began",
+            "location": "Outside Morgan's new artisan pie shop"
+          };
+          AppData.story.theMurderer = {
+            "character": "Morgan Blackwood (Venue Owner)",
+            "motive": "Cassandra found proof that Morgan stole the recipe and threatened her $50K investor deal. Morgan stole Audrey's SUV and planted her father's medication to frame the socialite, and tried to frame the waitress by making her secret payments look like hush money.",
+            "method": "Poisoned a slice of the stolen cherry pie recipe and gave it to Cassandra as a 'sample' to 'clear things up'",
+            "coverUp": "Morgan is framing Audrey with a planted medicine bottle and framing Shelly by making their business arrangement look suspicious."
+          };
+          AppData.story.solution = "Morgan Blackwood stole Norma's cherished recipe to secure investor funding. When she discovered Cassandra—Norma's secret granddaughter—had proof of the theft, Morgan stole Audrey's SUV to travel to the shop undetected and poisoned Cassandra with digitalis. She planted the medicine bottle to frame Audrey and made Shelly's secret 'spy' payments look like hush money to shift the blame. The cupcakes reveal the layer of lies before confirming Morgan's guilt.";
+          AppData.story.cupcakeReveal = [
+            "The recipe was stolen...",
+            "From Norma's kitchen.",
+            "Cassandra knew the truth.",
+            "She was Norma's blood.",
+            "A stolen SUV in the dark.",
+            "A bottle planted to frame.",
+            "Audrey is innocent.",
+            "Shelly's cash was a spy's pay.",
+            "Morgan's lies are toxic.",
+            "A poisoned sample of success.",
+            "Morgan Blackwood is the killer.",
+            "The legacy returns home.",
+            "Secrets can't stay buried.",
+            "Celebrate Marlena!"
+          ];
+          await FirebaseManager.saveData('story', AppData.story);
         }
         
         // CRITICAL: Ensure 'generic' role exists for larger guest lists

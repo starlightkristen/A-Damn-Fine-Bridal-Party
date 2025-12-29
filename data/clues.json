@@ -158,5 +158,45 @@
     "target_id": "owner",
     "proof_level": "strong",
     "trade_hint": "The smoking gun—proof Morgan had everything to lose"
+  },
+  {
+    "id": "clue-017",
+    "holder_id": "resident-ranger",
+    "type": "implicates",
+    "text": "Found a discarded bottle of digitalis heart medication in the woods. It has the Horne family name on it. Digitalis is deadly in high doses.",
+    "reveal_phase": "mid",
+    "target_id": "socialite",
+    "proof_level": "strong",
+    "trade_hint": "A dangerous discovery—someone's medicine is at the scene"
+  },
+  {
+    "id": "clue-018",
+    "holder_id": "resident-diner",
+    "type": "implicates",
+    "text": "Saw Shelly the waitress handing a thick envelope of cash to Cassandra. It looked like hush money.",
+    "reveal_phase": "mid",
+    "target_id": "waitress",
+    "proof_level": "medium",
+    "trade_hint": "Waitress secrets—why the payout?"
+  },
+  {
+    "id": "clue-019",
+    "holder_id": "resident-historian",
+    "type": "twist",
+    "text": "Birth records show Cassandra's real mother was Norma's daughter who left town years ago. Cassandra is Norma's granddaughter!",
+    "reveal_phase": "mid",
+    "target_id": null,
+    "proof_level": "strong",
+    "trade_hint": "The blogger had a blood connection to the recipe"
+  },
+  {
+    "id": "clue-020",
+    "holder_id": "detective",
+    "type": "timeline",
+    "text": "Audrey's SUV was reported stolen at 3:00 AM. Someone else was driving it the morning of the murder.",
+    "reveal_phase": "pre-final",
+    "target_id": "owner",
+    "proof_level": "strong",
+    "trade_hint": "The framing attempt begins to crumble"
   }
 ]

@@ -1830,8 +1830,8 @@ function renderInvestigationMap() {
                     else if (instructions.toLowerCase().includes('reveal norma')) talkTo = 'Suspects/Residents';
                     else if (instructions.toLowerCase().includes('investigate morgan')) talkTo = 'Morgan (Owner)';
                     
-                    const isGeneric = p.character_id === 'generic';
-                    const displayName = isGeneric ? 'Village Residents (Everyone Else)' : (char?.name || 'Unknown');
+                    const isGeneric = p.character_id.startsWith('resident-');
+                    const displayName = isGeneric ? `${char?.name || 'Resident'} (Villager)` : (char?.name || 'Unknown');
                     
                     return `
                       <tr style="border-bottom: 1px solid #f5f5f5;">
