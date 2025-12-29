@@ -20,6 +20,7 @@ const AppData = {
   packets: [],
   settings: {},
   roles: {},
+  pageNotes: {},
   // In-memory state for interactive features
   decorFavorites: new Set(),
   decorShoppingList: new Set(),
@@ -57,6 +58,7 @@ function pushToHistory() {
       clues: JSON.parse(JSON.stringify(AppData.clues || [])),
       packets: JSON.parse(JSON.stringify(AppData.packets || [])),
       settings: JSON.parse(JSON.stringify(AppData.settings || {})),
+      pageNotes: JSON.parse(JSON.stringify(AppData.pageNotes || {})),
       timestamp: new Date().getTime()
     };
     
@@ -89,13 +91,14 @@ async function handleUndo() {
   AppData.clues = prevState.clues;
   AppData.packets = prevState.packets;
   AppData.settings = prevState.settings;
+  AppData.pageNotes = prevState.pageNotes;
   
   // Sync all restored data to Firebase/localStorage
   try {
     if (FIREBASE_ENABLED && FirebaseManager) {
       if (typeof window.notifySaveStart === 'function') window.notifySaveStart('all');
       
-      const datasets = ['guests', 'decor', 'menu', 'schedule', 'story', 'clues', 'packets', 'settings'];
+      const datasets = ['guests', 'decor', 'menu', 'schedule', 'story', 'clues', 'packets', 'settings', 'pageNotes'];
       await Promise.all(datasets.map(ds => FirebaseManager.saveData(ds, AppData[ds])));
     } else {
       saveToLocalStorage();
@@ -149,7 +152,7 @@ async function loadData() {
       const meta = await FirebaseManager.readMeta();
       const isSeeded = meta && meta.seeded === true;
       
-      const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets', 'settings', 'roles'];
+      const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 'schedule', 'story', 'clues', 'packets', 'settings', 'roles', 'pageNotes'];
       
       if (isSeeded) {
         // Data has been seeded, load from Firestore
@@ -175,6 +178,7 @@ async function loadData() {
         AppData.packets = loaded.packets || [];
         AppData.settings = loaded.settings || {};
         AppData.roles = loaded.roles || { assignments: {} };
+        AppData.pageNotes = loaded.pageNotes || {};
         
         // Set up real-time listeners for all datasets
         for (const dataset of datasets) {
@@ -191,7 +195,7 @@ async function loadData() {
       } else {
         // First time - seed from JSON files
         console.log('First load detected - seeding Firestore from JSON files...');
-        const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
+        const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles, pageNotes] = await Promise.all([
           fetch('./data/guests.json').then(r => r.json()),
           fetch('./data/characters.json').then(r => r.json()),
           fetch('./data/decor.json').then(r => r.json()),
@@ -202,7 +206,8 @@ async function loadData() {
           fetch('./data/clues.json').then(r => r.json()),
           fetch('./data/packets.json').then(r => r.json()),
           fetch('./data/settings.json').then(r => r.json()),
-          fetch('./data/roles.json').then(r => r.json())
+          fetch('./data/roles.json').then(r => r.json()),
+          fetch('./data/pageNotes.json').then(r => r.json()).catch(() => ({}))
         ]);
         
         AppData.guests = guests;
@@ -216,6 +221,7 @@ async function loadData() {
         AppData.packets = packets;
         AppData.settings = settings;
         AppData.roles = roles;
+        AppData.pageNotes = pageNotes;
         
         // Save to Firestore (one-time seeding)
         console.log('Saving initial data to Firestore...');
@@ -230,7 +236,8 @@ async function loadData() {
           FirebaseManager.saveData('clues', clues),
           FirebaseManager.saveData('packets', packets),
           FirebaseManager.saveData('settings', settings),
-          FirebaseManager.saveData('roles', roles)
+          FirebaseManager.saveData('roles', roles),
+          FirebaseManager.saveData('pageNotes', pageNotes)
         ]);
         
         // Mark as seeded
@@ -255,7 +262,7 @@ async function loadData() {
     } else {
       // Firebase disabled - load from JSON files
       console.log('Firebase disabled - loading data from JSON files...');
-      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles, pageNotes] = await Promise.all([
         fetch('./data/guests.json').then(r => r.json()),
         fetch('./data/characters.json').then(r => r.json()),
         fetch('./data/decor.json').then(r => r.json()),
@@ -266,7 +273,8 @@ async function loadData() {
         fetch('./data/clues.json').then(r => r.json()),
         fetch('./data/packets.json').then(r => r.json()),
         fetch('./data/settings.json').then(r => r.json()),
-        fetch('./data/roles.json').then(r => r.json())
+        fetch('./data/roles.json').then(r => r.json()),
+        fetch('./data/pageNotes.json').then(r => r.json()).catch(() => ({}))
       ]);
       
       AppData.guests = guests;
@@ -280,11 +288,12 @@ async function loadData() {
       AppData.packets = packets;
       AppData.settings = settings;
       AppData.roles = roles;
+      AppData.pageNotes = pageNotes;
     }
     
     // Store defaults for reset functionality
     if (!AppData.defaults.guests) {
-      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles] = await Promise.all([
+      const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles, pageNotes] = await Promise.all([
         fetch('./data/guests.json').then(r => r.json()),
         fetch('./data/characters.json').then(r => r.json()),
         fetch('./data/decor.json').then(r => r.json()),
@@ -295,7 +304,8 @@ async function loadData() {
         fetch('./data/clues.json').then(r => r.json()),
         fetch('./data/packets.json').then(r => r.json()),
         fetch('./data/settings.json').then(r => r.json()),
-        fetch('./data/roles.json').then(r => r.json())
+        fetch('./data/roles.json').then(r => r.json()),
+        fetch('./data/pageNotes.json').then(r => r.json()).catch(() => ({}))
       ]);
       
       AppData.defaults = {
@@ -309,7 +319,8 @@ async function loadData() {
         clues: JSON.parse(JSON.stringify(clues)),
         packets: JSON.parse(JSON.stringify(packets)),
         settings: JSON.parse(JSON.stringify(settings)),
-        roles: JSON.parse(JSON.stringify(roles))
+        roles: JSON.parse(JSON.stringify(roles)),
+        pageNotes: JSON.parse(JSON.stringify(pageNotes))
       };
     }
     
@@ -2560,11 +2571,24 @@ async function saveToFirestore() {
       FirebaseManager.saveData('schedule', AppData.schedule),
       FirebaseManager.saveData('story', AppData.story),
       FirebaseManager.saveData('clues', AppData.clues),
-      FirebaseManager.saveData('packets', AppData.packets)
+      FirebaseManager.saveData('packets', AppData.packets),
+      FirebaseManager.saveData('pageNotes', AppData.pageNotes)
     ]);
     console.log('Data saved to Firestore');
   } catch (error) {
     console.error('Error saving to Firestore:', error);
+  }
+}
+
+// Save page notes
+async function savePageNotes(page, content) {
+  if (!AppData.pageNotes) AppData.pageNotes = {};
+  AppData.pageNotes[page] = content;
+  
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    await FirebaseManager.saveData('pageNotes', AppData.pageNotes);
+  } else {
+    saveToLocalStorage();
   }
 }
 
@@ -2581,7 +2605,8 @@ function saveToLocalStorage() {
     schedule: AppData.schedule,
     story: AppData.story,
     clues: AppData.clues,
-    packets: AppData.packets
+    packets: AppData.packets,
+    pageNotes: AppData.pageNotes
   };
   
   // If Firebase is enabled, use Firestore; otherwise use localStorage
@@ -2629,6 +2654,9 @@ async function resetToDefaults(datasetName) {
     AppData.story = JSON.parse(JSON.stringify(AppData.defaults.story));
     AppData.clues = JSON.parse(JSON.stringify(AppData.defaults.clues));
     AppData.packets = JSON.parse(JSON.stringify(AppData.defaults.packets));
+    AppData.settings = JSON.parse(JSON.stringify(AppData.defaults.settings));
+    AppData.roles = JSON.parse(JSON.stringify(AppData.defaults.roles));
+    AppData.pageNotes = JSON.parse(JSON.stringify(AppData.defaults.pageNotes));
     
     // Save all to Firestore
     if (FIREBASE_ENABLED && FirebaseManager) {
@@ -2642,7 +2670,10 @@ async function resetToDefaults(datasetName) {
         FirebaseManager.saveData('schedule', AppData.schedule),
         FirebaseManager.saveData('story', AppData.story),
         FirebaseManager.saveData('clues', AppData.clues),
-        FirebaseManager.saveData('packets', AppData.packets)
+        FirebaseManager.saveData('packets', AppData.packets),
+        FirebaseManager.saveData('settings', AppData.settings),
+        FirebaseManager.saveData('roles', AppData.roles),
+        FirebaseManager.saveData('pageNotes', AppData.pageNotes)
       ]);
     } else {
       saveToLocalStorage();

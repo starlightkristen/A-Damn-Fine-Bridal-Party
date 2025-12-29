@@ -12,6 +12,28 @@ function escapeHtml(unsafe) {
     .replace(/\//g, "&#x2F;");
 }
 
+// Helper function to render page notes at the top
+function renderPageNotes() {
+  const container = document.getElementById('page-notes-container');
+  if (!container) return;
+  
+  const page = getPageName();
+  const notes = AppData.pageNotes?.[page] || '';
+  
+  container.innerHTML = `
+    <div class="card" style="border-left: 4px solid var(--gold); background: #fffdf0;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h2 style="margin: 0; font-size: 1.2em;">📝 Our General Notes</h2>
+        <span style="font-size: 0.8em; color: #666; font-style: italic;">Changes save automatically for both of us</span>
+      </div>
+      <textarea id="page-notes-textarea" 
+                placeholder="Type any general thoughts, reminders, or shared notes here..." 
+                style="width: 100%; min-height: 100px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; line-height: 1.5; resize: vertical;"
+                onchange="savePageNotes('${page}', this.value)">${notes}</textarea>
+    </div>
+  `;
+}
+
 // Helper function to render clues by phase
 function renderCluesByPhase(phase) {
   const clues = AppData.clues.filter(c => c.reveal_phase === phase);
@@ -112,6 +134,7 @@ const Render = {
   
   // Render index/dashboard page
   index: function() {
+    renderPageNotes();
     const stats = calculateStats();
     
     document.getElementById('dashboard-stats').innerHTML = `
@@ -136,6 +159,7 @@ const Render = {
   
   // Render decor page
   decor: function() {
+    renderPageNotes();
     // Check if mood board exists
     if (!AppData.decor.moodBoard || AppData.decor.moodBoard.length === 0) {
       document.getElementById('mood-board').innerHTML = `
@@ -370,6 +394,7 @@ const Render = {
   
   // Render food page
   food: function() {
+    renderPageNotes();
     // Check if menu items exist
     if (!AppData.menu.menuItems || AppData.menu.menuItems.length === 0) {
       document.getElementById('menu-items').innerHTML = `
@@ -815,6 +840,7 @@ const Render = {
   
   // Render mystery page
   mystery: function() {
+    renderPageNotes();
     // Add data management controls at the top
     const controlsHtml = `
       <div class="card">
@@ -989,6 +1015,7 @@ const Render = {
   
   // Render schedule page
   schedule: function() {
+    renderPageNotes();
     if (!AppData.schedule.timeline || AppData.schedule.timeline.length === 0) {
       document.getElementById('schedule-timeline').innerHTML = `
         <div class="alert alert-info">
@@ -1048,6 +1075,7 @@ const Render = {
   
   // Render guests page
   guests: function() {
+    renderPageNotes();
     // Check if guests list is empty
     if (!AppData.guests || AppData.guests.length === 0) {
       document.getElementById('guest-table').innerHTML = `
@@ -1194,6 +1222,7 @@ const Render = {
   
   // Render admin page
   admin: function() {
+    renderPageNotes();
     const errors = validateData();
     
     const validationHtml = errors.length === 0 ? 
