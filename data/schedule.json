@@ -141,5 +141,30 @@
     "guestsNotParticipating": "Have co-host or planted guest who's enthusiastic to help draw others in",
     "runningLong": "Skip or shorten traditional shower activities at beginning",
     "runningShort": "Have extra games ready or extend investigation phase"
-  }
+  },
+  "musicSuggestions": {
+    "scene": [
+      "Laura Palmer's Theme (gentle, ambient)",
+      "Twin Peaks Theme (instrumental)",
+      "Audrey's Dance",
+      "Dance of the Dream Man",
+      "Freshly Squeezed"
+    ],
+    "mystery": [
+      "The Bookhouse Boys (mysterious)",
+      "Dark Mood Woods",
+      "Love Theme (atmospheric)",
+      "Into the Night",
+      "Night Life in Twin Peaks"
+    ]
+  },
+  "momentsToCapture": [
+    "The Discovery: Guests finding their top-secret files",
+    "First Impressions: Everyone introducing their characters",
+    "The Investigation: Candid shots of our friends playing detective",
+    "The Big Burn: That dramatic cupcake reveal moment!",
+    "The Reveal: Everyone's face when the murderer is caught",
+    "The Residents: A big group photo with everyone in character",
+    "Marlena's Favorites: Opening gifts and our favorite group moments"
+  ]
 }

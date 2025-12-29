@@ -1231,7 +1231,7 @@ async function handleSavePrepPhase(event, index) {
     tasks: formData.get('tasks').split('\n').map(t => t.trim()).filter(t => t)
   };
   
-  if (index === null) {
+  if (index === null || index === "null") {
     if (!AppData.menu.prepTimeline) AppData.menu.prepTimeline = [];
     AppData.menu.prepTimeline.push(phaseData);
   } else {
@@ -1248,6 +1248,121 @@ async function handleSavePrepPhase(event, index) {
   
   closePrepEditor();
   if (window.Render && window.Render.food) window.Render.food();
+}
+
+// Show edit form for various list-based sections (Supplies, Vision, Tips, etc.)
+function showListEditor(title, dataset, field, currentList) {
+  const listText = Array.isArray(currentList) ? currentList.join('\n') : '';
+  
+  const formHtml = `
+    <div id="list-editor-modal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 600px; width: 100%;">
+        <h2 style="margin-top: 0; color: var(--deep-cherry-red);">Edit ${title}</h2>
+        <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Enter one item per line. These will appear as bullet points on the page.</p>
+        <form onsubmit="handleSaveList(event, '${dataset}', '${field}')">
+          <textarea name="listData" rows="10" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; margin-bottom: 20px;">${listText}</textarea>
+          <div style="text-align: right;">
+            <button type="button" onclick="closeListEditor()" class="btn btn-secondary" style="margin-right: 10px;">Cancel</button>
+            <button type="submit" class="btn">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', formHtml);
+}
+
+async function handleSaveList(event, dataset, field) {
+  event.preventDefault();
+  pushToHistory();
+  const text = event.target.listData.value;
+  const newList = text.split('\n').map(s => s.trim()).filter(s => s);
+  
+  // Update AppData
+  if (dataset === 'schedule') {
+    AppData.schedule[field] = newList;
+  } else if (dataset === 'menu') {
+    AppData.menu[field] = newList;
+  } else if (dataset === 'story') {
+    AppData.story[field] = newList;
+  }
+  
+  // Save to Firebase
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    await FirebaseManager.saveData(dataset, AppData[dataset]);
+  } else {
+    saveToLocalStorage();
+  }
+  
+  closeListEditor();
+  if (window.Render && window.Render[getPageName()]) {
+    window.Render[getPageName()]();
+  }
+}
+
+function closeListEditor() {
+  const modal = document.getElementById('list-editor-modal');
+  if (modal) modal.remove();
+}
+
+// Wrapper functions for specific list editors
+window.showEditSuppliesForm = () => showListEditor('Supply List', 'schedule', 'supplies', AppData.schedule.supplies);
+window.showEditMusicForm = () => {
+  // Simple version: combining music categories for the quick editor
+  const currentMusic = [...(AppData.schedule.musicSuggestions?.scene || []), "--- Mystery Phase ---", ...(AppData.schedule.musicSuggestions?.mystery || [])];
+  showListEditor('Music Playlist', 'schedule', 'music_raw', currentMusic);
+};
+window.showEditMomentsForm = () => showListEditor('Moments to Capture', 'schedule', 'momentsToCapture', AppData.schedule.momentsToCapture);
+window.showEditVisionForm = () => showListEditor('Food Vision', 'menu', 'foodPhilosophy', AppData.menu.foodPhilosophy);
+window.showEditTipsForm = () => showListEditor('Anonymous Tips', 'story', 'anonymousTips', AppData.story.anonymousTips);
+window.showEditBackupPlansForm = () => {
+  const currentPlans = [
+    `Stuck: ${AppData.schedule.backupPlans?.guestsStuck || ''}`,
+    `Energy: ${AppData.schedule.backupPlans?.guestsNotParticipating || ''}`,
+    `Clock: ${AppData.schedule.backupPlans?.runningLong || ''}`
+  ];
+  showListEditor('Backup Plans', 'schedule', 'backup_raw', currentPlans);
+};
+
+// Updated save list to handle specific fields like music
+async function handleSaveList(event, dataset, field) {
+  event.preventDefault();
+  pushToHistory();
+  const text = event.target.listData.value;
+  const newList = text.split('\n').map(s => s.trim()).filter(s => s);
+  
+  if (field === 'music_raw') {
+    // Split back into categories
+    const midIndex = newList.findIndex(item => item.includes('---'));
+    const scene = midIndex !== -1 ? newList.slice(0, midIndex) : newList;
+    const mystery = midIndex !== -1 ? newList.slice(midIndex + 1) : [];
+    AppData.schedule.musicSuggestions = { scene, mystery };
+  } else if (field === 'backup_raw') {
+    // Parse back into object
+    AppData.schedule.backupPlans = {
+      guestsStuck: newList.find(s => s.startsWith('Stuck:'))?.replace('Stuck:', '').trim(),
+      guestsNotParticipating: newList.find(s => s.startsWith('Energy:'))?.replace('Energy:', '').trim(),
+      runningLong: newList.find(s => s.startsWith('Clock:'))?.replace('Clock:', '').trim()
+    };
+  } else if (dataset === 'schedule') {
+    AppData.schedule[field] = newList;
+  } else if (dataset === 'menu') {
+    AppData.menu[field] = newList;
+  } else if (dataset === 'story') {
+    AppData.story[field] = newList;
+  }
+  
+  // Save to Firebase
+  if (FIREBASE_ENABLED && FirebaseManager) {
+    await FirebaseManager.saveData(dataset, AppData[dataset]);
+  } else {
+    saveToLocalStorage();
+  }
+  
+  closeListEditor();
+  if (window.Render && window.Render[getPageName()]) {
+    window.Render[getPageName()]();
+  }
 }
 
 // Delete prep phase

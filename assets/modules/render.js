@@ -546,6 +546,9 @@ const Render = {
         </div>
       `;
     }
+    
+    // Render food vision
+    renderFoodVision();
   },
   
   // Render Menu Planner page
@@ -992,6 +995,9 @@ const Render = {
     // Render master investigation map
     renderInvestigationMap();
     
+    // Render anonymous tips
+    renderAnonymousTips();
+    
     // Render envelope list
     const envelopeListHtml = AppData.characters.map(char => {
       const packet = AppData.packets.find(p => p.character_id === char.id);
@@ -1084,6 +1090,12 @@ const Render = {
     `).join('');
     
     document.getElementById('schedule-timeline').innerHTML = controlsHtml + scheduleHtml;
+    
+    // Render dynamic sections
+    renderScheduleSupplies();
+    renderScheduleMusic();
+    renderScheduleBackupPlans();
+    renderScheduleMoments();
   },
   
   // Render guests page
@@ -1542,6 +1554,221 @@ window.renderPage = function(page) {
     Render[page]();
   }
 };
+
+// Helper function to render schedule supplies
+function renderScheduleSupplies() {
+  const container = document.getElementById('schedule-supplies');
+  if (!container) return;
+  
+  const supplies = AppData.schedule.supplies || [];
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>📦 Our Supply List</h2>
+        <button class="btn-sm" onclick="showEditSuppliesForm()">✏️ Edit List</button>
+      </div>
+      <p>Everything we need to have ready before the investigation begins:</p>
+      <ul class="item-list">
+        ${supplies.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+// Helper function to render schedule music
+function renderScheduleMusic() {
+  const container = document.getElementById('schedule-music');
+  if (!container) return;
+  
+  const music = AppData.schedule.musicSuggestions || { scene: [], mystery: [] };
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>🎵 Music for the Atmosphere</h2>
+        <button class="btn-sm" onclick="showEditMusicForm()">✏️ Edit Music</button>
+      </div>
+      <div class="grid grid-2">
+        <div>
+          <h3>Setting the Scene (0:00-0:45)</h3>
+          <ul>
+            ${(music.scene || []).map(m => `<li>${escapeHtml(m)}</li>`).join('')}
+          </ul>
+        </div>
+        <div>
+          <h3>Mystery in Progress (0:45-1:45)</h3>
+          <ul>
+            ${(music.mystery || []).map(m => `<li>${escapeHtml(m)}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+      <div class="alert alert-info">
+        <strong>💡 Tip for Us:</strong> Let's keep the volume moderate while they're investigating so they can talk. We'll crank it up for the "murder" announcement and the cupcake reveal!
+      </div>
+    </div>
+  `;
+}
+
+// Helper function to render backup plans
+function renderScheduleBackupPlans() {
+  const container = document.getElementById('schedule-backup-plans');
+  if (!container) return;
+  
+  const plans = AppData.schedule.backupPlans || {};
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>🔄 Being Prepared</h2>
+        <button class="btn-sm" onclick="showEditBackupPlansForm()">✏️ Edit Plans</button>
+      </div>
+      <p>Just in case the investigation takes a turn:</p>
+      
+      <h3>If They Get Stuck:</h3>
+      <p>${escapeHtml(plans.guestsStuck || 'No plan set.')}</p>
+      
+      <h3>Keeping the Energy Up:</h3>
+      <p>${escapeHtml(plans.guestsNotParticipating || 'No plan set.')}</p>
+      
+      <h3>Adjusting the Clock:</h3>
+      <p>${escapeHtml(plans.runningLong || 'No plan set.')}</p>
+      
+      <div class="alert alert-danger">
+        <strong>🔥 Safety Note - The Cupcake Reveal:</strong>
+        <p>Since we're using a kitchen torch, let's be careful:</p>
+        <ul>
+          <li>We should practice the "reveal" together beforehand.</li>
+          <li>Keep the torch away from anything flammable (decorations, napkins, etc.).</li>
+          <li>Let's keep a damp towel or extinguisher nearby just in case.</li>
+          <li>We'll handle the torch ourselves—no guests allowed!</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+// Helper function to render moments to capture
+function renderScheduleMoments() {
+  const container = document.getElementById('schedule-moments');
+  if (!container) return;
+  
+  const moments = AppData.schedule.momentsToCapture || [];
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>📸 Moments We Need to Capture</h2>
+        <button class="btn-sm" onclick="showEditMomentsForm()">✏️ Edit Moments</button>
+      </div>
+      <ul class="item-list">
+        ${moments.map(m => `<li>${escapeHtml(m)}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+// Helper function to render backup plans
+function renderScheduleBackupPlans() {
+  const container = document.getElementById('schedule-backup-plans');
+  if (!container) return;
+  
+  const plans = AppData.schedule.backupPlans || {};
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2>🔄 Being Prepared</h2>
+        <button class="btn-sm" onclick="showEditBackupPlansForm()">✏️ Edit Plans</button>
+      </div>
+      <p>Just in case the investigation takes a turn:</p>
+      
+      <div style="margin-top: 15px;">
+        <h3 style="font-size: 1.1em; color: var(--dark-wood);">If They Get Stuck:</h3>
+        <p>${escapeHtml(plans.guestsStuck || 'No plan set.')}</p>
+        
+        <h3 style="font-size: 1.1em; color: var(--dark-wood); margin-top: 15px;">Keeping the Energy Up:</h3>
+        <p>${escapeHtml(plans.guestsNotParticipating || 'No plan set.')}</p>
+        
+        <h3 style="font-size: 1.1em; color: var(--dark-wood); margin-top: 15px;">Adjusting the Clock:</h3>
+        <p>${escapeHtml(plans.runningLong || 'No plan set.')}</p>
+      </div>
+      
+      <div class="alert alert-danger" style="margin-top: 20px;">
+        <strong>🔥 Safety Note - The Cupcake Reveal:</strong>
+        <p>Since we're using a kitchen torch, let's be careful:</p>
+        <ul>
+          <li>We should practice the "reveal" together beforehand.</li>
+          <li>Keep the torch away from anything flammable (decorations, napkins, etc.).</li>
+          <li>Let's keep a damp towel or extinguisher nearby just in case.</li>
+          <li>We'll handle the torch ourselves—no guests allowed!</li>
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+// Helper function to render moments to capture
+function renderScheduleMoments() {
+  const container = document.getElementById('schedule-moments');
+  if (!container) return;
+  
+  const moments = AppData.schedule.momentsToCapture || [];
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2>📸 Moments We Need to Capture</h2>
+        <button class="btn-sm" onclick="showEditMomentsForm()">✏️ Edit Moments</button>
+      </div>
+      <ul class="item-list">
+        ${moments.map(m => `<li>${escapeHtml(m)}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+// Helper function to render food vision
+function renderFoodVision() {
+  const container = document.getElementById('food-vision-container');
+  if (!container) return;
+  
+  const vision = AppData.menu.foodPhilosophy || [];
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2>🍒 Our Food Vision</h2>
+        <button class="btn-sm" onclick="showEditVisionForm()">✏️ Edit Vision</button>
+      </div>
+      <div class="alert alert-info">
+        <ul class="item-list" style="margin: 0; padding-left: 20px;">
+          ${vision.map(v => `<li>${escapeHtml(v)}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `;
+}
+
+// Helper function to render anonymous tips
+function renderAnonymousTips() {
+  const container = document.getElementById('anonymous-tips-container');
+  if (!container) return;
+  
+  const tips = AppData.story.anonymousTips || [];
+  
+  container.innerHTML = `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2>🔍 If They Need a Push:</h2>
+        <button class="btn-sm" onclick="showEditTipsForm()">✏️ Edit Tips</button>
+      </div>
+      <div class="alert alert-info">
+        ${tips.map(tip => `<p style="margin-bottom: 10px;"><strong>💡 Tip:</strong> "${escapeHtml(tip)}"</p>`).join('')}
+      </div>
+    </div>
+  `;
+}
 
 // Helper function to render master investigation map
 function renderInvestigationMap() {

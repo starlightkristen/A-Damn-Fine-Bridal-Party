@@ -113,6 +113,13 @@
       "final": true
     }
   ],
+  "foodPhilosophy": [
+    "Cherry Pie is Non-Negotiable: It’s the heart of the Double R Diner experience!",
+    "The 'Damn Fine Coffee' Bar: A dedicated station with the best dark roast we can find.",
+    "Diner Classics: Comfort food that feels both classic and elevated for your party.",
+    "Pacific Northwest Vibes: Fresh berries, nuts, and lodge-style catering.",
+    "Everyone Included: We'll make sure there are delicious options for our vegetarian and gluten-free residents."
+  ],
   "allergyMap": {
     "Gluten": [],
     "Dairy": [],
