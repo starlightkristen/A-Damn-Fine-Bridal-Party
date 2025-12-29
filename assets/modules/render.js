@@ -262,7 +262,7 @@ const Render = {
     if (!AppData.vendors || AppData.vendors.length === 0) {
       document.getElementById('vendors').innerHTML = `
         <div class="alert alert-info">
-          <strong>No vendors yet!</strong> Use the Admin panel to manage vendors.
+          <strong>No vendors added yet!</strong> We can use the Station HQ to add any catering or rental details if we decide to use them.
         </div>
       `;
     } else {
