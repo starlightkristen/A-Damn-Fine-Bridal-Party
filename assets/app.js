@@ -2,7 +2,7 @@
 
 // Firebase Integration Flag
 // Set this to true to enable Firebase backend, false to use localStorage only
-const FIREBASE_ENABLED = true;
+const FIREBASE_ENABLED = false; // Temporarily disabled for stability
 
 // Firebase Manager (will be initialized if enabled)
 let FirebaseManager = null;
