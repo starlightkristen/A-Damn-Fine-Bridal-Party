@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ccc; padding: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Minimal Test - No Glitches</h1>
+    
+    <div class="test-section">
+        <h3>Step 1: Basic JavaScript</h3>
+        <div id="js-test">Testing...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 2: Data Loading</h3>
+        <div id="data-test">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Step 3: App Functions</h3>
+        <div id="app-test">Testing...</div>
+    </div>
+
+    <script>
+        // Step 1: Basic JS
+        document.getElementById('js-test').innerHTML = '✅ JavaScript working';
+        
+        // Step 2: Test data loading
+        fetch('./data/guests.json')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('data-test').innerHTML = `✅ Data loaded: ${data.length} guests`;
+            })
+            .catch(err => {
+                document.getElementById('data-test').innerHTML = `❌ Data error: ${err.message}`;
+            });
+        
+        // Step 3: Test app loading
+        const script = document.createElement('script');
+        script.src = './assets/app.js';
+        script.onload = () => {
+            setTimeout(() => {
+                const status = `
+                    <p>initApp: ${typeof initApp}</p>
+                    <p>AppData: ${typeof AppData}</p>
+                    <p>calculateStats: ${typeof calculateStats}</p>
+                `;
+                document.getElementById('app-test').innerHTML = status;
+            }, 100);
+        };
+        script.onerror = () => {
+            document.getElementById('app-test').innerHTML = '❌ App.js failed to load';
+        };
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

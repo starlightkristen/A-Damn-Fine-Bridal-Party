@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-1080, initial-scale=1.0">
+    <title>Script Loading Test</title>
+</head>
+<body>
+    <h1>Script Loading Test</h1>
+    <div id="test-output">Loading...</div>
+    
+    <script src="./assets/app.js"></script>
+    <script>
+        console.log('After app.js loaded:');
+        console.log('- initApp available:', typeof initApp);
+        console.log('- AppData available:', typeof AppData);
+        console.log('- window.Render available:', typeof window.Render);
+    </script>
+    
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        console.log('After render.js loaded:');
+        console.log('- window.Render available:', typeof window.Render);
+        console.log('- Render object:', window.Render);
+        
+        document.getElementById('test-output').innerHTML = `
+            <h3>Script Loading Results:</h3>
+            <p>initApp: ${typeof initApp}</p>
+            <p>AppData: ${typeof AppData}</p>
+            <p>window.Render: ${typeof window.Render}</p>
+            <p>Render keys: ${window.Render ? Object.keys(window.Render).join(', ') : 'N/A'}</p>
+        `;
+    </script>
+</body>
+</html>

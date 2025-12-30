@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+    <!-- DISABLED: <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" 
+            integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" 
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer"></script> -->
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Station Headquarters & Master Files</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Residents</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>🔧 Case File Integrity</h2>
+            <p>Scanning for investigation errors, duplicate resident IDs, and missing evidence:</p>
+            <div id="validation-results">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Running case scan...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📁 Event Files</h2>
+            <p>Direct access to our planning data for review:</p>
+            <div id="data-links">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading master files...</p>
+                </div>
+            </div>
+            
+            <div class="alert alert-warning">
+                <strong>💡 Quick Tip for Us:</strong>
+                <p>We can use the interactive editors on each page (Decor, Food, Mystery, Schedule, and Guests) to update things instantly. The buttons below are for downloading backups or importing previous versions if we ever need to "rewind" our progress.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Station Logs</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <td><strong>Portal Version</strong></td>
+                        <td>1.0.0 (Final)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Last Log Entry</strong></td>
+                        <td id="last-updated">-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>⚙️ Event Configuration</h2>
+            <div id="settings-panel">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading configuration...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="firebase-sync-status-card" style="display: none;">
+            <h2>🔄 Real-Time Sync Status</h2>
+            <table>
+                <tbody>
+                    <tr>
+                        <td><strong>Cloud Connection</strong></td>
+                        <td id="sync-data-source">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Secured</strong></td>
+                        <td id="sync-seeded">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Last Cloud Update</strong></td>
+                        <td id="sync-seeded-at">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Updated By Agent</strong></td>
+                        <td id="sync-seeded-by">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Last Local Sync</strong></td>
+                        <td id="sync-last-sync">-</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top: 20px;">
+                <button onclick="forceSyncFromFirestore()" class="btn">🔄 Reload Cloud Data</button>
+                <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                    This will refresh all data from our shared cloud database.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎯 Direct Dispatch</h2>
+            <div class="grid grid-2">
+                <div>
+                    <h3>Decor Wizard</h3>
+                    <p>Step-by-step decor planning for our vision</p>
+                    <a href="decor-wizard.html" class="btn">🎨 Open Wizard</a>
+                </div>
+                <div>
+                    <h3>Menu Planner</h3>
+                    <p>Finalizing our coffee and pie selections</p>
+                    <a href="menu-planner.html" class="btn">🍽️ Open Planner</a>
+                </div>
+                <div>
+                    <h3>Role Assignment</h3>
+                    <p>Finalizing character roles for our guests</p>
+                    <a href="role-assignment.html" class="btn">🎭 Dispatch Roles</a>
+                </div>
+                <div>
+                    <h3>Host Controls</h3>
+                    <p>Live timing and mystery reveals for the party</p>
+                    <a href="host-controls.html" class="btn">🎬 Open Command Center</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔒 Field Notes & Confidential Info</h2>
+            <ul class="item-list">
+                <li><strong>No Tech Skills Required:</strong> I've built this so everything we change on the UI saves automatically.</li>
+                <li><strong>Shared Planning:</strong> We can both be in here at once and see each other's updates in real-time.</li>
+                <li><strong>Mystery Surprise:</strong> The mystery details are hidden from the main pages so only we can see the solution!</li>
+                <li><strong>Print Readiness:</strong> All character packets are ready to be printed and sealed whenever we're ready.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initApp();
+            document.getElementById('last-updated').textContent = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            // Update Firebase sync status if enabled
+            if (typeof getSyncStatusInfo === 'function') {
+                const syncCard = document.getElementById('firebase-sync-status-card');
+                if (syncCard) {
+                    syncCard.style.display = 'block';
+                    
+                    const status = await getSyncStatusInfo();
+                    document.getElementById('sync-data-source').textContent = status.dataSource;
+                    document.getElementById('sync-seeded').textContent = status.seeded ? 'Yes ✓' : 'No';
+                    document.getElementById('sync-seeded-at').textContent = status.seededAt 
+                        ? new Date(status.seededAt).toLocaleString() 
+                        : 'N/A';
+                    document.getElementById('sync-seeded-by').textContent = status.seededBy || 'N/A';
+                    document.getElementById('sync-last-sync').textContent = status.lastSync 
+                        ? status.lastSync.toLocaleString() 
+                        : 'Never';
+                    
+                    if (status.error) {
+                        document.getElementById('sync-data-source').textContent += ` (${status.error})`;
+                        document.getElementById('sync-data-source').style.color = '#8B0000';
+                    }
+                }
+            }
+        });
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test - Bridal Party</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <div id="status">Loading...</div>
+    <div id="data-check"></div>
+    
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        // Wait for modules to load before accessing functions
+        window.addEventListener('load', async () => {
+            const status = document.getElementById('status');
+            const dataCheck = document.getElementById('data-check');
+            
+            // Wait a bit for modules to initialize
+            setTimeout(async () => {
+                try {
+                    status.innerHTML = 'Initializing...';
+                    
+                    // Check if functions are available
+                    if (typeof window.initApp === 'undefined') {
+                        throw new Error('initApp function not available - module loading issue');
+                    }
+                    
+                    await window.initApp();
+                    
+                    status.innerHTML = '✅ App initialized successfully!';
+                    dataCheck.innerHTML = `
+                        <h3>Data Check:</h3>
+                        <p>FIREBASE_ENABLED: ${window.FIREBASE_ENABLED}</p>
+                        <p>FirebaseManager: ${window.FirebaseManager ? '✅ Loaded' : '❌ Not loaded'}</p>
+                        <p>AppData.guests: ${window.AppData.guests ? window.AppData.guests.length : 0} guests</p>
+                        <p>AppData.schedule: ${window.AppData.schedule ? '✅ Loaded' : '❌ Not loaded'}</p>
+                        <p>Render object: ${window.Render ? '✅ Available' : '❌ Not available'}</p>
+                        <p>Current page: ${window.getPageName ? window.getPageName() : 'N/A'}</p>
+                    `;
+                } catch (error) {
+                    status.innerHTML = '❌ Error: ' + error.message;
+                    console.error('Initialization error:', error);
+                }
+            }, 100);
+        });
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decor Wizard - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Decor Planning Wizard</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>🎨 Decor Planning Wizard</h2>
+            <p>Make selections for each decor category. Your choices will automatically generate a shopping list!</p>
+            
+            <div id="decor-wizard-sections">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading wizard sections...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Auto-Generated Shopping List</h2>
+            <p>Based on your "Final" selections above:</p>
+            <div id="decor-shopping-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading shopping list...</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="printDecorPlan()">🖨️ Print Decor Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decor - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>"The owls are not what they seem..."</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Residents</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>🎨 Mood Board</h2>
+            <p>Three distinct Twin Peaks inspired color palettes and decor themes to choose from or combine:</p>
+            <div id="mood-board" class="grid grid-3">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading mood board...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛒 Shopping List</h2>
+            <p>Complete list of items needed for the Twin Peaks themed decor:</p>
+            <div id="shopping-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading shopping list...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food & Menu - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>"Damn fine coffee and cherry pie!"</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Residents</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>☕ Our Twin Peaks Menu</h2>
+            <p>Our hand-picked selections inspired by the iconic Double R Diner and the Great Northern Lodge:</p>
+            <div id="menu-items">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading our menu...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🍽️ Resident Allergy Map</h2>
+            <p>Keeping track of everyone's dietary needs so we can make sure everyone is taken care of:</p>
+            <div id="allergy-map">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Scanning resident files...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>⏱️ Our Prep Timeline</h2>
+            <p>Our schedule to make sure the pie is warm and the coffee is fresh when the investigation starts:</p>
+            <div id="prep-timeline">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading our timeline...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="food-vision-container"></div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Management - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Resident List & Character Assignments</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Residents</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>👥 Twin Peaks Residents</h2>
+            <p>Our guest list for the big day. We can track RSVPs, assign their mystery characters, and generate their personalized invites here.</p>
+            
+            <div id="guest-table">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading resident list...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎭 Character Assignment Guide</h2>
+            
+            <h3>The Roles We've Created:</h3>
+            <div id="character-list-guide">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading characters...</p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>💡 Notes for Us:</strong>
+                <ul>
+                    <li>Let's match guest personalities to these roles for the best experience!</li>
+                    <li>We should think about who would love a dramatic role vs. who might prefer something subtle.</li>
+                    <li>The "Auto-Assign" feature is there if we want some inspiration based on the vibes we've noted.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✉️ Personalized Invitations</h2>
+            <p>Once we assign a character, we can use these templates to send them a mysterious invite.</p>
+            
+            <h3>How to Use:</h3>
+            <ol>
+                <li>Assign characters to guests in the table above.</li>
+                <li>Click "Copy Invite" for each guest.</li>
+                <li>Paste it into our email or message to them!</li>
+            </ol>
+
+            <div class="alert alert-info">
+                <strong>Our Invite Template:</strong>
+                <p style="background: white; padding: 15px; border-radius: 5px; margin-top: 10px; font-style: italic;">
+                    Dear [Guest Name],<br><br>
+                    You're invited to "A Damn Fine Bridal Party" for Marlena!<br><br>
+                    Join us for coffee, pie, mystery & celebration.<br><br>
+                    <strong>🎭 YOUR SECRET CHARACTER ASSIGNMENT:</strong><br>
+                    Character: [Character Name]<br>
+                    Role: [Role]<br><br>
+                    <strong>✨ COSTUME IDEAS:</strong><br>
+                    [Costume Ideas from character sheet]<br><br>
+                    <strong>📜 YOUR BRIEFING:</strong><br>
+                    [Briefing intro from character sheet]<br><br>
+                    Come prepared to solve a mystery! You'll receive your secret case files in a sealed envelope at the party.<br><br>
+                    "The owls are not what they seem..."<br><br>
+                    RSVP by [DATE]<br>
+                    Location: [TO BE ANNOUNCED]
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Resident Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="stat-total">-</h3>
+                    <p>Total Residents</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="stat-confirmed">-</h3>
+                    <p>Confirmed</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="stat-assigned">-</h3>
+                    <p>Characters Assigned</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="stat-pending">-</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initApp();
+            
+            // Update stats after render
+            const stats = calculateStats();
+            document.getElementById('stat-total').textContent = stats.totalGuests;
+            document.getElementById('stat-confirmed').textContent = stats.confirmedGuests;
+            document.getElementById('stat-assigned').textContent = stats.assignedCharacters;
+            document.getElementById('stat-pending').textContent = stats.pendingGuests;
+        });
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Controls - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Live Event Host Controls</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </nav>
+
+        <div class="card">
+            <h2>⏱️ Phase Timer</h2>
+            <div id="phase-timer-controls">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading timer...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💡 Hint Controls</h2>
+            <p>Trigger an extra Log Lady prophecy if guests are stuck:</p>
+            <div id="hint-controls">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading hints...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🧁 Cupcake Reveal Controller</h2>
+            <p>Step through the dramatic cupcake message reveal:</p>
+            <div id="cupcake-controller">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading cupcake controller...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🌲 Twin Peaks Flavor Dial</h2>
+            <p>Adjust the Twin Peaks tone (affects Log Lady prophecies and flavor text):</p>
+            <div id="flavor-controls">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading flavor controls...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-warning" id="rehearsal-mode-indicator" style="display: none;">
+            <strong>🎭 REHEARSAL MODE ACTIVE</strong>
+            <p>Changes will not be saved to Firestore. Disable in Settings to save changes.</p>
+        </div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Damn Fine Bridal Party - Home</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>"The owls are not what they seem..."</p>
+            <p>A Twin Peaks Mystery Celebration for Marlena</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Residents</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+                <li id="userInfo" style="margin-left: auto; display: none;">
+                    <span id="userEmail" style="color: var(--gold); margin-right: 10px;"></span>
+                    <button id="logoutBtn" class="btn btn-sm" style="background: var(--deep-cherry-red); color: white;">Sign Out</button>
+                </li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>Welcome to the Great Northern Command Center</h2>
+            <p>Marlena, I've put this together so we have a central place to bring our Twin Peaks vision to life. This is where we'll keep everything organized—from the pie and coffee to the mystery itself. Browse the sections below to see how our celebration is coming together!</p>
+            
+            <div class="alert alert-info">
+                <strong>🎭 Our Theme:</strong> "A Toast to Secrets" - A murder mystery set in the world of Twin Peaks where our guests will step into character and solve a crime while we celebrate you!
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Investigation Progress</h2>
+            <div id="dashboard-stats" class="stats-grid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading stats...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔗 Station Shortcuts</h2>
+            <div class="grid grid-3">
+                <div class="card" style="background: linear-gradient(135deg, var(--deep-cherry-red), var(--dark-wood)); color: white;">
+                    <h3 style="color: var(--gold);">Manage Residents</h3>
+                    <p>Add or update our guest list and their details</p>
+                    <a href="guests.html" class="btn btn-secondary">Go to Guests</a>
+                </div>
+                
+                <div class="card" style="background: var(--forest-emerald); color: white;">
+                    <h3 style="color: var(--gold);">View Schedule</h3>
+                    <p>Our 2-hour run-of-show timeline</p>
+                    <a href="schedule.html" class="btn">View Schedule</a>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, var(--gold), var(--dark-wood)); color: white;">
+                    <h3>Mystery Details</h3>
+                    <p>The "Toast to Secrets" plot and characters</p>
+                    <a href="mystery.html" class="btn">View Mystery</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎨 Theme Colors</h2>
+            <p>The intentional color palette for your celebration:</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
+                <div style="flex: 1; min-width: 150px; text-align: center;">
+                    <div style="width: 100%; height: 100px; background: #8B0000; border-radius: 10px; margin-bottom: 10px;"></div>
+                    <strong>Deep Cherry Red</strong>
+                    <p style="font-family: monospace; font-size: 0.9em;">#8B0000</p>
+                </div>
+                <div style="flex: 1; min-width: 150px; text-align: center;">
+                    <div style="width: 100%; height: 100px; background: #C79810; border-radius: 10px; margin-bottom: 10px;"></div>
+                    <strong>Gold</strong>
+                    <p style="font-family: monospace; font-size: 0.9em;">#C79810</p>
+                </div>
+                <div style="flex: 1; min-width: 150px; text-align: center;">
+                    <div style="width: 100%; height: 100px; background: #0B4F3F; border-radius: 10px; margin-bottom: 10px;"></div>
+                    <strong>Forest Emerald Green</strong>
+                    <p style="font-family: monospace; font-size: 0.9em;">#0B4F3F</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📝 Our Planning Checklist</h2>
+            <ul class="item-list">
+                <li>Review the <a href="mystery.html">mystery story and characters</a></li>
+                <li>Check our <a href="schedule.html">2-hour timeline</a></li>
+                <li>Browse <a href="decor.html">decor ideas and shopping lists</a></li>
+                <li>Plan our <a href="food.html">menu and prep timeline</a></li>
+                <li>Manage our <a href="guests.html">resident list and character assignments</a></li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>👥 Adding New Residents</h2>
+            <p>To keep everything organized, we can add guests directly to our resident list. Just head over to the Guests page to enter their details and dietary needs!</p>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="guests.html" class="btn" style="background: var(--forest-emerald); color: white;">➕ Add New Guest</a>
+            </div>
+            
+            <div class="alert alert-info" style="margin-top: 20px;">
+                <strong>💡 Note for Us:</strong> All information added here is saved instantly to our shared event database, so we'll always be in sync!
+            </div>
+        </div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        // Initialize the app when DOM is ready
+        window.addEventListener('load', async () => {
+            // Setup logout button if Firebase is enabled
+            if (FIREBASE_ENABLED && FirebaseManager && FirebaseManager.currentUser) {
+                const logoutBtn = document.getElementById('logoutBtn');
+                const userInfo = document.getElementById('userInfo');
+                const userEmail = document.getElementById('userEmail');
+                
+                if (logoutBtn) {
+                    userEmail.textContent = FirebaseManager.currentUser.email;
+                    userInfo.style.display = 'block';
+                    logoutBtn.addEventListener('click', () => {
+                        if (confirm('Are you sure you want to sign out?')) {
+                            FirebaseManager.signOut();
+                        }
+                    });
+                }
+            }
+            
+            setTimeout(async () => { if (typeof window.initApp === 'function') await window.initApp(); }, 100);
+        });
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - A Damn Fine Bridal Party</title>
+  <link rel="stylesheet" href="./assets/styles.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .login-container h1 {
+      text-align: center;
+      color: #8B0000;
+      margin-bottom: 30px;
+    }
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+    }
+    .form-group input {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #8B0000;
+    }
+    .btn-login {
+      background: #8B0000;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .btn-login:hover {
+      background: #660000;
+    }
+    .btn-login:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .error-message {
+      color: #8B0000;
+      background: #ffe6e6;
+      padding: 12px;
+      border-radius: 4px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+    .login-subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>🌲 A Damn Fine Bridal Party</h1>
+    <p class="login-subtitle">Planning Portal Login</p>
+    
+    <div class="error-message" id="errorMessage"></div>
+    
+    <form class="login-form" id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      
+      <button type="submit" class="btn-login" id="loginBtn">Host Sign In</button>
+    </form>
+
+    <div style="margin: 30px 0; border-top: 1px solid #eee; position: relative;">
+      <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: white; padding: 0 15px; color: #999; font-size: 14px;">OR</span>
+    </div>
+
+    <div id="residentEntrance">
+      <h3 style="text-align: center; color: var(--forest-emerald); margin-bottom: 15px;">🌲 Resident Entrance</h3>
+      <p style="text-align: center; font-size: 14px; color: #666; margin-bottom: 20px;">Enter your name and phone number to access the village portal</p>
+      <div class="form-group">
+        <label for="residentName">Full Name</label>
+        <input type="text" id="residentName" placeholder="e.g., Leland Palmer" style="text-align: center; margin-bottom: 15px;">
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input type="tel" id="phoneNumber" placeholder="e.g., 555-0199" style="text-align: center;">
+      </div>
+      <button type="button" class="btn-login" id="residentBtn" style="background: var(--forest-emerald); margin-top: 15px;">Enter Village</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <!-- DISABLED: <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCPgOFesGt3LWN26D_OyzFMMLkDB7dAbj4",
+      authDomain: "bridal-party-planner.firebaseapp.com",
+      projectId: "bridal-party-planner",
+      storageBucket: "bridal-party-planner.firebasestorage.app",
+      messagingSenderId: "583661723414",
+      appId: "1:583661723414:web:b26114fc100ab526f6fa37",
+      measurementId: "G-8ZMK1VR3VL"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Shared Resident Account Info (Used behind the scenes)
+    const RESIDENT_EMAIL = "resident@damnfineparty.com";
+    const RESIDENT_PASS = "coffeeandpie2025";
+
+    // Check if already logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = './index.html';
+      }
+    });
+
+    // Resident Login Logic
+    const residentBtn = document.getElementById('residentBtn');
+    residentBtn.addEventListener('click', async () => {
+      const name = document.getElementById('residentName').value;
+      const phone = document.getElementById('phoneNumber').value;
+      
+      if (!name || name.trim().length < 2) {
+        alert('Please enter your full name.');
+        return;
+      }
+      if (!phone || phone.length < 7) {
+        alert('Please enter a valid phone number.');
+        return;
+      }
+
+      residentBtn.disabled = true;
+      residentBtn.textContent = 'Opening Gates...';
+      
+      try {
+        // Log into the shared resident account
+        await signInWithEmailAndPassword(auth, RESIDENT_EMAIL, RESIDENT_PASS);
+        // Store name and phone for tracking edits
+        sessionStorage.setItem('resident_identity', `${name.trim()} (${phone})`);
+      } catch (error) {
+        alert('Entrance failed. Please contact the host.');
+        residentBtn.disabled = false;
+        residentBtn.textContent = 'Enter Village';
+      }
+    });
+
+    // Original Login logic below...
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const errorMessage = document.getElementById('errorMessage');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      // Disable button and show loading
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Signing in...';
+      errorMessage.classList.remove('show');
+      
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // Success - will redirect via onAuthStateChanged
+      } catch (error) {
+        // Show error message
+        let message = 'Login failed. Please check your credentials.';
+        if (error.code === 'auth/invalid-email') {
+          message = 'Invalid email address.';
+        } else if (error.code === 'auth/user-not-found') {
+          message = 'No account found with this email.';
+        } else if (error.code === 'auth/wrong-password') {
+          message = 'Incorrect password.';
+        } else if (error.code === 'auth/too-many-requests') {
+          message = 'Too many failed attempts. Please try again later.';
+        }
+        
+        errorMessage.textContent = message;
+        errorMessage.classList.add('show');
+        
+        // Re-enable button
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign In';
+      }
+    });
+  </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Planner - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Menu Planning Tool</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>🍽️ Menu Planner</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <p>Organize your menu by category with dietary tags and allergen information.</p>
+                    <p style="font-size: 14px; color: #666;">To edit item details, use the <a href="food.html">Food page</a>.</p>
+                </div>
+                <button class="btn" onclick="showAddMenuItemForm()">➕ Add Menu Item</button>
+            </div>
+            
+            <div id="menu-planner-items">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading menu items...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Dietary Coverage Summary</h2>
+            <div id="dietary-summary">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Category Totals</h2>
+            <div id="category-totals">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Calculating...</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn" onclick="printMenuPreview()">🖨️ Print Menu Preview</button>
+        </div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Details - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>The Case Files: A Toast to Secrets</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Residents</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div class="alert alert-danger">
+            <strong>⚠️ FOR OUR EYES ONLY - TOP SECRET!</strong>
+        </div>
+
+        <div id="page-notes-container"></div>
+
+        <div id="story-overview">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading the case files...</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎭 Character Roles</h2>
+            <p>These are the characters we've designed for our guests. Each one has a secret and a goal for the night. </p>
+            <div class="alert alert-info">
+                <strong>Village Residents:</strong> Any guests not assigned a main character below will play the role of a **Twin Peaks Resident**. They are deputized investigators who will interview the main suspects to help solve the crime!
+            </div>
+            <div class="alert alert-info">
+                <strong>How the Mystery Works:</strong> Each guest gets a packet with their details. They'll need to stay in character and trade clues to solve the mystery by the end of the night!
+            </div>
+            <div id="character-list" class="grid grid-2">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading characters...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📄 Individual Briefings</h2>
+            <p>We can use the "Print Packet" buttons above to generate their files. Each one includes:</p>
+            <ul class="item-list">
+                <li>Their character name and role</li>
+                <li>A detailed backstory</li>
+                <li>Costume ideas we've come up with</li>
+                <li>Their deep, dark secret</li>
+                <li>What they are trying to achieve</li>
+                <li>Personality notes to help them play the part</li>
+            </ul>
+            <div class="alert alert-warning">
+                <strong>💡 Note for Us:</strong> We'll send the costume ideas and character intros early with their invites so they can prepare! We'll save the deep dark secrets and the investigation objectives for the sealed envelopes they'll open at the party.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎬 Investigation Phases</h2>
+            <p>This is how we'll move the story along during the party:</p>
+            <div id="phase-controls">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading phase controls...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="investigation-map-card">
+            <h2>🗺️ Master Investigation Map (Our Guide)</h2>
+            <p>This map shows exactly who has what information and who they are told to talk to in each phase. We can use this to keep the story on track if anyone gets lost!</p>
+            <div id="investigation-map">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading the investigation map...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔥 How the Reveal Works</h2>
+            <div class="alert alert-info">
+                <strong>The "Big Burn" Ceremony:</strong>
+                <ol>
+                    <li><strong>The Prep:</strong> Each cupcake has a small piece of "flash paper" or heat-sensitive paper on a stick. On the back (hidden) is a single line of the story.</li>
+                    <li><strong>The Advance:</strong> After Envelope 4 is opened, gather everyone around the dessert station.</li>
+                    <li><strong>The Reveal:</strong> You (the Host) use the kitchen torch to light each cupcake's paper in order. As the paper burns away, the "Cherry Lie" is revealed!</li>
+                    <li><strong>The Climax:</strong> Read each line aloud dramatically. The final cupcakes reveal Morgan's guilt and return the recipe to Norma.</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📦 The Evidence Packets</h2>
+            <p>Each guest will have 4 envelopes to open as we advance the investigation:</p>
+            <div id="envelope-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading envelope details...</p>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn" onclick="downloadClueKitZip()">
+                    📥 Download Our Full Clue Kit (ZIP)
+                </button>
+                <p style="margin-top: 10px; font-size: 14px; color: #666;">
+                    This will give us all the envelopes and our guide in one folder for easy printing.
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Director’s Guide to the Case</h2>
+            <h3>Our Host Checklist:</h3>
+            <ul class="item-list">
+                <li>Print and seal all character files</li>
+                <li>Hide the character cards under seats before anyone arrives</li>
+                <li>Queue up our Twin Peaks soundtrack playlist</li>
+                <li>Have the kitchen torch ready for the cupcake reveal ceremony</li>
+                <li>Keep our solution notes close (but hidden!)</li>
+                <li>Be ready with backup clues if guests get stuck</li>
+                <li>Have our props ready (magnifying glasses, "evidence" bags, etc.)</li>
+                <li>Set a signal for when the "murder" is officially announced</li>
+            </ul>
+        </div>
+
+        <div id="anonymous-tips-container"></div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        window.addEventListener('load', () => setTimeout(() => { if (typeof window.initApp === 'function') window.initApp(); }, 100));
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Assignment - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>Guest & Role Assignment Manager</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Guests</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>👥 Role Assignment Matrix</h2>
+            <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <button class="btn btn-secondary" onclick="filterAssignments('all')" id="filter-all">All</button>
+                    <button class="btn btn-secondary" onclick="filterAssignments('assigned')" id="filter-assigned">Assigned</button>
+                    <button class="btn btn-secondary" onclick="filterAssignments('unassigned')" id="filter-unassigned">Unassigned</button>
+                </div>
+                <button class="btn" onclick="autoAssignRoles()">🎲 Auto-Assign Roles</button>
+            </div>
+            
+            <div id="role-assignment-matrix">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading assignment matrix...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📦 Print Packets</h2>
+            <p>Select guests to print comprehensive character packets including all envelope phases:</p>
+            <div id="packet-print-list">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading guest list...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule - A Damn Fine Bridal Party</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌲 A Damn Fine Bridal Party 🌲</h1>
+            <p>2-Hour Run-of-Show Timeline</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="decor.html">Decor</a></li>
+                <li><a href="food.html">Food</a></li>
+                <li><a href="mystery.html">Mystery</a></li>
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="guests.html">Residents</a></li>
+                <li><a href="admin.html">Station HQ</a></li>
+            </ul>
+        </nav>
+
+        <div id="page-notes-container"></div>
+
+        <div class="card">
+            <h2>⏰ Our Event Timeline</h2>
+            <p>I've designed this 2-hour flow to balance our favorite traditional shower moments with the "Toast to Secrets" mystery experience:</p>
+        </div>
+
+        <div id="schedule-timeline">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading our schedule...</p>
+            </div>
+        </div>
+
+        <div id="schedule-supplies"></div>
+        <div id="schedule-music"></div>
+        <div id="schedule-backup-plans"></div>
+        <div id="schedule-moments"></div>
+    </div>
+
+    <!-- DISABLED: <script src="./assets/app.js"></script> -->
+    <!-- DISABLED: <script src="./assets/modules/render.js"></script> -->
+    <!-- DISABLED: <script>
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script> -->
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+</head>
+<body>
+    <h1>Simple Test</h1>
+    <div id="test-output">Loading...</div>
+    
+    <!-- DISABLED: <script>
+        // Test basic JavaScript functionality
+        document.getElementById('test-output').innerHTML = 'JavaScript is working!';
+        
+        // Test if we can access the files
+        fetch('./data/guests.json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('test-output').innerHTML += '<br>JSON data loaded: ' + data.length + ' guests';
+            })
+            .catch(error => {
+                document.getElementById('test-output').innerHTML += '<br>Error loading JSON: ' + error.message;
+            });
+    </script> -->
+</body>
+</html>

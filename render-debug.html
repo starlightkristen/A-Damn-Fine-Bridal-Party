@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Render Debug Test</title>
+</head>
+<body>
+    <h1>Render Debug Test</h1>
+    <div id="test-output">Loading...</div>
+    
+    <script src="./assets/app.js"></script>
+    <script>
+        // Check if calculateStats is available after app.js loads
+        console.log('calculateStats available after app.js:', typeof calculateStats);
+        console.log('window.calculateStats available:', typeof window.calculateStats);
+    </script>
+    
+    <script>
+        // Try to load render.js with error handling
+        try {
+            // Load render.js content and execute it
+            fetch('./assets/modules/render.js')
+                .then(response => response.text())
+                .then(code => {
+                    try {
+                        eval(code);
+                        console.log('Render.js executed successfully');
+                        console.log('window.Render now available:', typeof window.Render);
+                        
+                        document.getElementById('test-output').innerHTML = `
+                            <h3>Render Loading Results:</h3>
+                            <p>calculateStats: ${typeof calculateStats}</p>
+                            <p>window.calculateStats: ${typeof window.calculateStats}</p>
+                            <p>window.Render: ${typeof window.Render}</p>
+                            <p>Render keys: ${window.Render ? Object.keys(window.Render).join(', ') : 'N/A'}</p>
+                        `;
+                    } catch (evalError) {
+                        console.error('Error executing render.js:', evalError);
+                        document.getElementById('test-output').innerHTML = `
+                            <h3>❌ Error executing render.js:</h3>
+                            <p>${evalError.message}</p>
+                            <p>Line: ${evalError.lineNumber}</p>
+                        `;
+                    }
+                })
+                .catch(fetchError => {
+                    console.error('Error loading render.js:', fetchError);
+                    document.getElementById('test-output').innerHTML = `
+                        <h3>❌ Error loading render.js:</h3>
+                        <p>${fetchError.message}</p>
+                    `;
+                });
+        } catch (error) {
+            console.error('Script error:', error);
+        }
+    </script>
+</body>
+</html>

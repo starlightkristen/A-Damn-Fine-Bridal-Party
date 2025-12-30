@@ -39,7 +39,7 @@ const AppData = {
   // History for undo
   historyStack: [],
   // Host email list
-  hostEmails: ['kstehlar@solarainnovations.com', 'marlena@example.com'] // ADD MARLENA'S EMAIL HERE
+  hostEmails: ['kstehlar@solarainnovations.com', 'marlenamoomoo@gmail.com']
 };
 
 // Helper to check if current user is a Host

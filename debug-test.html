@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test - Bridal Party</title>
+</head>
+<body>
+    <h1>Debug Test</h1>
+    <div id="status">Loading...</div>
+    <div id="data-check"></div>
+    
+    <script src="./assets/app.js"></script>
+    <script src="./assets/modules/render.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const status = document.getElementById('status');
+            const dataCheck = document.getElementById('data-check');
+            
+            try {
+                status.innerHTML = 'Initializing...';
+                await initApp();
+                
+                status.innerHTML = '✅ App initialized successfully!';
+                dataCheck.innerHTML = `
+                    <h3>Data Check:</h3>
+                    <p>FIREBASE_ENABLED: ${FIREBASE_ENABLED}</p>
+                    <p>FirebaseManager: ${FirebaseManager ? '✅ Loaded' : '❌ Not loaded'}</p>
+                    <p>AppData.guests: ${AppData.guests ? AppData.guests.length : 0} guests</p>
+                    <p>AppData.schedule: ${AppData.schedule ? '✅ Loaded' : '❌ Not loaded'}</p>
+                    <p>Render object: ${window.Render ? '✅ Available' : '❌ Not available'}</p>
+                    <p>Current page: ${getPageName()}</p>
+                `;
+            } catch (error) {
+                status.innerHTML = '❌ Error: ' + error.message;
+                console.error('Initialization error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
