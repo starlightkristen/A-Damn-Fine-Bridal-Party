@@ -285,7 +285,6 @@ const Render = {
       document.getElementById('shopping-list').innerHTML = shoppingControlsHtml + shoppingHtml;
     }
     
-    }
   },
   
   // Render Decor Wizard page
