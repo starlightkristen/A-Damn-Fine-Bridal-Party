@@ -152,25 +152,76 @@ async function initFirebase() {
 
 // Load all data on page initialization
 async function loadData() {
+  console.log('🚀 Starting data load...');
+  
   try {
-    // Initialize Firebase if enabled, with timeout
-    if (FIREBASE_ENABLED && !FirebaseManager) {
-      console.log('Initializing Firebase with 5-second timeout...');
-      try {
-        const initPromise = initFirebase();
-        const timeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Firebase timeout')), 5000)
-        );
-        await Promise.race([initPromise, timeout]);
-        console.log('✅ Firebase ready');
-      } catch (error) {
-        console.warn('⚠️ Firebase init failed or timed out, will use JSON fallback:', error.message);
-        FirebaseManager = null; // Ensure fallback
-      }
+    // ALWAYS load JSON files first for immediate display
+    console.log('📁 Loading JSON files for immediate display...');
+    const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles, pageNotes] = await Promise.all([
+      fetch('./data/guests.json').then(r => r.json()),
+      fetch('./data/characters.json').then(r => r.json()),
+      fetch('./data/decor.json').then(r => r.json()),
+      fetch('./data/vendors.json').then(r => r.json()),
+      fetch('./data/menu.json').then(r => r.json()),
+      fetch('./data/schedule.json').then(r => r.json()),
+      fetch('./data/story.json').then(r => r.json()),
+      fetch('./data/clues.json').then(r => r.json()),
+      fetch('./data/packets.json').then(r => r.json()),
+      fetch('./data/settings.json').then(r => r.json()),
+      fetch('./data/roles.json').then(r => r.json()),
+      fetch('./data/pageNotes.json').then(r => r.json()).catch(() => ({}))
+    ]);
+    
+    // Apply JSON data immediately
+    AppData.guests = guests;
+    AppData.characters = characters;
+    AppData.decor = decor;
+    AppData.vendors = vendors;
+    AppData.menu = menu;
+    AppData.schedule = schedule;
+    AppData.story = story;
+    AppData.clues = clues;
+    AppData.packets = packets;
+    AppData.settings = settings;
+    AppData.roles = roles;
+    AppData.pageNotes = pageNotes;
+    
+    console.log('✅ JSON data loaded and applied immediately');
+    
+    // Store defaults for reset functionality
+    if (!AppData.defaults.guests) {
+      AppData.defaults = {
+        guests: JSON.parse(JSON.stringify(guests)),
+        characters: JSON.parse(JSON.stringify(characters)),
+        decor: JSON.parse(JSON.stringify(decor)),
+        vendors: JSON.parse(JSON.stringify(vendors)),
+        menu: JSON.parse(JSON.stringify(menu)),
+        schedule: JSON.parse(JSON.stringify(schedule)),
+        story: JSON.parse(JSON.stringify(story)),
+        clues: JSON.parse(JSON.stringify(clues)),
+        packets: JSON.parse(JSON.stringify(packets)),
+        settings: JSON.parse(JSON.stringify(settings)),
+        roles: JSON.parse(JSON.stringify(roles)),
+        pageNotes: JSON.parse(JSON.stringify(pageNotes))
+      };
     }
     
-    // Load from Firestore if Firebase is enabled
-    if (FIREBASE_ENABLED && FirebaseManager) {
+    // THEN try Firebase in background (non-blocking)
+    if (FIREBASE_ENABLED) {
+      console.log('🔥 Initializing Firebase in background...');
+      setTimeout(async () => {
+        try {
+          if (!FirebaseManager) {
+            await initFirebase();
+          }
+          if (FirebaseManager && FirebaseManager.currentUser) {
+            console.log('🔄 Firebase ready - future changes will sync');
+          }
+        } catch (error) {
+          console.log('ℹ️ Firebase not available, continuing with JSON-only mode');
+        }
+      }, 100); // Start Firebase init after content is displayed
+    }
       console.log('Loading data from Firestore...');
       
       // Check if data has been seeded before
