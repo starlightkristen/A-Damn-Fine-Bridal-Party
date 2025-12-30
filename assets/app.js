@@ -2,7 +2,7 @@
 
 // Firebase Integration Flag
 // Set this to true to enable Firebase backend, false to use localStorage only
-const FIREBASE_ENABLED = false; // Temporarily disabled for stability
+const FIREBASE_ENABLED = true; // Re-enabled with quick fallback to JSON
 
 // Firebase Manager (will be initialized if enabled)
 let FirebaseManager = null;
@@ -153,9 +153,20 @@ async function initFirebase() {
 // Load all data on page initialization
 async function loadData() {
   try {
-    // Initialize Firebase if enabled
+    // Initialize Firebase if enabled, with timeout
     if (FIREBASE_ENABLED && !FirebaseManager) {
-      await initFirebase();
+      console.log('Initializing Firebase with 5-second timeout...');
+      try {
+        const initPromise = initFirebase();
+        const timeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Firebase timeout')), 5000)
+        );
+        await Promise.race([initPromise, timeout]);
+        console.log('✅ Firebase ready');
+      } catch (error) {
+        console.warn('⚠️ Firebase init failed or timed out, will use JSON fallback:', error.message);
+        FirebaseManager = null; // Ensure fallback
+      }
     }
     
     // Load from Firestore if Firebase is enabled
