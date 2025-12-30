@@ -44,7 +44,8 @@ const AppData = {
 
 // Helper to check if current user is a Host
 window.isHost = function() {
-  if (!FIREBASE_ENABLED || !FirebaseManager || !FirebaseManager.currentUser) return false;
+  // If Firebase is disabled or not ready, default to true for local testing/development
+  if (!FIREBASE_ENABLED || !FirebaseManager || !FirebaseManager.currentUser) return true;
   return AppData.hostEmails.includes(FirebaseManager.currentUser.email.toLowerCase());
 }
 
