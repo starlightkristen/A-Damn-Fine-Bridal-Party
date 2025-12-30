@@ -232,7 +232,8 @@ function calculateStats() {
     totalCharacters: AppData.characters.length,
     assignedCharacters: AppData.guests.filter(g => g.assignedCharacter).length,
     totalClues: AppData.clues.length,
-    totalPackets: AppData.packets.length
+    totalPackets: AppData.packets.length,
+    menuItems: AppData.menu && AppData.menu.menuItems ? AppData.menu.menuItems.length : 0
   };
 }
 
