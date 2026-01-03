@@ -52,6 +52,9 @@ window.isHost = function() {
 
 // Get display identity for the current user
 function getUserIdentity() {
+  if (!FIREBASE_ENABLED || !FirebaseManager || !FirebaseManager.currentUser) {
+    return 'Local User';
+  }
   if (isHost()) return `Host (${FirebaseManager.currentUser.email})`;
   return sessionStorage.getItem('resident_identity') || 'Guest Resident';
 }
