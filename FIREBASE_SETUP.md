@@ -1,5 +1,7 @@
 # Firebase Integration Setup Guide
 
+> **Note:** This is technical documentation for the Firebase backend integration. For general usage, see [README.md](README.md).
+
 ## Overview
 
 Your "A Damn Fine Bridal Party" site now has Firebase backend integration for real-time collaboration between you and Marlena! 

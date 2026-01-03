@@ -4,6 +4,8 @@
 
 A complete GitHub Pages portal for planning Marlena's Twin Peaks themed bridal party, featuring an interactive murder mystery experience called "A Toast to Secrets" with **full inline CRUD editors** for all data.
 
+**Latest Update (January 2026):** Added cache-busting for browser updates and expanded character roster to 23 roles!
+
 ## 🎭 About This Portal
 
 This fully interactive static site provides everything needed to plan and execute a memorable Twin Peaks themed bridal celebration, with **live editing capabilities**:
@@ -45,7 +47,7 @@ This fully interactive static site provides everything needed to plan and execut
 6. ✅ **Clues** - Import/export/reset via mystery page and admin panel
 7. ✅ **Packets** - Import/export/reset via mystery page and admin panel
 8. ✅ **Vendors** - Import/export/reset via admin panel (separate from decor)
-9. ✅ **Characters** - Import/export/reset via admin panel
+9. ✅ **Characters** - Import/export/reset via admin panel (23 characters available)
 
 ## 🎨 Theme Colors
 
@@ -75,14 +77,17 @@ A-Damn-Fine-Bridal-Party/
 │       └── .keep          # Placeholder for images
 ├── data/
 │   ├── guests.json        # Guest list with 2 seed guests
-│   ├── characters.json    # Mystery character roles
+│   ├── characters.json    # 23 mystery character roles (6 core + 17 supporting)
 │   ├── decor.json         # Decor mood boards and shopping
-│   ├── vendors.json       # Vendor contacts (NEW)
+│   ├── vendors.json       # Vendor contacts
 │   ├── menu.json          # Twin Peaks themed menu items
 │   ├── schedule.json      # Event timeline blocks
 │   ├── story.json         # "A Toast to Secrets" mystery
 │   ├── clues.json         # Mystery clues
-│   └── packets.json       # Character packets
+│   ├── packets.json       # Character packets
+│   ├── roles.json         # Role assignments
+│   ├── pageNotes.json     # Page-specific notes
+│   └── settings.json      # Application settings
 └── .github/
     └── ISSUE_TEMPLATE/
         └── guest-list.yml # Guest submission form
@@ -103,6 +108,21 @@ To make this portal live on GitHub Pages:
 6. Visit: `https://starlightkristen.github.io/A-Damn-Fine-Bridal-Party/`
 
 The `.nojekyll` file ensures GitHub Pages serves the site correctly without Jekyll processing.
+
+## 🔄 Deploying Updates
+
+When you update data or code files:
+
+1. **Commit changes** to your repository (via GitHub web editor or git)
+2. **Update cache-busting version** in HTML files if you modified JavaScript or character data:
+   - Change `?v=YYYYMMDD` to current date in all HTML files
+   - Example: `?v=20260103` → `?v=20260104`
+3. **Wait 1-2 minutes** for GitHub Pages to rebuild
+4. **Test in incognito/private window** to verify updates are live
+5. **Clear cache or hard refresh** (Ctrl+Shift+R / Cmd+Shift+R) if needed
+
+**Files requiring cache-bust updates:**
+- guests.html, mystery.html, index.html, decor.html, food.html, schedule.html, admin.html, decor-wizard.html, menu-planner.html, role-assignment.html, host-controls.html
 
 ## 📝 Using the Interactive Editors
 
@@ -287,14 +307,17 @@ All data is stored in JSON files in the `/data` directory. You have multiple opt
 ### Data Files
 
 - **guests.json**: Guest list with all contact and preference details
-- **characters.json**: Mystery character roles and personalities
-- **decor.json**: Mood boards and shopping lists (vendors moved to separate file)
-- **vendors.json**: Vendor contacts and notes (NEW separate dataset)
+- **characters.json**: 23 mystery character roles (6 core + 17 supporting) with full backstories
+- **decor.json**: Mood boards and shopping lists
+- **vendors.json**: Vendor contacts and notes
 - **menu.json**: Menu items with dynamic categories
 - **schedule.json**: Event timeline and activities
 - **story.json**: Mystery plot and solution
 - **clues.json**: Mystery clues with reveal phases
 - **packets.json**: Character packets with envelopes
+- **roles.json**: Role assignment configurations
+- **pageNotes.json**: Page-specific notes and instructions
+- **settings.json**: Application configuration and preferences
 
 ## 👥 Submitting Guests
 
@@ -312,24 +335,29 @@ This creates a tracked record of guest submissions that can be reviewed and adde
 
 **"A Toast to Secrets"** is a 2-hour murder mystery experience featuring:
 
-- **Dynamic Character Roles**: Number of characters determined by your data
+- **23 Dynamic Character Roles**: 6 core characters and 17 supporting roles for flexibility
 - **Twin Peaks Setting**: The Great Northern Hotel atmosphere
-- **Interactive Investigation**: 35-minute free-form mystery solving
+- **Interactive Investigation**: 35-minute free-form mystery solving with multiple phases
 - **Dramatic Reveal**: Kitchen torch cupcake burning ceremony
 - **Printable Packets**: Individual character briefings for each guest
+- **Flexible Casting**: Assign characters based on guest count and personalities
 
-### Default Character Roles
+### Character Roles
 
-The repository includes 6 default characters (fully customizable):
+The repository includes **23 diverse characters** for your mystery party:
 
+**6 Core Characters (Critical Roles):**
 1. **Audrey Horne** (Socialite) - Sophisticated and mysterious
-2. **Dale Cooper** (Detective) - Quirky FBI agent and coffee lover
-3. **Shelly Johnson** (Waitress) - Warm and observant diner waitress
+2. **Special Agent Dale Cooper** (Detective) - Quirky FBI agent and coffee lover
+3. **Shelly Johnson** (Diner Waitress) - Warm and observant
 4. **The Log Lady** (Mystic) - Eccentric prophet with warnings
-5. **Josie Packard** (Business Owner) - Elegant and ambitious (the murderer!)
-6. **Andy Brennan** (Deputy) - Kind-hearted but clumsy deputy
+5. **Morgan Kincaid** (Business Owner) - The culprit behind the theft and poisoning
+6. **Norma Jennings** (Diner Owner) - The victim of recipe theft
 
-You can add more characters by editing `characters.json`!
+**17 Supporting Characters:**
+Including Andy Brennan (Deputy), Lucy Moran (Secretary), Big Ed Hurley (Gas Station Owner), Donna Hayward (Volunteer), James Hurley (Mechanic), Bobby Briggs (Ex-Football Star), Nadine Hurley (Inventor), Dr. Jacoby (Psychiatrist), Mayor Dwayne Milford, Leland Palmer (Attorney), Ben Horne (Hotel Owner), Catherine Martell (Mill Owner), Pete Martell (Fisherman), Harry S. Truman (Sheriff), Josie Packard (Widow), Hank Jennings (Ex-Con), and Leo Johnson (Truck Driver).
+
+All characters are fully customizable by editing `characters.json`!
 
 ## ⚙️ Technical Notes
 
@@ -340,6 +368,22 @@ You can add more characters by editing `characters.json`!
 - **LocalStorage Support**: Optional browser storage for persistence
 - **Import/Export**: JSON file upload/download with validation
 - **Print Functionality**: Character packets generated client-side using browser print dialog
+- **Cache-Busting**: Version parameters (`?v=YYYYMMDD`) on JavaScript imports ensure users get latest updates
+
+### Browser Cache Management
+
+To ensure users always see the latest content updates, all JavaScript files use cache-busting version parameters:
+
+```html
+<script src="./assets/app.js?v=20260103"></script>
+<script src="./assets/modules/render.js?v=20260103"></script>
+```
+
+**When to update the version:**
+- After updating character data (`characters.json`)
+- After modifying JavaScript files (`app.js`, `render.js`)
+- After making significant content changes
+- Update the date parameter (YYYYMMDD format) in all HTML files when deploying updates
 
 ### Browser Compatibility
 - Modern browsers with ES6+ support required

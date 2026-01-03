@@ -1,6 +1,10 @@
 # Murder Mystery Plot: "Cherry Lies"
 ## A Twin Peaks Mystery for Marlena's Bridal Shower
 
+> **⚠️ SPOILER WARNING:** This document contains the complete mystery solution and all character secrets. Only read if you're hosting the event or helping with planning. Guests should NOT read this document!
+
+> **Note:** The mystery features 23 playable characters (6 core + 17 supporting roles). Character details and assignments can be viewed in the portal at `mystery.html` and `guests.html`.
+
 ---
 
 ## 🎭 Overview

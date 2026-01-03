@@ -1,5 +1,7 @@
 # Save Fixes Implementation Summary
 
+> **Note:** This is technical documentation for developers. For general usage, see [README.md](README.md).
+
 ## Problem
 Users were experiencing data loss when:
 1. Edits were made before Firebase finished initializing
