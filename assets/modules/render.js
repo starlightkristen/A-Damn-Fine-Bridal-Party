@@ -37,6 +37,24 @@ function renderPageNotes() {
   `;
 }
 
+// Helper function to render edit metadata display
+function renderEditMetadata(metadata, style = 'inline') {
+  if (!metadata?.lastEditedBy) {
+    return style === 'table' ? '<small style="color: #999;">No edit history</small>' : '';
+  }
+  
+  const text = `✏️ ${escapeHtml(metadata.lastEditedBy)}`;
+  const time = formatTimestamp(metadata.lastEditedAt);
+  
+  if (style === 'table') {
+    return `<small style="color: #666;">${text}<br>${time}</small>`;
+  } else if (style === 'badge') {
+    return `<span style="color: #666; font-size: 12px; margin-top: 10px; display: block;">${text} ${time}</span>`;
+  } else {
+    return `<small style="color: #666; font-size: 12px;">${text} at ${time}</small>`;
+  }
+}
+
 // Helper function to render clues by phase
 function renderCluesByPhase(phase) {
   const clues = AppData.clues.filter(c => c.reveal_phase === phase);
@@ -211,7 +229,7 @@ const Render = {
           <ul>
             ${mood.items.map(item => `<li>${item}</li>`).join('')}
           </ul>
-          ${mood._metadata?.lastEditedBy ? `<span style="color: #666; font-size: 12px; margin-top: 10px; display: block;">✏️ Last edited by ${escapeHtml(mood._metadata.lastEditedBy)} ${formatTimestamp(mood._metadata.lastEditedAt)}</span>` : ''}
+          ${renderEditMetadata(mood._metadata, 'badge')}
           <div class="item-controls">
             <button class="favorite-btn ${AppData.decorFavorites.has(mood.id) ? 'active' : ''}" 
                     onclick="handleDecorFavorite('${mood.id}')">
@@ -450,7 +468,7 @@ const Render = {
               <div style="margin: 10px 0;">
                 ${generateDietaryBadges(item)}
               </div>
-              ${item._metadata?.lastEditedBy ? `<small style="color: #666; font-size: 12px;">✏️ ${escapeHtml(item._metadata.lastEditedBy)} at ${formatTimestamp(item._metadata.lastEditedAt)}</small>` : ''}
+              ${renderEditMetadata(item._metadata, 'inline')}
               <div class="item-controls">
                 <button class="favorite-btn ${AppData.menuFavorites.has(item.id) ? 'active' : ''}" 
                         onclick="handleMenuFavorite('${item.id}')">
@@ -1110,7 +1128,7 @@ const Render = {
         </ul>
         <p><strong>Music:</strong> ${block.music}</p>
         <p><em>${block.notes}</em></p>
-        ${block._metadata?.lastEditedBy ? `<small style="color: #666; font-size: 12px; margin-top: 10px; display: block;">✏️ Last edited by ${escapeHtml(block._metadata.lastEditedBy)} ${formatTimestamp(block._metadata.lastEditedAt)}</small>` : ''}
+        ${renderEditMetadata(block._metadata, 'badge')}
       </div>
     `).join('');
     
@@ -1215,9 +1233,7 @@ const Render = {
             const roleVibeDisplay = guest.roleVibe ? 
               `<br><small style="color: #666;">🎭 ${guest.roleVibe}</small>` : '';
             
-            const editDisplay = guest._metadata?.lastEditedBy ? 
-              `<small style="color: #666;">✏️ ${escapeHtml(guest._metadata.lastEditedBy)}<br>${formatTimestamp(guest._metadata.lastEditedAt)}</small>` :
-              '<small style="color: #999;">No edit history</small>';
+            const editDisplay = renderEditMetadata(guest._metadata, 'table');
             
             return `
               <tr>
