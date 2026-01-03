@@ -261,10 +261,6 @@ async function initApp() {
   if (Render[pageName]) {
     Render[pageName]();
   }
-  
-  // Set up real-time clock
-  updateClock();
-  setInterval(updateClock, 1000);
 }
 
 
@@ -349,6 +345,7 @@ function calculateStats() {
     percentWithRsvp: AppData.guests.length > 0 ? Math.round((guestsWithRsvp / AppData.guests.length) * 100) : 0
   };
 }
+window.calculateStats = calculateStats;
 
 // Auto-assign characters to guests
 function autoAssignCharacters() {
