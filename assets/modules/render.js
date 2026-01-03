@@ -1481,6 +1481,9 @@ const Render = {
   }
 };
 
+// Export Render object to window for access from app.js
+window.Render = Render;
+
 // Helper function to render settings panel
 function renderSettingsPanel() {
   const settings = AppData.settings || {};
