@@ -284,8 +284,6 @@ const Render = {
       
       document.getElementById('shopping-list').innerHTML = shoppingControlsHtml + shoppingHtml;
     }
-    
-    }
   },
   
   // Render Decor Wizard page
@@ -1483,6 +1481,9 @@ const Render = {
   }
 };
 
+// Export Render object to window for access from app.js
+window.Render = Render;
+
 // Helper function to render settings panel
 function renderSettingsPanel() {
   const settings = AppData.settings || {};
@@ -1814,6 +1815,8 @@ function renderAnonymousTips() {
 function renderInvestigationMap() {
   const mapElement = document.getElementById('investigation-map');
   if (!mapElement) return;
+  
+  const userIsHost = isHost(); // Check if current user is host
   
   const phases = ['intro', 'mid', 'pre-final', 'final'];
   const phaseNames = ['Phase 1: Arrival', 'Phase 2: Discovery', 'Phase 3: The Web', 'Phase 4: Truth'];
