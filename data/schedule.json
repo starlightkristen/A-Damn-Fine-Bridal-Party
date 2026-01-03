@@ -1,127 +1,76 @@
 {
   "eventTitle": "A Damn Fine Bridal Party for Marlena",
-  "totalDuration": "2 hours",
+  "totalDuration": "75 minutes",
   "timeline": [
     {
-      "time": "0:00 - 0:15",
-      "title": "Guest Arrival & Welcome",
-      "duration": "15 minutes",
-      "description": "Guests arrive and discover their character cards under their chairs (do not open yet!). Soft Twin Peaks soundtrack playing.",
+      "time": "0:00 - 0:20",
+      "title": "Section 1: The Mystery Begins (Intro)",
+      "duration": "20 minutes",
+      "description": "Guests arrive knowing their character from the invite. Pick up packet at seat and open Envelope 1.",
+      "phase": "intro",
+      "envelope_instruction": "Open Envelope 1",
       "activities": [
-        "Welcome guests at entrance",
-        "Direct guests to their seats (character cards hidden underneath)",
-        "Serve coffee and light appetizers",
-        "Guests mingle and chat"
+        "Guests already know character from invite",
+        "Guests pick up packet at their seat",
+        "Open Envelope 1",
+        "Short character roll call"
       ],
       "music": "Twin Peaks Theme (Laura Palmer's Theme) - ambient",
-      "notes": "Keep energy light and social. Character cards should be face-down under chairs."
+      "notes": "Guests should feel welcomed and excited, not stressed. Keep it light and fun."
     },
     {
-      "time": "0:15 - 0:45",
-      "title": "Bridal Shower Activities",
-      "duration": "30 minutes",
-      "description": "Traditional shower activities before the mystery begins",
+      "time": "0:20 - 0:40",
+      "title": "Section 2: Investigation (Mid)",
+      "duration": "20 minutes",
+      "description": "Mingle, snack, talk, speculate. Open Envelope 2 at midpoint.",
+      "phase": "mid",
+      "envelope_instruction": "At midpoint, open Envelope 2",
       "activities": [
-        "Welcome speech and toast to Marlena",
-        "Bride opens gifts (optional - can be done after)",
-        "Quick shower game (e.g., Bridal Bingo, How Well Do You Know Marlena?)",
-        "Serve main food items"
-      ],
-      "music": "Light jazz, upbeat Twin Peaks instrumental themes",
-      "notes": "Keep this segment warm and celebratory. Marlena should feel loved and celebrated."
-    },
-    {
-      "time": "0:45 - 0:50",
-      "title": "THE MURDER ANNOUNCEMENT",
-      "duration": "5 minutes",
-      "description": "Dramatic shift in atmosphere as the mystery begins!",
-      "activities": [
-        "Lights dim briefly",
-        "Host makes dramatic announcement: 'A body has been discovered!'",
-        "Music changes to ominous Twin Peaks theme",
-        "Guests instructed to look under their chairs and find character cards",
-        "Brief explanation of mystery rules"
-      ],
-      "music": "Dark, mysterious Twin Peaks theme (The Bookhouse Boys)",
-      "notes": "This is the pivotal moment! Build suspense. Consider a sound effect or visual cue."
-    },
-    {
-      "time": "0:50 - 1:00",
-      "title": "Character Introduction",
-      "duration": "10 minutes",
-      "description": "Guests read their character cards and introduce themselves",
-      "phase": "intro",
-      "envelope_instruction": "Open Envelope 1 - Your character introduction and initial clues",
-      "activities": [
-        "Each guest reads their character card privately",
-        "Go around the room - each guest introduces their character in 1 minute",
-        "Guests begin to understand their objectives and secrets",
-        "Distribute any physical clues"
-      ],
-      "music": "Mysterious but not too loud - guests need to read and think",
-      "notes": "Some guests may be shy - encourage them but keep it fun!"
-    },
-    {
-      "time": "1:00 - 1:35",
-      "title": "Investigation Phase",
-      "duration": "35 minutes",
-      "description": "Free-form mystery solving - guests mingle, interrogate, and search for clues",
-      "phase": "multi",
-      "envelope_instructions": [
-        {
-          "time": "1:00 (Start)",
-          "phase": "intro",
-          "instruction": "Continue with Envelope 1 clues - initial investigation"
-        },
-        {
-          "time": "1:10",
-          "phase": "mid",
-          "instruction": "Open Envelope 2 - New information and clue reveals"
-        },
-        {
-          "time": "1:25",
-          "phase": "pre-final",
-          "instruction": "Open Envelope 3 - Critical evidence emerges"
-        }
-      ],
-      "activities": [
-        "Guests move freely and interview each other",
-        "Host drops additional clues every 10 minutes if needed",
-        "Serve dessert and refill drinks",
-        "Guests can form alliances or work alone"
+        "Mingle, snack, talk, speculate",
+        "At midpoint, open Envelope 2"
       ],
       "music": "Twin Peaks soundtrack - moderate volume for atmosphere",
-      "notes": "This is the heart of the mystery! Watch energy and help if groups get stuck. Monitor timing for envelope openings!"
+      "notes": "Let conversations flow naturally. The mystery should feel fun, not like work."
     },
     {
-      "time": "1:35 - 1:45",
-      "title": "Cupcake Reveal Ceremony",
-      "duration": "10 minutes",
-      "description": "The dramatic cupcake burning reveals the murderer!",
-      "phase": "final",
-      "envelope_instruction": "Open Envelope 4 - Final revelations before the solution",
+      "time": "0:40 - 0:55",
+      "title": "Section 3: The Web Tightens (Pre-final)",
+      "duration": "15 minutes",
+      "description": "Call attention briefly, open Envelope 3, let new info circulate.",
+      "phase": "pre-final",
+      "envelope_instruction": "Open Envelope 3",
       "activities": [
-        "Host calls everyone to attention",
-        "ALL GUESTS: Open final envelope before cupcake ceremony",
-        "Each guest receives a special cupcake",
-        "Using kitchen torch, host reveals hidden messages under frosting",
-        "The murderer is revealed!",
-        "Big dramatic reveal moment"
+        "Call attention briefly",
+        "Open Envelope 3",
+        "Let new info circulate"
+      ],
+      "music": "Dark, mysterious Twin Peaks theme (The Bookhouse Boys)",
+      "notes": "Build suspense as the pieces come together."
+    },
+    {
+      "time": "0:55 - 1:10",
+      "title": "Section 4: The Big Burn (Final)",
+      "duration": "15 minutes",
+      "description": "Everyone gathers, opens Envelope 4 before cupcakes, then cupcake reveal ceremony.",
+      "phase": "final",
+      "envelope_instruction": "Open Envelope 4 before cupcakes",
+      "activities": [
+        "Everyone gathers",
+        "Open Envelope 4 before cupcakes",
+        "Cupcake reveal ceremony"
       ],
       "music": "Building dramatic music, culminating at reveal",
       "notes": "Practice the torch method beforehand! Safety first. Envelope 4 must be opened BEFORE cupcakes!"
     },
     {
-      "time": "1:45 - 2:00",
-      "title": "Wrap-Up & Awards",
-      "duration": "15 minutes",
-      "description": "Celebrate the winners and return focus to Marlena",
+      "time": "1:10 - 1:15",
+      "title": "Section 5: Wrap-up",
+      "duration": "5 minutes",
+      "description": "Very short recap, toast to Marlena, group photo.",
       "activities": [
-        "Award prize to person who solved it (if anyone did)",
-        "Host explains the full mystery plot",
-        "Share funny moments from the investigation",
-        "Final toast to Marlena",
-        "Group photo with props"
+        "Very short recap",
+        "Toast to Marlena",
+        "Group photo"
       ],
       "music": "Return to celebratory, upbeat music",
       "notes": "End on a high note! Make sure Marlena feels special and celebrated."
@@ -159,12 +108,13 @@
     ]
   },
   "momentsToCapture": [
-    "The Discovery: Guests finding their top-secret files",
-    "First Impressions: Everyone introducing their characters",
-    "The Investigation: Candid shots of our friends playing detective",
-    "The Big Burn: That dramatic cupcake reveal moment!",
-    "The Reveal: Everyone's face when the murderer is caught",
+    "If you feel like taking photos, do. If not, enjoy the vibes.",
+    "The Mystery Begins: Guests with their packets",
+    "First Impressions: Character introductions",
+    "The Investigation: Candid moments of friends playing detective",
+    "The Big Burn: That dramatic cupcake reveal moment",
+    "The Reveal: Reactions when the murderer is caught",
     "The Residents: A big group photo with everyone in character",
-    "Marlena's Favorites: Opening gifts and our favorite group moments"
+    "Marlena's Favorites: Opening gifts and favorite group moments"
   ]
 }
