@@ -336,7 +336,7 @@ function calculateStats() {
     pendingGuests: AppData.guests.filter(g => g.rsvp === 'pending' || g.rsvp === 'invited').length,
     assignedCharacters: AppData.guests.filter(g => g.assignedCharacter).length,
     availableCharacters: AppData.characters.length,
-    menuItems: AppData.menu.menuItems ? AppData.menu.menuItems.length : 0,
+    menuItems: AppData.menu && AppData.menu.menuItems ? AppData.menu.menuItems.length : 0,
     decorItems: AppData.decor.shoppingList ? 
       AppData.decor.shoppingList.reduce((sum, cat) => sum + cat.items.length, 0) : 0,
     guestsWithAddress: guestsWithAddress,
