@@ -52,8 +52,150 @@ window.isHost = function() {
 
 // Get display identity for the current user
 function getUserIdentity() {
+  if (!FIREBASE_ENABLED || !FirebaseManager || !FirebaseManager.currentUser) {
+    return 'Local User';
+  }
   if (isHost()) return `Host (${FirebaseManager.currentUser.email})`;
   return sessionStorage.getItem('resident_identity') || 'Guest Resident';
+}
+
+// Create metadata for new items
+function createMetadata() {
+  const identity = getUserIdentity();
+  const now = new Date().toISOString();
+  return {
+    createdBy: identity,
+    createdAt: now,
+    lastEditedBy: identity,
+    lastEditedAt: now
+  };
+}
+
+// Update metadata for existing items
+function updateMetadata(existingMetadata) {
+  const identity = getUserIdentity();
+  const now = new Date().toISOString();
+  return {
+    ...existingMetadata,
+    createdBy: existingMetadata?.createdBy || identity,
+    createdAt: existingMetadata?.createdAt || now,
+    lastEditedBy: identity,
+    lastEditedAt: now
+  };
+}
+
+// Format timestamp for display
+function formatTimestamp(isoString) {
+  if (!isoString) return 'Unknown';
+  const date = new Date(isoString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMins = Math.floor(diffMs / 60000);
+  
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+  
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+  
+  return date.toLocaleDateString();
+}
+
+// Get all recent changes across datasets
+function getAllRecentChanges(limit = 20) {
+  const changes = [];
+  
+  // Guests
+  AppData.guests?.forEach(g => {
+    if (g._metadata?.lastEditedAt) {
+      changes.push({
+        type: 'guest',
+        action: g._metadata.createdAt === g._metadata.lastEditedAt ? 'created' : 'edited',
+        item: g.name,
+        ...g._metadata
+      });
+    }
+  });
+  
+  // Menu items
+  AppData.menu?.menuItems?.forEach(m => {
+    if (m._metadata?.lastEditedAt) {
+      changes.push({
+        type: 'menu',
+        action: m._metadata.createdAt === m._metadata.lastEditedAt ? 'created' : 'edited',
+        item: m.name,
+        ...m._metadata
+      });
+    }
+  });
+  
+  // Decor - mood boards
+  AppData.decor?.moodBoard?.forEach(d => {
+    if (d._metadata?.lastEditedAt) {
+      changes.push({
+        type: 'decor',
+        action: d._metadata.createdAt === d._metadata.lastEditedAt ? 'created' : 'edited',
+        item: d.name,
+        ...d._metadata
+      });
+    }
+  });
+  
+  // Decor - shopping list categories
+  AppData.decor?.shoppingList?.forEach(s => {
+    if (s._metadata?.lastEditedAt) {
+      changes.push({
+        type: 'decor-shopping',
+        action: s._metadata.createdAt === s._metadata.lastEditedAt ? 'created' : 'edited',
+        item: s.category,
+        ...s._metadata
+      });
+    }
+  });
+  
+  // Schedule timeline
+  AppData.schedule?.timeline?.forEach(t => {
+    if (t._metadata?.lastEditedAt) {
+      changes.push({
+        type: 'schedule',
+        action: t._metadata.createdAt === t._metadata.lastEditedAt ? 'created' : 'edited',
+        item: t.title,
+        ...t._metadata
+      });
+    }
+  });
+  
+  // Characters
+  AppData.characters?.forEach(c => {
+    if (c._metadata?.lastEditedAt) {
+      changes.push({
+        type: 'character',
+        action: c._metadata.createdAt === c._metadata.lastEditedAt ? 'created' : 'edited',
+        item: c.name,
+        ...c._metadata
+      });
+    }
+  });
+  
+  // Clues
+  AppData.clues?.forEach(c => {
+    if (c._metadata?.lastEditedAt) {
+      changes.push({
+        type: 'clue',
+        action: c._metadata.createdAt === c._metadata.lastEditedAt ? 'created' : 'edited',
+        item: c.type,
+        ...c._metadata
+      });
+    }
+  });
+  
+  // Sort by most recent
+  changes.sort((a, b) => new Date(b.lastEditedAt) - new Date(a.lastEditedAt));
+  
+  return changes.slice(0, limit);
 }
 
 // Push current state to history stack
@@ -798,12 +940,15 @@ async function handleSaveGuest(event, guestId) {
     const existingIds = AppData.guests.filter(g => g.id != null).map(g => g.id);
     const newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
     guestData.id = newId;
+    guestData._metadata = createMetadata();
     AppData.guests.push(guestData);
   } else {
     // Update existing guest
     const index = AppData.guests.findIndex(g => g.id === guestId);
     if (index !== -1) {
-      AppData.guests[index] = { ...AppData.guests[index], ...guestData };
+      const existingGuest = AppData.guests[index];
+      guestData._metadata = updateMetadata(existingGuest._metadata);
+      AppData.guests[index] = { ...existingGuest, ...guestData };
     }
   }
   
@@ -1139,12 +1284,15 @@ async function handleSaveMenuItem(event, itemId) {
     // Add new menu item with more robust ID generation
     const newId = 'menu-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     itemData.id = newId;
+    itemData._metadata = createMetadata();
     AppData.menu.menuItems.push(itemData);
   } else {
     // Update existing menu item
     const index = AppData.menu.menuItems.findIndex(i => i.id === itemId);
     if (index !== -1) {
-      AppData.menu.menuItems[index] = { ...AppData.menu.menuItems[index], ...itemData };
+      const existingItem = AppData.menu.menuItems[index];
+      itemData._metadata = updateMetadata(existingItem._metadata);
+      AppData.menu.menuItems[index] = { ...existingItem, ...itemData };
     }
   }
   
@@ -1641,11 +1789,14 @@ async function handleSaveMoodBoard(event, moodId) {
   if (moodId === null) {
     const newId = 'mood-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     moodData.id = newId;
+    moodData._metadata = createMetadata();
     AppData.decor.moodBoard.push(moodData);
   } else {
     const index = AppData.decor.moodBoard.findIndex(m => m.id === moodId);
     if (index !== -1) {
-      AppData.decor.moodBoard[index] = { ...AppData.decor.moodBoard[index], ...moodData };
+      const existingMood = AppData.decor.moodBoard[index];
+      moodData._metadata = updateMetadata(existingMood._metadata);
+      AppData.decor.moodBoard[index] = { ...existingMood, ...moodData };
     }
   }
   
@@ -1716,7 +1867,8 @@ async function handleSaveShoppingCategory(event) {
   
   AppData.decor.shoppingList.push({
     category: formData.get('category'),
-    items: []
+    items: [],
+    _metadata: createMetadata()
   });
   
   // Save to Firestore or localStorage
@@ -2079,9 +2231,12 @@ async function handleSaveTimelineItem(event, index) {
   };
   
   if (index === null) {
+    itemData._metadata = createMetadata();
     AppData.schedule.timeline.push(itemData);
   } else {
-    AppData.schedule.timeline[index] = itemData;
+    const existingItem = AppData.schedule.timeline[index];
+    itemData._metadata = updateMetadata(existingItem._metadata);
+    AppData.schedule.timeline[index] = { ...existingItem, ...itemData };
   }
   
   // Save to Firestore or localStorage
@@ -2899,6 +3054,11 @@ async function resetToDefaults(datasetName) {
 
 // Add item to array dataset
 async function addItem(datasetName, item) {
+  // Add metadata if not present
+  if (!item._metadata) {
+    item._metadata = createMetadata();
+  }
+  
   if (Array.isArray(AppData[datasetName])) {
     AppData[datasetName].push(item);
   } else if (AppData[datasetName] && Array.isArray(AppData[datasetName][datasetName])) {
@@ -2934,7 +3094,9 @@ async function updateItem(datasetName, id, updates) {
   if (Array.isArray(dataset)) {
     const index = dataset.findIndex(item => item.id === id);
     if (index !== -1) {
-      dataset[index] = { ...dataset[index], ...updates };
+      const existingItem = dataset[index];
+      updates._metadata = updateMetadata(existingItem._metadata);
+      dataset[index] = { ...existingItem, ...updates };
     }
   }
   

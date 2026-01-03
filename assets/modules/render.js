@@ -37,6 +37,24 @@ function renderPageNotes() {
   `;
 }
 
+// Helper function to render edit metadata display
+function renderEditMetadata(metadata, style = 'inline') {
+  if (!metadata?.lastEditedBy) {
+    return style === 'table' ? '<small style="color: #999;">No edit history</small>' : '';
+  }
+  
+  const text = `✏️ ${escapeHtml(metadata.lastEditedBy)}`;
+  const time = formatTimestamp(metadata.lastEditedAt);
+  
+  if (style === 'table') {
+    return `<small style="color: #666;">${text}<br>${time}</small>`;
+  } else if (style === 'badge') {
+    return `<span style="color: #666; font-size: 12px; margin-top: 10px; display: block;">${text} ${time}</span>`;
+  } else {
+    return `<small style="color: #666; font-size: 12px;">${text} at ${time}</small>`;
+  }
+}
+
 // Helper function to render clues by phase
 function renderCluesByPhase(phase) {
   const clues = AppData.clues.filter(c => c.reveal_phase === phase);
@@ -211,6 +229,7 @@ const Render = {
           <ul>
             ${mood.items.map(item => `<li>${item}</li>`).join('')}
           </ul>
+          ${renderEditMetadata(mood._metadata, 'badge')}
           <div class="item-controls">
             <button class="favorite-btn ${AppData.decorFavorites.has(mood.id) ? 'active' : ''}" 
                     onclick="handleDecorFavorite('${mood.id}')">
@@ -449,6 +468,7 @@ const Render = {
               <div style="margin: 10px 0;">
                 ${generateDietaryBadges(item)}
               </div>
+              ${renderEditMetadata(item._metadata, 'inline')}
               <div class="item-controls">
                 <button class="favorite-btn ${AppData.menuFavorites.has(item.id) ? 'active' : ''}" 
                         onclick="handleMenuFavorite('${item.id}')">
@@ -1108,6 +1128,7 @@ const Render = {
         </ul>
         <p><strong>Music:</strong> ${block.music}</p>
         <p><em>${block.notes}</em></p>
+        ${renderEditMetadata(block._metadata, 'badge')}
       </div>
     `).join('');
     
@@ -1186,6 +1207,7 @@ const Render = {
             <th>RSVP</th>
             <th>Dietary</th>
             <th>Character</th>
+            <th>Last Edited</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -1211,6 +1233,8 @@ const Render = {
             const roleVibeDisplay = guest.roleVibe ? 
               `<br><small style="color: #666;">🎭 ${guest.roleVibe}</small>` : '';
             
+            const editDisplay = renderEditMetadata(guest._metadata, 'table');
+            
             return `
               <tr>
                 <td>
@@ -1227,6 +1251,7 @@ const Render = {
                 <td>
                   ${character ? `<span style="color: var(--forest-emerald);">${character.name}</span>` : '<span style="color: #999;">Unassigned</span>'}
                 </td>
+                <td>${editDisplay}</td>
                 <td>
                   <button class="btn-sm" onclick="editGuest(${guest.id})" title="Edit guest details">✏️ Edit</button>
                   <button class="btn-sm" onclick="deleteGuest(${guest.id})" title="Delete guest">🗑️</button>
@@ -1475,6 +1500,9 @@ const Render = {
     `;
     
     document.getElementById('data-links').innerHTML = dataManager;
+    
+    // Render recent changes feed
+    renderRecentChanges();
     
     // Render settings panel
     renderSettingsPanel();
@@ -2529,6 +2557,65 @@ window.handleFlavorChange = async function(flavor) {
   await updateSettings({ twinPeaksFlavor: flavor });
   if (window.renderPage) window.renderPage('host-controls');
 };
+
+// ============================================================================
+// Recent Changes Feed Rendering
+// ============================================================================
+
+function renderRecentChanges() {
+  const changes = getAllRecentChanges(20);
+  
+  if (changes.length === 0) {
+    document.getElementById('recent-changes').innerHTML = `
+      <div class="alert alert-info">
+        <strong>No recent changes yet.</strong> Start editing to see activity here.
+      </div>
+    `;
+    return;
+  }
+  
+  const getActionIcon = (action, type) => {
+    if (action === 'created') return '➕';
+    if (action === 'deleted') return '🗑️';
+    return '✏️';
+  };
+  
+  const getActionColor = (action) => {
+    if (action === 'created') return '#0B4F3F';
+    if (action === 'deleted') return '#8B0000';
+    return '#C79810';
+  };
+  
+  const getTypeLabel = (type) => {
+    const labels = {
+      'guest': 'Guest',
+      'menu': 'Menu Item',
+      'decor': 'Decor Item',
+      'decor-shopping': 'Shopping Category',
+      'schedule': 'Schedule Event',
+      'character': 'Character',
+      'clue': 'Clue'
+    };
+    return labels[type] || type;
+  };
+  
+  const changesHtml = changes.map(change => `
+    <div style="border-left: 4px solid ${getActionColor(change.action)}; padding: 15px; margin: 10px 0; background: white; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div style="flex: 1;">
+          <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+            🕒 ${formatTimestamp(change.lastEditedAt)}
+          </div>
+          <div style="font-size: 14px; font-weight: 500;">
+            ${getActionIcon(change.action, change.type)} ${escapeHtml(change.lastEditedBy)} ${change.action} ${getTypeLabel(change.type)}: "${escapeHtml(change.item)}"
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  
+  document.getElementById('recent-changes').innerHTML = changesHtml;
+}
 
 // ============================================================================
 // Admin Settings Handlers
