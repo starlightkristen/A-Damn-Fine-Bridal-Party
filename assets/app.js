@@ -152,13 +152,133 @@ async function initFirebase() {
   }
 }
 
+// Helper to load from Firestore
+async function loadFromFirestore() {
+  if (!FIREBASE_ENABLED || !FirebaseManager) return null;
+  
+  try {
+    const datasets = ['guests', 'characters', 'decor', 'vendors', 'menu', 
+                     'schedule', 'story', 'clues', 'packets', 'settings', 
+                     'roles', 'pageNotes'];
+    
+    const loadedData = {};
+    let hasData = false;
+    
+    for (const dataset of datasets) {
+      const data = await FirebaseManager.loadData(dataset);
+      if (data !== null && data !== undefined) {
+        loadedData[dataset] = data;
+        hasData = true;
+      }
+    }
+    
+    return hasData ? loadedData : null;
+  } catch (error) {
+    console.error('Error loading from Firestore:', error);
+    return null;
+  }
+}
+
+// Save with retry logic
+async function saveWithRetry(datasetName, data, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (typeof window.notifySaveStart === 'function') {
+        window.notifySaveStart(datasetName);
+      }
+      
+      await FirebaseManager.saveData(datasetName, data);
+      
+      if (typeof window.notifySaveSuccess === 'function') {
+        window.notifySaveSuccess(datasetName);
+      }
+      
+      return true; // Success
+    } catch (error) {
+      console.error(`Save attempt ${attempt}/${maxRetries} failed:`, error);
+      
+      if (attempt === maxRetries) {
+        // Final attempt failed
+        if (typeof window.notifySaveError === 'function') {
+          window.notifySaveError(datasetName, error);
+        }
+        
+        // Fallback to localStorage
+        saveToLocalStorage();
+        
+        throw error;
+      }
+      
+      // Wait before retry (exponential backoff)
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
+    }
+  }
+}
+
 // Load all data on page initialization
 async function loadData() {
   console.log('🚀 Starting data load...');
   
   try {
-    // ALWAYS load JSON files first for immediate display
-    console.log('📁 Loading JSON files for immediate display...');
+    // NEW: Try Firebase first if enabled
+    if (FIREBASE_ENABLED) {
+      try {
+        if (!FirebaseManager) {
+          await initFirebase();
+        }
+        
+        if (FirebaseManager && FirebaseManager.currentUser) {
+          console.log('🔥 Loading from Firestore...');
+          const firestoreData = await loadFromFirestore();
+          if (firestoreData) {
+            // Apply Firestore data
+            Object.assign(AppData, firestoreData);
+            console.log('✅ Data loaded from Firestore');
+            
+            // Store defaults for reset functionality from JSON files
+            if (!AppData.defaults.guests) {
+              console.log('📁 Loading JSON files for defaults...');
+              const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles, pageNotes] = await Promise.all([
+                fetch('./data/guests.json').then(r => r.json()),
+                fetch('./data/characters.json').then(r => r.json()),
+                fetch('./data/decor.json').then(r => r.json()),
+                fetch('./data/vendors.json').then(r => r.json()),
+                fetch('./data/menu.json').then(r => r.json()),
+                fetch('./data/schedule.json').then(r => r.json()),
+                fetch('./data/story.json').then(r => r.json()),
+                fetch('./data/clues.json').then(r => r.json()),
+                fetch('./data/packets.json').then(r => r.json()),
+                fetch('./data/settings.json').then(r => r.json()),
+                fetch('./data/roles.json').then(r => r.json()),
+                fetch('./data/pageNotes.json').then(r => r.json()).catch(() => ({}))
+              ]);
+              
+              AppData.defaults = {
+                guests: JSON.parse(JSON.stringify(guests)),
+                characters: JSON.parse(JSON.stringify(characters)),
+                decor: JSON.parse(JSON.stringify(decor)),
+                vendors: JSON.parse(JSON.stringify(vendors)),
+                menu: JSON.parse(JSON.stringify(menu)),
+                schedule: JSON.parse(JSON.stringify(schedule)),
+                story: JSON.parse(JSON.stringify(story)),
+                clues: JSON.parse(JSON.stringify(clues)),
+                packets: JSON.parse(JSON.stringify(packets)),
+                settings: JSON.parse(JSON.stringify(settings)),
+                roles: JSON.parse(JSON.stringify(roles)),
+                pageNotes: JSON.parse(JSON.stringify(pageNotes))
+              };
+            }
+            
+            return true;
+          }
+        }
+      } catch (error) {
+        console.warn('ℹ️ Firestore unavailable, loading from JSON files');
+      }
+    }
+    
+    // Fallback: Load from JSON files
+    console.log('📁 Loading from JSON files...');
     const [guests, characters, decor, vendors, menu, schedule, story, clues, packets, settings, roles, pageNotes] = await Promise.all([
       fetch('./data/guests.json').then(r => r.json()),
       fetch('./data/characters.json').then(r => r.json()),
@@ -174,7 +294,7 @@ async function loadData() {
       fetch('./data/pageNotes.json').then(r => r.json()).catch(() => ({}))
     ]);
     
-    // Apply JSON data immediately
+    // Apply JSON data
     AppData.guests = guests;
     AppData.characters = characters;
     AppData.decor = decor;
@@ -188,7 +308,7 @@ async function loadData() {
     AppData.roles = roles;
     AppData.pageNotes = pageNotes;
     
-    console.log('✅ JSON data loaded and applied immediately');
+    console.log('✅ JSON data loaded');
     
     // Store defaults for reset functionality
     if (!AppData.defaults.guests) {
@@ -206,23 +326,6 @@ async function loadData() {
         roles: JSON.parse(JSON.stringify(roles)),
         pageNotes: JSON.parse(JSON.stringify(pageNotes))
       };
-    }
-    
-    // THEN try Firebase in background (non-blocking)
-    if (FIREBASE_ENABLED) {
-      console.log('🔥 Initializing Firebase in background...');
-      setTimeout(async () => {
-        try {
-          if (!FirebaseManager) {
-            await initFirebase();
-          }
-          if (FirebaseManager && FirebaseManager.currentUser) {
-            console.log('🔄 Firebase ready - future changes will sync');
-          }
-        } catch (error) {
-          console.log('ℹ️ Firebase not available, continuing with JSON-only mode');
-        }
-      }, 100); // Start Firebase init after content is displayed
     }
     
     return true;
@@ -247,6 +350,19 @@ async function initApp() {
     return;
   }
   
+  // NEW: Wait for Firebase if enabled
+  if (FIREBASE_ENABLED) {
+    try {
+      if (!FirebaseManager) {
+        await initFirebase();
+      }
+      console.log('✅ Firebase ready - changes will sync');
+    } catch (error) {
+      console.warn('⚠️ Firebase unavailable - changes will be local only');
+      alert('Warning: Unable to connect to cloud storage. Your changes will only be saved locally.');
+    }
+  }
+  
   // Set active nav link
   setActiveNavLink();
   
@@ -262,6 +378,15 @@ async function initApp() {
     Render[pageName]();
   }
 }
+
+// Add beforeunload handler to prevent navigation during saves
+window.addEventListener('beforeunload', (e) => {
+  if (SaveStatus.currentState === 'saving') {
+    e.preventDefault();
+    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+    return e.returnValue;
+  }
+});
 
 
 
@@ -685,11 +810,7 @@ async function handleSaveGuest(event, guestId) {
   // Save to Firestore or localStorage with error handling
   try {
     if (FIREBASE_ENABLED && FirebaseManager) {
-      // Show saving indicator
-      if (typeof window.notifySaveStart === 'function') {
-        window.notifySaveStart('guests');
-      }
-      await FirebaseManager.saveData('guests', AppData.guests);
+      await saveWithRetry('guests', AppData.guests);
     } else {
       saveToLocalStorage();
     }
@@ -729,11 +850,7 @@ async function deleteGuest(guestId) {
     
     // Save to Firestore or localStorage
     if (FIREBASE_ENABLED && FirebaseManager) {
-      // Show saving indicator
-      if (typeof window.notifySaveStart === 'function') {
-        window.notifySaveStart('guests');
-      }
-      await FirebaseManager.saveData('guests', AppData.guests);
+      await saveWithRetry('guests', AppData.guests);
     } else {
       saveToLocalStorage();
     }
@@ -1033,10 +1150,7 @@ async function handleSaveMenuItem(event, itemId) {
   
   // Save to Firestore or localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart('menu');
-    }
-    await FirebaseManager.saveData('menu', AppData.menu);
+    await saveWithRetry('menu', AppData.menu);
   } else {
     saveToLocalStorage();
   }
@@ -1064,10 +1178,7 @@ async function deleteMenuItem(itemId) {
     
     // Save to Firestore or localStorage
     if (FIREBASE_ENABLED && FirebaseManager) {
-      if (typeof window.notifySaveStart === 'function') {
-        window.notifySaveStart('menu');
-      }
-      await FirebaseManager.saveData('menu', AppData.menu);
+      await saveWithRetry('menu', AppData.menu);
     } else {
       saveToLocalStorage();
     }
@@ -1143,8 +1254,7 @@ async function handleSavePrepPhase(event, index) {
   
   // Save to Firestore or localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') window.notifySaveStart('menu');
-    await FirebaseManager.saveData('menu', AppData.menu);
+    await saveWithRetry('menu', AppData.menu);
   } else {
     saveToLocalStorage();
   }
@@ -1192,7 +1302,7 @@ async function handleSaveList(event, dataset, field) {
   
   // Save to Firebase
   if (FIREBASE_ENABLED && FirebaseManager) {
-    await FirebaseManager.saveData(dataset, AppData[dataset]);
+    await saveWithRetry(dataset, AppData[dataset]);
   } else {
     saveToLocalStorage();
   }
@@ -1257,7 +1367,7 @@ async function handleSaveList(event, dataset, field) {
   
   // Save to Firebase
   if (FIREBASE_ENABLED && FirebaseManager) {
-    await FirebaseManager.saveData(dataset, AppData[dataset]);
+    await saveWithRetry(dataset, AppData[dataset]);
   } else {
     saveToLocalStorage();
   }
@@ -1275,8 +1385,7 @@ async function deletePrepPhase(index) {
     AppData.menu.prepTimeline.splice(index, 1);
     
     if (FIREBASE_ENABLED && FirebaseManager) {
-      if (typeof window.notifySaveStart === 'function') window.notifySaveStart('menu');
-      await FirebaseManager.saveData('menu', AppData.menu);
+      await saveWithRetry('menu', AppData.menu);
     } else {
       saveToLocalStorage();
     }
@@ -1542,10 +1651,7 @@ async function handleSaveMoodBoard(event, moodId) {
   
   // Save to Firestore or localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart('decor');
-    }
-    await FirebaseManager.saveData('decor', AppData.decor);
+    await saveWithRetry('decor', AppData.decor);
   } else {
     saveToLocalStorage();
   }
@@ -1569,10 +1675,7 @@ async function deleteMoodBoard(moodId) {
     
     // Save to Firestore or localStorage
     if (FIREBASE_ENABLED && FirebaseManager) {
-      if (typeof window.notifySaveStart === 'function') {
-        window.notifySaveStart('decor');
-      }
-      await FirebaseManager.saveData('decor', AppData.decor);
+      await saveWithRetry('decor', AppData.decor);
     } else {
       saveToLocalStorage();
     }
@@ -1618,10 +1721,7 @@ async function handleSaveShoppingCategory(event) {
   
   // Save to Firestore or localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart('decor');
-    }
-    await FirebaseManager.saveData('decor', AppData.decor);
+    await saveWithRetry('decor', AppData.decor);
   } else {
     saveToLocalStorage();
   }
@@ -1641,10 +1741,7 @@ async function deleteShoppingCategory(catIndex) {
     
     // Save to Firestore or localStorage
     if (FIREBASE_ENABLED && FirebaseManager) {
-      if (typeof window.notifySaveStart === 'function') {
-        window.notifySaveStart('decor');
-      }
-      await FirebaseManager.saveData('decor', AppData.decor);
+      await saveWithRetry('decor', AppData.decor);
     } else {
       saveToLocalStorage();
     }
@@ -1742,10 +1839,7 @@ async function handleSaveShoppingItem(event, catIndex, itemIndex) {
   
   // Save to Firestore or localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart('decor');
-    }
-    await FirebaseManager.saveData('decor', AppData.decor);
+    await saveWithRetry('decor', AppData.decor);
   } else {
     saveToLocalStorage();
   }
@@ -1765,10 +1859,7 @@ async function deleteShoppingItem(catIndex, itemIndex) {
     
     // Save to Firestore or localStorage
     if (FIREBASE_ENABLED && FirebaseManager) {
-      if (typeof window.notifySaveStart === 'function') {
-        window.notifySaveStart('decor');
-      }
-      await FirebaseManager.saveData('decor', AppData.decor);
+      await saveWithRetry('decor', AppData.decor);
     } else {
       saveToLocalStorage();
     }
@@ -1785,10 +1876,7 @@ async function togglePurchased(catIndex, itemIndex) {
   
   // Save to Firestore or localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart('decor');
-    }
-    await FirebaseManager.saveData('decor', AppData.decor);
+    await saveWithRetry('decor', AppData.decor);
   } else {
     saveToLocalStorage();
   }
@@ -1998,10 +2086,7 @@ async function handleSaveTimelineItem(event, index) {
   
   // Save to Firestore or localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart('schedule');
-    }
-    await FirebaseManager.saveData('schedule', AppData.schedule);
+    await saveWithRetry('schedule', AppData.schedule);
   } else {
     saveToLocalStorage();
   }
@@ -2021,10 +2106,7 @@ async function deleteTimelineItem(index) {
     
     // Save to Firestore or localStorage
     if (FIREBASE_ENABLED && FirebaseManager) {
-      if (typeof window.notifySaveStart === 'function') {
-        window.notifySaveStart('schedule');
-      }
-      await FirebaseManager.saveData('schedule', AppData.schedule);
+      await saveWithRetry('schedule', AppData.schedule);
     } else {
       saveToLocalStorage();
     }
@@ -2700,7 +2782,7 @@ async function savePageNotes(page, content) {
   };
   
   if (FIREBASE_ENABLED && FirebaseManager) {
-    await FirebaseManager.saveData('pageNotes', AppData.pageNotes);
+    await saveWithRetry('pageNotes', AppData.pageNotes);
   } else {
     saveToLocalStorage();
   }
@@ -2800,7 +2882,7 @@ async function resetToDefaults(datasetName) {
       // Save to Firestore
       if (FIREBASE_ENABLED && FirebaseManager) {
         console.log(`Saving reset ${datasetName} to Firestore...`);
-        await FirebaseManager.saveData(datasetName, AppData[datasetName]);
+        await saveWithRetry(datasetName, AppData[datasetName]);
       } else {
         saveToLocalStorage();
       }
@@ -2825,10 +2907,7 @@ async function addItem(datasetName, item) {
   }
   // Save to Firestore if enabled, fallback to localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart(datasetName);
-    }
-    await FirebaseManager.saveData(datasetName, AppData[datasetName]);
+    await saveWithRetry(datasetName, AppData[datasetName]);
   } else {
     saveToLocalStorage();
   }
@@ -2861,10 +2940,7 @@ async function updateItem(datasetName, id, updates) {
   
   // Save to Firestore if enabled, fallback to localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart(datasetName);
-    }
-    await FirebaseManager.saveData(datasetName, AppData[datasetName]);
+    await saveWithRetry(datasetName, AppData[datasetName]);
   } else {
     saveToLocalStorage();
   }
@@ -2891,10 +2967,7 @@ async function deleteItem(datasetName, id) {
   
   // Save to Firestore if enabled, fallback to localStorage
   if (FIREBASE_ENABLED && FirebaseManager) {
-    if (typeof window.notifySaveStart === 'function') {
-      window.notifySaveStart(datasetName);
-    }
-    await FirebaseManager.saveData(datasetName, AppData[datasetName]);
+    await saveWithRetry(datasetName, AppData[datasetName]);
   } else {
     saveToLocalStorage();
   }
@@ -3156,7 +3229,52 @@ function updateSaveStatusDisplay() {
 window.notifySaveStart = function(datasetName) {
   SaveStatus.currentState = 'saving';
   updateSaveStatusDisplay();
+  
+  // Add visual overlay if save takes >1 second
+  setTimeout(() => {
+    if (SaveStatus.currentState === 'saving') {
+      showSavingOverlay();
+    }
+  }, 1000);
 };
+
+// Show saving overlay
+function showSavingOverlay() {
+  // Don't create duplicate overlays
+  if (document.getElementById('saving-overlay')) return;
+  
+  const overlay = document.createElement('div');
+  overlay.id = 'saving-overlay';
+  overlay.innerHTML = `
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 99999; display: flex; align-items: center; justify-content: center;">
+      <div style="background: white; padding: 30px; border-radius: 10px; text-align: center;">
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #C79810; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+        <p style="margin-top: 15px; font-size: 16px; font-weight: 600;">Saving changes...</p>
+        <p style="color: #666; font-size: 14px;">Please don't close this window</p>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  // Add CSS animation if not already present
+  if (!document.getElementById('saving-overlay-styles')) {
+    const style = document.createElement('style');
+    style.id = 'saving-overlay-styles';
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+// Hide saving overlay
+function hideSavingOverlay() {
+  const overlay = document.getElementById('saving-overlay');
+  if (overlay) overlay.remove();
+}
 
 // Notify save success
 window.notifySaveSuccess = function(datasetName) {
@@ -3164,6 +3282,7 @@ window.notifySaveSuccess = function(datasetName) {
   SaveStatus.lastSyncTime = new Date();
   SaveStatus.error = null;
   updateSaveStatusDisplay();
+  hideSavingOverlay(); // NEW
   
   // Auto-hide after 3 seconds
   setTimeout(() => {
@@ -3181,6 +3300,7 @@ window.notifySaveError = function(datasetName, error) {
   const errorMsg = (error && error.message) ? String(error.message).substring(0, 100) : 'Network error';
   SaveStatus.error = errorMsg.replace(/[<>]/g, ''); // Remove potential HTML tags
   updateSaveStatusDisplay();
+  hideSavingOverlay(); // NEW
   
   // Show error toast with sanitized message
   showErrorToast(`Failed to save ${datasetName}: ${SaveStatus.error}`);
@@ -3429,7 +3549,7 @@ async function saveDecorSection(sectionId, data) {
     // Save to Firestore if enabled and not in rehearsal mode
     if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
       window.notifySaveStart?.();
-      await FirebaseManager.saveData('decor', AppData.decor);
+      await saveWithRetry('decor', AppData.decor);
       window.notifySaveSuccess?.();
     }
     
@@ -3507,7 +3627,7 @@ async function toggleDecorSectionStatus(sectionId) {
   // Save to Firestore if enabled and not in rehearsal mode
   if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
     window.notifySaveStart?.();
-    await FirebaseManager.saveData('decor', AppData.decor);
+    await saveWithRetry('decor', AppData.decor);
     window.notifySaveSuccess?.();
   }
   
@@ -3531,7 +3651,7 @@ async function toggleMenuShortlist(itemId) {
   // Save to Firestore if enabled and not in rehearsal mode
   if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
     window.notifySaveStart?.();
-    await FirebaseManager.saveData('menu', AppData.menu);
+    await saveWithRetry('menu', AppData.menu);
     window.notifySaveSuccess?.();
   }
   
@@ -3548,7 +3668,7 @@ async function toggleMenuFinal(itemId) {
   // Save to Firestore if enabled and not in rehearsal mode
   if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
     window.notifySaveStart?.();
-    await FirebaseManager.saveData('menu', AppData.menu);
+    await saveWithRetry('menu', AppData.menu);
     window.notifySaveSuccess?.();
   }
   
@@ -3676,7 +3796,7 @@ async function updateSettings(newSettings) {
   // Save to Firestore if enabled and not in rehearsal mode
   if (FIREBASE_ENABLED && FirebaseManager && !AppData.settings.rehearsalMode) {
     window.notifySaveStart?.();
-    await FirebaseManager.saveData('settings', AppData.settings);
+    await saveWithRetry('settings', AppData.settings);
     window.notifySaveSuccess?.();
   }
   
