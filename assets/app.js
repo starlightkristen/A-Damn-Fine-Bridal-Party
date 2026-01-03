@@ -44,8 +44,9 @@ const AppData = {
 
 // Helper to check if current user is a Host
 window.isHost = function() {
-  // If Firebase is disabled or not ready, default to true for local testing/development
-  if (!FIREBASE_ENABLED || !FirebaseManager || !FirebaseManager.currentUser) return true;
+  if (!FIREBASE_ENABLED || !FirebaseManager || !FirebaseManager.currentUser) {
+    return true; // Default to host access for local development/JSON mode
+  }
   return AppData.hostEmails.includes(FirebaseManager.currentUser.email.toLowerCase());
 }
 
@@ -255,20 +256,14 @@ async function initApp() {
     if (adminLink) adminLink.parentElement.style.display = 'none';
   }
   
-  // Initialize save status indicator
-  if (FIREBASE_ENABLED) {
-    initSaveStatusIndicator();
-  }
-  
-  // Inject Undo Button
-  injectUndoButton();
-  
-  // Render page-specific content
-  const page = getPageName();
-  if (window.renderPage && typeof window.renderPage === 'function') {
-    window.renderPage(page);
+  // Render page
+  const pageName = getPageName();
+  if (Render[pageName]) {
+    Render[pageName]();
   }
 }
+
+
 
 // Inject floating undo button
 function injectUndoButton() {
@@ -350,6 +345,7 @@ function calculateStats() {
     percentWithRsvp: AppData.guests.length > 0 ? Math.round((guestsWithRsvp / AppData.guests.length) * 100) : 0
   };
 }
+window.calculateStats = calculateStats;
 
 // Auto-assign characters to guests
 function autoAssignCharacters() {
