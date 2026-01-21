@@ -2,7 +2,8 @@
 
 // Firebase Integration Flag
 // Set this to true to enable Firebase backend, false to use localStorage only
-const FIREBASE_ENABLED = true; // Re-enabled with quick fallback to JSON
+// To disable Firebase and run in local-only mode, change this to false
+const FIREBASE_ENABLED = true; // Set to false to disable Firebase and use localStorage only
 
 // Firebase Manager (will be initialized if enabled)
 let FirebaseManager = null;
@@ -280,16 +281,23 @@ async function handleUndo() {
 
 // Initialize Firebase if enabled
 async function initFirebase() {
-  if (!FIREBASE_ENABLED) return null;
+  if (!FIREBASE_ENABLED) {
+    console.log('🔧 Running in local-only mode (Firebase disabled)');
+    console.log('📦 Data will be loaded from JSON files and saved to localStorage');
+    return null;
+  }
   
   try {
+    console.log('🔥 Attempting to initialize Firebase...');
     const module = await import('./firebase-config.js');
     FirebaseManager = module.default;
     await FirebaseManager.init();
-    console.log('Firebase initialized successfully');
+    console.log('✅ Firebase initialized successfully');
+    console.log('🔐 User authenticated:', FirebaseManager.currentUser?.email);
     return FirebaseManager;
   } catch (error) {
-    console.error('Firebase initialization failed:', error);
+    console.error('❌ Firebase initialization failed:', error);
+    console.log('⚠️  Falling back to local-only mode with localStorage');
     return null;
   }
 }
