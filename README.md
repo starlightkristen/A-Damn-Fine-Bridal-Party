@@ -337,7 +337,7 @@ This creates a tracked record of guest submissions that can be reviewed and adde
 
 ### Default Character Roles
 
-The repository includes 6 default characters (fully customizable):
+The repository includes 23 characters (6 core + 17 supporting roles):
 
 1. **Audrey Horne** (Socialite) - Sophisticated and mysterious
 2. **Dale Cooper** (Detective) - Quirky FBI agent and coffee lover
@@ -347,6 +347,21 @@ The repository includes 6 default characters (fully customizable):
 6. **Andy Brennan** (Deputy) - Kind-hearted but clumsy deputy
 
 You can add more characters by editing `characters.json`!
+
+## 🔄 Cache-Busting for Updates
+
+When you update JavaScript files (`app.js`, `render.js`), browsers may serve cached old versions to users. To force browsers to load fresh code:
+
+1. Update the version parameter in all HTML files
+2. Change `?v=20260121` to `?v=YYYYMMDD` (today's date)
+3. Commit and push changes
+
+**Example:**
+```html
+<script src="./assets/app.js?v=20260121"></script>
+```
+
+This forces browsers to treat it as a new file and download the latest version.
 
 ## ⚙️ Technical Notes
 
