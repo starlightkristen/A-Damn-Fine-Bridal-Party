@@ -1077,23 +1077,51 @@ const Render = {
   // Render schedule page
   schedule: function() {
     renderPageNotes();
-    if (!AppData.schedule.timeline || AppData.schedule.timeline.length === 0) {
+    
+    // Handle both new 'planningZones' and old 'timeline' structure
+    const zones = AppData.schedule.planningZones || AppData.schedule.timeline || [];
+    
+    if (zones.length === 0) {
       document.getElementById('schedule-timeline').innerHTML = `
         <div class="alert alert-info">
-          <strong>No timeline items yet!</strong> Click "Add Timeline Item" below to start building your schedule.
+          <strong>No planning zones yet!</strong> Click "Add Planning Zone" below to start building your collaborative plan.
         </div>
         <div style="text-align: center; margin: 20px 0;">
-          <button class="btn" onclick="showAddTimelineForm()">➕ Add Timeline Item</button>
+          <button class="btn" onclick="showAddTimelineForm()">➕ Add Planning Zone</button>
         </div>
       `;
       return;
+    }
+    
+    // Show philosophy section if it exists
+    let philosophyHtml = '';
+    if (AppData.schedule.planningPhilosophy) {
+      philosophyHtml = `
+        <div class="card" style="background: #e8f4f8; border-left-color: var(--gold);">
+          <h3>💭 Planning Philosophy</h3>
+          <p style="font-size: 1.1em; margin-bottom: 15px;">${AppData.schedule.planningPhilosophy}</p>
+          ${AppData.schedule.tone ? `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 15px 0;">
+              ${AppData.schedule.tone.map(item => `<div style="padding: 10px; background: rgba(255,255,255,0.7); border-radius: 5px;">${item}</div>`).join('')}
+            </div>
+          ` : ''}
+          ${AppData.schedule.openQuestions ? `
+            <div style="margin-top: 20px;">
+              <strong style="color: var(--deep-cherry-red);">Let's Discuss:</strong>
+              <ul style="margin-top: 10px;">
+                ${AppData.schedule.openQuestions.map(q => `<li style="margin: 8px 0;">${q}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+      `;
     }
     
     // Controls at the top
     const controlsHtml = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <div>
-          <button class="btn" onclick="showAddTimelineForm()">➕ Add Timeline Item</button>
+          <button class="btn" onclick="showAddTimelineForm()">➕ Add Planning Zone</button>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
           <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
@@ -1107,32 +1135,50 @@ const Render = {
       </div>
     `;
     
-    const scheduleHtml = AppData.schedule.timeline.map((block, index) => `
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: start;">
-          <div style="flex: 1;">
-            <h3 style="margin: 0 0 10px 0;">${block.time} - ${block.title}</h3>
-          </div>
-          <div>
-            <button class="btn-sm" onclick="editTimelineItem(${index})" title="Edit timeline item">✏️</button>
-            <button class="btn-sm" onclick="deleteTimelineItem(${index})" title="Delete timeline item">🗑️</button>
-          </div>
-        </div>
-        <p><strong>Duration:</strong> ${block.duration}</p>
-        <p>${block.description}</p>
-        ${block.phase ? `<p><strong>Phase:</strong> <span class="badge badge-info">${block.phase}</span></p>` : ''}
-        ${block.envelope_instruction ? `<p><strong>Envelope:</strong> <em>${block.envelope_instruction}</em></p>` : ''}
-        <h4>Activities:</h4>
-        <ul>
-          ${block.activities.map(activity => `<li>${activity}</li>`).join('')}
-        </ul>
-        <p><strong>Music:</strong> ${block.music}</p>
-        <p><em>${block.notes}</em></p>
-        ${renderEditMetadata(block._metadata, 'badge')}
-      </div>
-    `).join('');
+    // Render planning zones (new format) or timeline items (old format)
+    const scheduleHtml = zones.map((zone, index) => {
+      // Check if this is a new-style planning zone or old-style timeline item
+      if (zone.block) {
+        // New planning zone format
+        return renderPlanningZone(zone, index);
+      } else {
+        // Old timeline format (fallback)
+        return renderOldTimelineItem(zone, index);
+      }
+    }).join('');
     
-    document.getElementById('schedule-timeline').innerHTML = controlsHtml + scheduleHtml;
+    // Show low-key alternative if it exists
+    let lowKeyHtml = '';
+    if (AppData.schedule.lowKeyAlternative) {
+      const alt = AppData.schedule.lowKeyAlternative;
+      lowKeyHtml = `
+        <div class="low-key-alternative">
+          <h4>${alt.title}</h4>
+          <p>${alt.description}</p>
+          <ul>
+            ${alt.approach.map(item => `<li>${item}</li>`).join('')}
+          </ul>
+          <em>${alt.note}</em>
+          ${alt.effort ? `<p style="margin-top: 10px;"><strong>Effort Level:</strong> ${alt.effort}</p>` : ''}
+        </div>
+      `;
+    }
+    
+    // Show permission to pivot if it exists
+    let pivotHtml = '';
+    if (AppData.schedule.permissionToPivot) {
+      const pivot = AppData.schedule.permissionToPivot;
+      pivotHtml = `
+        <div class="permission-to-pivot">
+          <h3>${pivot.message}</h3>
+          <ul>
+            ${pivot.reminders.map(reminder => `<li>${reminder}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+    
+    document.getElementById('schedule-timeline').innerHTML = philosophyHtml + controlsHtml + scheduleHtml + lowKeyHtml + pivotHtml;
     
     // Render dynamic sections
     renderScheduleSupplies();
@@ -2633,4 +2679,160 @@ window.handleAdminPhaseDurationChange = async function(phase, value) {
   phaseDurations[phase] = parseInt(value);
   await updateSettings({ phaseDurations });
   renderSettingsPanel();
+};
+
+// Helper function to render a new-style planning zone
+function renderPlanningZone(zone, index) {
+  const flexLevel = zone.flexibilityLevel || 50;
+  let flexLabel = '✅ Some Structure';
+  let flexClass = 'moderate';
+  
+  if (flexLevel >= 90) {
+    flexLabel = '🤸 Super Flexible!';
+    flexClass = 'high';
+  } else if (flexLevel >= 70) {
+    flexLabel = '🎨 Very Flexible!';
+    flexClass = 'high';
+  } else if (flexLevel >= 50) {
+    flexLabel = '🤝 Moderately Flexible';
+    flexClass = 'moderate';
+  }
+  
+  let statusLabel = '💭 Brainstorming';
+  let statusClass = 'brainstorming';
+  if (zone.status === 'group-choice') {
+    statusLabel = '🤝 Group Choice';
+    statusClass = 'group-choice';
+  } else if (zone.status === 'loose-plan') {
+    statusLabel = '✅ Loose Plan';
+    statusClass = 'loose-plan';
+  }
+  
+  return `
+    <div class="planning-zone" data-status="${zone.status}">
+      <div class="zone-header">
+        <h3>${zone.block}</h3>
+        <span class="status-badge ${statusClass}">${statusLabel}</span>
+        <span class="flexibility-badge ${flexClass}">${flexLabel}</span>
+      </div>
+      
+      <div class="flexibility-indicator">
+        <span class="label">How flexible is this?</span>
+        <div class="meter">
+          <div class="fill" style="width: ${flexLevel}%"></div>
+        </div>
+        <span class="level">${flexLabel}</span>
+      </div>
+      
+      <p><strong>Suggested Duration:</strong> ${zone.suggestedDuration || 'Flexible timing'}</p>
+      
+      ${zone.currentIdea ? `
+        <div class="current-thought">
+          <strong>Initial Idea:</strong> ${zone.currentIdea}
+        </div>
+      ` : ''}
+      
+      ${zone.currentPlan ? `
+        <div class="current-thought">
+          <strong>Current Plan:</strong> ${zone.currentPlan}
+        </div>
+      ` : ''}
+      
+      ${zone.alternatives && Array.isArray(zone.alternatives) && zone.alternatives.length > 0 ? `
+        <div class="alternatives">
+          <strong>Or we could...</strong>
+          <ul>
+            ${zone.alternatives.map(alt => {
+              if (typeof alt === 'string') {
+                return `<li>${alt}</li>`;
+              } else {
+                // Handle alternative objects with option, description, effort
+                return `
+                  <li>
+                    <div class="alternative-option">
+                      <strong>${alt.option}</strong>
+                      <p>${alt.description}</p>
+                      ${alt.details ? `<p style="font-size: 0.9em; color: #666;">${alt.details}</p>` : ''}
+                      ${alt.effort ? `<span class="effort ${alt.effort}">${alt.effort} effort</span>` : ''}
+                    </div>
+                  </li>
+                `;
+              }
+            }).join('')}
+            <li>Your idea here!</li>
+          </ul>
+        </div>
+      ` : ''}
+      
+      ${zone.questions && zone.questions.length > 0 ? `
+        <div class="questions">
+          <strong>Questions for the group:</strong>
+          <ul>
+            ${zone.questions.map(q => `<li>${q}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+      
+      ${zone.questionsForGroup && zone.questionsForGroup.length > 0 ? `
+        <div class="questions">
+          <strong>Questions for the group:</strong>
+          <ul>
+            ${zone.questionsForGroup.map(q => `<li>${q}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+      
+      ${zone.hostNote ? `
+        <div class="host-note">${zone.hostNote}</div>
+      ` : ''}
+      
+      ${zone.checkIn ? `
+        <div class="check-in">
+          <strong>⚠️ ${zone.checkIn.question || 'Is this too much?'}</strong>
+          ${zone.checkIn.scaleBack ? `<p><strong>Scale Back:</strong> ${zone.checkIn.scaleBack}</p>` : ''}
+          ${zone.checkIn.alternatives ? `<p><strong>Alternatives:</strong> ${zone.checkIn.alternatives}</p>` : ''}
+        </div>
+      ` : ''}
+      
+      ${zone.music ? `<p style="margin-top: 15px;"><strong>Music Idea:</strong> <em>${zone.music}</em></p>` : ''}
+      ${zone.safetyNote ? `<p style="margin-top: 10px; color: var(--deep-cherry-red);"><strong>⚠️ Safety:</strong> ${zone.safetyNote}</p>` : ''}
+      
+      <div style="margin-top: 20px;">
+        <button class="btn-share-idea" onclick="shareIdea('${zone.block}')">💬 Share Your Thoughts</button>
+      </div>
+    </div>
+  `;
+}
+
+// Helper function to render old-style timeline item (for backward compatibility)
+function renderOldTimelineItem(block, index) {
+  return `
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div style="flex: 1;">
+          <h3 style="margin: 0 0 10px 0;">${block.time} - ${block.title}</h3>
+        </div>
+        <div>
+          <button class="btn-sm" onclick="editTimelineItem(${index})" title="Edit timeline item">✏️</button>
+          <button class="btn-sm" onclick="deleteTimelineItem(${index})" title="Delete timeline item">🗑️</button>
+        </div>
+      </div>
+      <p><strong>Duration:</strong> ${block.duration}</p>
+      <p>${block.description}</p>
+      ${block.phase ? `<p><strong>Phase:</strong> <span class="badge badge-info">${block.phase}</span></p>` : ''}
+      ${block.envelope_instruction ? `<p><strong>Envelope:</strong> <em>${block.envelope_instruction}</em></p>` : ''}
+      <h4>Activities:</h4>
+      <ul>
+        ${block.activities.map(activity => `<li>${activity}</li>`).join('')}
+      </ul>
+      <p><strong>Music:</strong> ${block.music}</p>
+      <p><em>${block.notes}</em></p>
+      ${renderEditMetadata(block._metadata, 'badge')}
+    </div>
+  `;
+}
+
+// Share idea function (placeholder for future implementation)
+window.shareIdea = function(zoneName) {
+  alert(`Thanks for wanting to share ideas about "${zoneName}"! \n\nFor now, please share your thoughts:\n• In person\n• Via text/call\n• In our group chat\n• Through GitHub issues\n\nYour input is genuinely welcome and encouraged!`);
 };

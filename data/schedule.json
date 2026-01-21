@@ -1,97 +1,219 @@
 {
-  "eventTitle": "A Damn Fine Bridal Party for Marlena",
-  "totalDuration": "75 minutes",
-  "timeline": [
+  "eventTitle": "Let's Plan This Together! 🎉",
+  "planningPhilosophy": "This is all for fun - nothing is set in stone!",
+  "tone": [
+    "💭 All ideas welcome - even if they totally change the plan",
+    "🎨 Want more structure? Less structure? You tell me!",
+    "✂️ Feel free to cut anything that doesn't sound fun",
+    "🤷 Not into murder mystery? Let's do something else!",
+    "🌟 The goal is FUN, not following a script"
+  ],
+  "openQuestions": [
+    "How structured vs. loose do we want this?",
+    "Mystery game or just a themed party?",
+    "Sit-down dinner or casual mingling?",
+    "What sounds fun to YOU?"
+  ],
+  "originalEventTitle": "A Damn Fine Bridal Party for Marlena",
+  "totalDuration": "75 minutes (or however long feels right!)",
+  "planningZones": [
     {
-      "time": "0:00 - 0:20",
-      "title": "Section 1: The Mystery Begins (Intro)",
-      "duration": "20 minutes",
-      "description": "Guests arrive knowing their character from the invite. Pick up packet at seat and open Envelope 1.",
+      "block": "Arrival & Welcome",
+      "suggestedDuration": "10-20 min (or however long feels right!)",
+      "status": "brainstorming",
+      "flexibility": "high",
+      "flexibilityLevel": 90,
+      "currentIdea": "Guests arrive, get drinks, settle in. Everyone knows their character from the invite and finds their packet at their seat.",
+      "alternatives": [
+        "Casual drop-in (no formal start time)",
+        "Start with an icebreaker game instead of jumping into mystery",
+        "Skip character assignments - just come as yourself",
+        "Jump straight to food and mingling",
+        "Skip the formality entirely - just hang out"
+      ],
+      "questions": [
+        "Do we want a formal welcome or just let people show up?",
+        "Should we do name tags? Character tags? Nothing?",
+        "What vibe feels right - fancy or casual?",
+        "Is assigning characters fun or intimidating?"
+      ],
+      "hostNote": "I'm flexible! I thought characters would be fun, but if that feels like too much pressure, we can totally skip it. What sounds good to everyone?",
+      "checkIn": {
+        "question": "Is this too structured for a welcome?",
+        "scaleBack": "We can totally just have people show up and hang out",
+        "alternatives": "Simple drinks and snacks while people arrive?"
+      },
       "phase": "intro",
-      "envelope_instruction": "Open Envelope 1",
-      "activities": [
-        "Guests already know character from invite",
-        "Guests pick up packet at their seat",
-        "Open Envelope 1",
-        "Short character roll call"
-      ],
-      "music": "Twin Peaks Theme (Laura Palmer's Theme) - ambient",
-      "notes": "Guests should feel welcomed and excited, not stressed. Keep it light and fun."
+      "music": "Twin Peaks Theme (Laura Palmer's Theme) - ambient"
     },
     {
-      "time": "0:20 - 0:40",
-      "title": "Section 2: Investigation (Mid)",
-      "duration": "20 minutes",
-      "description": "Mingle, snack, talk, speculate. Open Envelope 2 at midpoint.",
+      "block": "Mystery Game (Optional!)",
+      "suggestedDuration": "30-60 min (totally flexible!)",
+      "status": "group-choice",
+      "flexibility": "high",
+      "flexibilityLevel": 95,
+      "currentPlan": "2-hour immersive mystery with phases and envelopes",
+      "alternatives": [
+        {
+          "option": "Skip the mystery entirely",
+          "description": "Just do a themed party with food & fun",
+          "effort": "low",
+          "details": "Keep the Twin Peaks theme for ambiance, but no game mechanics. Just hang out, eat, chat, enjoy the vibes."
+        },
+        {
+          "option": "Simplified 30-min mystery",
+          "description": "Quick whodunit, no complex phases",
+          "effort": "medium",
+          "details": "One round of clues, simpler solution, shorter investigation time."
+        },
+        {
+          "option": "Mystery-lite",
+          "description": "Themed characters but no actual game",
+          "effort": "low",
+          "details": "Everyone gets a character for fun, but there's no murder to solve. Just roleplay and enjoy."
+        },
+        {
+          "option": "Full immersive experience",
+          "description": "The whole shebang with envelopes & phases",
+          "effort": "high",
+          "details": "Multiple investigation phases, character packets, dramatic reveals. The full plan I've been working on!"
+        }
+      ],
+      "questionsForGroup": [
+        "Are we INTO murder mystery games?",
+        "Too nerdy? Too complicated?",
+        "Would you rather just chat and eat?",
+        "Somewhere in between?"
+      ],
+      "hostNote": "Honestly, I'm down for whatever! I spent time planning this but I'd be just as happy doing something simpler if that's what everyone wants. No hurt feelings!",
+      "checkIn": {
+        "question": "Is a murder mystery too much?",
+        "scaleBack": "We can totally do just a themed party instead",
+        "alternatives": "What would be more your speed - casual hangout, simple game, or something else?"
+      },
       "phase": "mid",
-      "envelope_instruction": "At midpoint, open Envelope 2",
-      "activities": [
-        "Mingle, snack, talk, speculate",
-        "At midpoint, open Envelope 2"
-      ],
-      "music": "Twin Peaks soundtrack - moderate volume for atmosphere",
-      "notes": "Let conversations flow naturally. The mystery should feel fun, not like work."
+      "music": "Twin Peaks soundtrack - moderate volume for atmosphere"
     },
     {
-      "time": "0:40 - 0:55",
-      "title": "Section 3: The Web Tightens (Pre-final)",
-      "duration": "15 minutes",
-      "description": "Call attention briefly, open Envelope 3, let new info circulate.",
-      "phase": "pre-final",
-      "envelope_instruction": "Open Envelope 3",
-      "activities": [
-        "Call attention briefly",
-        "Open Envelope 3",
-        "Let new info circulate"
+      "block": "Food & Drinks",
+      "suggestedDuration": "Throughout the event",
+      "status": "brainstorming",
+      "flexibility": "very-high",
+      "flexibilityLevel": 92,
+      "currentIdea": "Twin Peaks themed menu with cherry pie, damn fine coffee, donuts, etc.",
+      "alternatives": [
+        "Just order pizza and call it a day",
+        "Potluck style - everyone brings something",
+        "Simple snacks and focus on hanging out",
+        "Full themed spread if people are into it",
+        "Mix of easy store-bought and a few homemade items",
+        "Your idea here!"
       ],
-      "music": "Dark, mysterious Twin Peaks theme (The Bookhouse Boys)",
-      "notes": "Build suspense as the pieces come together."
+      "questions": [
+        "How fancy do we want to get?",
+        "Sit-down meal or grazing/mingling?",
+        "Themed food fun or unnecessary?",
+        "Does anyone have dietary restrictions I should know about?"
+      ],
+      "hostNote": "I'm happy to go all out with themed food OR keep it super simple. Whatever the group prefers!",
+      "checkIn": {
+        "question": "Is themed food too extra?",
+        "scaleBack": "Pizza and wine work just fine!",
+        "alternatives": "What level of food effort sounds fun vs. stressful?"
+      },
+      "phase": "throughout"
     },
     {
-      "time": "0:55 - 1:10",
-      "title": "Section 4: The Big Burn (Final)",
-      "duration": "15 minutes",
-      "description": "Everyone gathers, opens Envelope 4 before cupcakes, then cupcake reveal ceremony.",
+      "block": "The Big Moment (If doing mystery)",
+      "suggestedDuration": "15-20 min (or skip entirely!)",
+      "status": "loose-plan",
+      "flexibility": "moderate",
+      "flexibilityLevel": 70,
+      "currentIdea": "Dramatic cupcake reveal with kitchen torch - the murderer's cupcake burns differently!",
+      "alternatives": [
+        "Skip the dramatic reveal - just announce the solution",
+        "Different reveal method (card pull, verbal announcement, etc.)",
+        "Make it less theatrical if that feels awkward",
+        "Let people guess and discuss without a formal reveal",
+        "Do the drama if everyone's into it!"
+      ],
+      "questions": [
+        "Is the torch reveal fun or over-the-top?",
+        "Would a simpler reveal feel better?",
+        "Should we even have a big reveal moment?"
+      ],
+      "hostNote": "I thought the torch thing would be fun and dramatic, but if it feels like too much, we can totally just tell everyone the answer!",
+      "checkIn": {
+        "question": "Is this too theatrical?",
+        "scaleBack": "We can just read the solution out loud",
+        "alternatives": "What feels more comfortable for the group?"
+      },
       "phase": "final",
-      "envelope_instruction": "Open Envelope 4 before cupcakes",
-      "activities": [
-        "Everyone gathers",
-        "Open Envelope 4 before cupcakes",
-        "Cupcake reveal ceremony"
-      ],
       "music": "Building dramatic music, culminating at reveal",
-      "notes": "Practice the torch method beforehand! Safety first. Envelope 4 must be opened BEFORE cupcakes!"
+      "safetyNote": "If we do the torch: Practice beforehand! Safety first."
     },
     {
-      "time": "1:10 - 1:15",
-      "title": "Section 5: Wrap-up",
-      "duration": "5 minutes",
-      "description": "Very short recap, toast to Marlena, group photo.",
-      "activities": [
-        "Very short recap",
-        "Toast to Marlena",
-        "Group photo"
+      "block": "Celebration & Photos",
+      "suggestedDuration": "5-15 min (or skip if we're over it!)",
+      "status": "loose-plan",
+      "flexibility": "very-high",
+      "flexibilityLevel": 95,
+      "currentIdea": "Quick recap, toast to Marlena, group photo",
+      "alternatives": [
+        "Just take photos naturally throughout - no formal photo time",
+        "Skip the toast if it feels forced",
+        "Keep hanging out informally instead",
+        "Go straight to cake/dessert",
+        "Let people leave when they want"
       ],
-      "music": "Return to celebratory, upbeat music",
-      "notes": "End on a high note! Make sure Marlena feels special and celebrated."
+      "questions": [
+        "Do we want a formal ending or just let it wind down?",
+        "Group photo - required or optional?",
+        "Should we do traditional bridal party games/activities?"
+      ],
+      "hostNote": "I want to make sure Marlena feels celebrated, but I don't want to force anything that feels awkward!",
+      "checkIn": {
+        "question": "Is a formal wrap-up necessary?",
+        "scaleBack": "We can just let people hang as long as they want",
+        "alternatives": "Natural ending vs. structured closing?"
+      },
+      "phase": "closing",
+      "music": "Return to celebratory, upbeat music"
     }
   ],
+  "lowKeyAlternative": {
+    "title": "🌿 Low-Key Alternative: Skip The Structure",
+    "description": "Not feeling the full plan? Here's a simpler option:",
+    "approach": [
+      "Skip character assignments - just come as yourself",
+      "Keep the Twin Peaks theme for ambiance (decor, music, food)",
+      "Hang out, eat, chat - no game mechanics",
+      "Maybe watch a Twin Peaks episode together?",
+      "Focus on celebrating Marlena in whatever way feels right"
+    ],
+    "note": "Totally valid! The point is to have fun together, not stress about a game.",
+    "effort": "Low - just decor, food, and hanging out"
+  },
   "supplies": [
-    "Character cards (one per guest)",
-    "Physical clues in sealed envelopes",
-    "Kitchen torch for cupcake reveal",
-    "Mystery playlist",
-    "Props (magnifying glasses, fake evidence, etc.)",
-    "Prize for winner",
-    "Camera/phone for photos"
+    "Optional if doing mystery: Character cards (one per guest)",
+    "Optional if doing mystery: Physical clues in sealed envelopes",
+    "Optional for dramatic reveal: Kitchen torch for cupcake reveal",
+    "Music playlist (Twin Peaks soundtrack or whatever vibe we want)",
+    "Optional props if we're feeling fancy (magnifying glasses, fake evidence, etc.)",
+    "Camera/phone for photos (if people want photos)",
+    "Whatever food/drinks we decide on"
   ],
+  "suppliesNote": "Only get what we need based on what the group decides! Don't feel obligated to do everything.",
   "backupPlans": {
-    "guestsStuck": "Have pre-written 'anonymous tips' ready to drop if no one is making progress",
-    "guestsNotParticipating": "Have co-host or planted guest who's enthusiastic to help draw others in",
-    "runningLong": "Skip or shorten traditional shower activities at beginning",
-    "runningShort": "Have extra games ready or extend investigation phase"
+    "guestsStuck": "Have pre-written 'anonymous tips' ready to drop if no one is making progress (only if doing mystery)",
+    "guestsNotParticipating": "Don't force it! If people aren't into the game, just switch to hanging out",
+    "runningLong": "It's a party, not a timed exam! Go with the flow.",
+    "runningShort": "Have extra casual activities ready or just enjoy the extra time to chat",
+    "mysteryTooComplicated": "Simplify on the fly or abandon ship! No pressure to stick with it.",
+    "groupWantsSomethingDifferent": "PIVOT! Do what the group wants. That's the whole point!"
   },
   "musicSuggestions": {
+    "note": "Or whatever music everyone likes! These are just ideas.",
     "scene": [
       "Laura Palmer's Theme (gentle, ambient)",
       "Twin Peaks Theme (instrumental)",
@@ -105,16 +227,34 @@
       "Love Theme (atmospheric)",
       "Into the Night",
       "Night Life in Twin Peaks"
+    ],
+    "alternatives": [
+      "Skip Twin Peaks music if people aren't into it",
+      "Play whatever Marlena loves",
+      "Mix of moody and upbeat",
+      "No music - just conversation",
+      "Make a collaborative playlist!"
     ]
   },
   "momentsToCapture": [
-    "If you feel like taking photos, do. If not, enjoy the vibes.",
-    "The Mystery Begins: Guests with their packets",
-    "First Impressions: Character introductions",
-    "The Investigation: Candid moments of friends playing detective",
-    "The Big Burn: That dramatic cupcake reveal moment",
-    "The Reveal: Reactions when the murderer is caught",
-    "The Residents: A big group photo with everyone in character",
-    "Marlena's Favorites: Opening gifts and favorite group moments"
-  ]
+    "Only if you feel like taking photos! No pressure.",
+    "Candid moments > Staged photos (unless people want staged!)",
+    "The Mystery Begins: Guests with their packets (if doing mystery)",
+    "The Investigation: Friends playing detective (if doing mystery)",
+    "The Big Burn: That dramatic cupcake reveal moment (if doing dramatic reveal)",
+    "The Reveal: Reactions when the murderer is caught (if doing mystery)",
+    "Group photo with everyone (if people want it)",
+    "Marlena's genuine reactions and favorite moments"
+  ],
+  "permissionToPivot": {
+    "message": "🎨 IMPORTANT: Nothing above is required!",
+    "reminders": [
+      "This is meant to be FUN, not stressful",
+      "If something doesn't sound fun, don't do it",
+      "The group's enjoyment > following this plan",
+      "I've put thought into this, but I'm 100% happy to change everything",
+      "Speak up if you'd rather do something different!",
+      "Simple and enjoyable > complex and stressful"
+    ]
+  }
 }
