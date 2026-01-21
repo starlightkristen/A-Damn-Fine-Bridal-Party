@@ -4,6 +4,10 @@
 
 A complete GitHub Pages portal for planning Marlena's Twin Peaks themed bridal party, featuring an interactive murder mystery experience called "A Toast to Secrets" with **full inline CRUD editors** for all data.
 
+## 💛 A Note on Planning
+
+I had fun planning this and got a little carried away building out the site! Feel free to change anything, simplify it, or adjust to what works for your group. No hard feelings on any adjustments - the goal is for everyone to have fun!
+
 ## 🎭 About This Portal
 
 This fully interactive static site provides everything needed to plan and execute a memorable Twin Peaks themed bridal celebration, with **live editing capabilities**:
