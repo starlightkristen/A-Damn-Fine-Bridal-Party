@@ -45,30 +45,30 @@ All production data is stored in `/data/`:
 - `roles.json` - Role assignments
 - `pageNotes.json` - User notes per page
 
-## 🧪 Test/Debug Files (Not for Production)
+## 🧪 Test/Debug Files (Moved to /tests Directory)
 
-These files are used for testing, debugging, or are backup versions. They should **NOT** be deployed or may be moved to a `/tests` directory:
+These files have been moved to the `/tests` directory. They are **NOT** part of the production deployment:
 
-### Debug Pages
-- `debug.html` - General debugging page
-- `debug-test.html` - Debug test page
-- `render-debug.html` - Render function debugging
-- `script-test.html` - Script testing page
-- `simple-test.html` - Simple test page
-- `minimal-test.html` - Minimal test page
-- `test-save-fixes.html` - Save functionality testing
-- `emergency-clean.html` - Emergency cleanup page
+### Debug Pages (in /tests)
+- `tests/debug.html` - General debugging page
+- `tests/debug-test.html` - Debug test page
+- `tests/render-debug.html` - Render function debugging
+- `tests/script-test.html` - Script testing page
+- `tests/simple-test.html` - Simple test page
+- `tests/minimal-test.html` - Minimal test page
+- `tests/test-save-fixes.html` - Save functionality testing
+- `tests/emergency-clean.html` - Emergency cleanup page
 
-### Backup/Variant Versions
-- `index-backup.html` - Backup of index page
-- `index-clean.html` - Clean version of index
-- `index-fixed.html` - Fixed version of index
-- `index-stable.html` - Stable version of index
-- `decor-fixed.html` - Fixed version of decor page
-- `decor-wizard.html` - Decor wizard variant
-- `mystery-fixed.html` - Fixed version of mystery page
+### Backup/Variant Versions (in /tests)
+- `tests/index-backup.html` - Backup of index page
+- `tests/index-clean.html` - Clean version of index
+- `tests/index-fixed.html` - Fixed version of index
+- `tests/index-stable.html` - Stable version of index
+- `tests/decor-fixed.html` - Fixed version of decor page
+- `tests/decor-wizard.html` - Decor wizard variant
+- `tests/mystery-fixed.html` - Fixed version of mystery page
 
-### Alternative/Experimental Pages
+### Alternative/Experimental Pages (still in root)
 - `host-controls.html` - Host controls (may be merged into admin)
 - `menu-planner.html` - Menu planner (functionality in food.html)
 - `role-assignment.html` - Role assignment (functionality in guests.html)
@@ -76,9 +76,12 @@ These files are used for testing, debugging, or are backup versions. They should
 ## 📋 File Status Summary
 
 ```
-Total HTML files: 26
+Total HTML files in root: 11
 ✅ Production files: 8
-🧪 Test/Debug files: 18
+🔧 Alternative/experimental: 3
+
+Files moved to /tests: 15
+📋 Documentation in /tests: 2 (workflow-test.md, README.md)
 ```
 
 ## 🚀 Deployment Notes
@@ -131,13 +134,17 @@ All JavaScript modules use ES6 imports with `type="module"`:
 - [x] Authentication flow working
 - [x] Console logging added for Firebase status
 - [x] localStorage fallback implemented
+- [x] Test/debug files moved to `/tests` directory
+- [x] Repository structure cleaned and organized
 
-## 🗑️ Cleanup Recommendations
+## 🗑️ File Organization Status
 
-Consider the following actions for a cleaner repository:
+✅ **Completed Cleanup Actions:**
 
-1. **Create `/tests` directory** and move all debug/test HTML files there
-2. **Archive backup versions** after verifying production files are stable
+1. ✅ **Created `/tests` directory** and moved all debug/test HTML files there (15 files)
+2. ✅ **Moved backup versions** to tests directory for archival
+3. ✅ **Root directory cleaned** - Only production and alternative files remain
+4. ✅ **Test documentation** - README.md created in tests directory
 3. **Review experimental pages** and merge useful features into production files
 4. **Remove obsolete files** that are no longer needed
 
