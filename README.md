@@ -22,6 +22,19 @@ This fully interactive static site provides everything needed to plan and execut
 - **Submit Guests**: [Use GitHub Issue Form](https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues/new?template=guest-list.yml)
 - **View Issues**: [GitHub Issues](https://github.com/starlightkristen/A-Damn-Fine-Bridal-Party/issues)
 
+## 📋 Deployment Status
+
+**Production Ready** ✅  
+*Last verified: January 21, 2026*
+
+- ✅ Firebase integration configured with automatic fallback to localStorage
+- ✅ All 8 production HTML files identified and documented
+- ✅ GitHub Pages compatibility verified (`.nojekyll` present, relative paths)
+- ✅ Comprehensive testing and deployment documentation created
+- 📚 See [PRODUCTION_FILES.md](PRODUCTION_FILES.md) for complete file inventory
+- 📋 See [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) for deployment guide
+- 🧪 See [tests/workflow-test.md](tests/workflow-test.md) for testing checklist
+
 ## ✨ New Interactive Features
 
 ### Live Editing
@@ -349,12 +362,30 @@ You can add more characters by editing `characters.json`!
 ### Data Persistence Models
 1. **Temporary (Default)**: Changes exist only in current session
 2. **Browser Storage (Autosave)**: Persists to localStorage when enabled
-3. **File Export**: Manual download to JSON files for backup/sharing
-4. **Repository Commit**: Commit exported JSON files to GitHub for permanent storage
+3. **Firebase/Firestore (Optional)**: Cloud sync with authentication (currently enabled with fallback)
+4. **File Export**: Manual download to JSON files for backup/sharing
+5. **Repository Commit**: Commit exported JSON files to GitHub for permanent storage
+
+### Firebase Configuration
+The portal includes optional Firebase/Firestore integration for cloud-based data persistence:
+
+- **Status**: Currently **ENABLED** with automatic fallback to localStorage
+- **Configuration**: See `assets/firebase-config.js` and `assets/firebase-manager.js`
+- **Features**: Real-time sync, authentication, cross-device persistence
+- **Fallback**: Automatically uses localStorage if Firebase fails to initialize
+- **Console Logging**: Clear status messages show Firebase state:
+  - ✅ "Firebase initialized successfully" - Firebase working
+  - ⚠️ "Falling back to local-only mode" - Firebase failed, using localStorage
+  - 🔧 "Running in local-only mode (Firebase disabled)" - Firebase disabled in config
+
+**To disable Firebase and run in local-only mode:**
+1. Open `assets/app.js`
+2. Change `const FIREBASE_ENABLED = true;` to `const FIREBASE_ENABLED = false;`
+3. Portal will use localStorage only (no authentication required)
 
 ### Limitations
-- **Client-Side Only**: No backend processing or database
-- **Single-User**: No collaborative editing or user authentication
+- **Client-Side Only**: No backend processing (Firebase optional)
+- **Single-User**: No collaborative editing (without Firebase)
 - **Browser Storage Limits**: LocalStorage has size limits (~5-10MB)
 - **Manual Sync**: Changes must be exported and committed to share with others
 
