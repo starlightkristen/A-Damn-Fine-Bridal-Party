@@ -1,121 +1,50 @@
 {
-  "eventTitle": "A Damn Fine Bridal Party for Marlena",
-  "planningNote": "This is just a starting framework - adjust anything to fit what the group wants!",
-  "totalDuration": "75 minutes",
+  "eventTitle": "Marlena's Bridal Shower",
+  "planningNote": "Rough timeline - feel free to adjust! No one's watching the clock. ☕",
+  "totalDuration": "About 75 minutes (but who's counting?)",
   "timeline": [
     {
-      "time": "0:00 - 0:20",
-      "title": "Section 1: The Mystery Begins (Intro)",
-      "duration": "20 minutes",
-      "description": "Guests arrive knowing their character from the invite. Pick up packet at seat and open Envelope 1.",
-      "phase": "intro",
-      "envelope_instruction": "Open Envelope 1",
-      "activities": [
-        "Guests already know character from invite",
-        "Guests pick up packet at their seat",
-        "Open Envelope 1",
-        "Short character roll call"
-      ],
-      "music": "Twin Peaks Theme (Laura Palmer's Theme) - ambient",
-      "notes": "Guests should feel welcomed and excited, not stressed. Keep it light and fun."
+      "time": "Start",
+      "title": "Everyone Arrives",
+      "description": "Hand out mystery packets, open Envelope 1, grab snacks.",
+      "duration": "~20 min"
     },
     {
-      "time": "0:20 - 0:40",
-      "title": "Section 2: Investigation (Mid)",
-      "duration": "20 minutes",
-      "description": "Mingle, snack, talk, speculate. Open Envelope 2 at midpoint.",
-      "phase": "mid",
-      "envelope_instruction": "At midpoint, open Envelope 2",
-      "activities": [
-        "Mingle, snack, talk, speculate",
-        "At midpoint, open Envelope 2"
-      ],
-      "music": "Twin Peaks soundtrack - moderate volume for atmosphere",
-      "notes": "Let conversations flow naturally. The mystery should feel fun, not like work."
+      "time": "20 min",
+      "title": "Mingle & Investigate",
+      "description": "Chat, trade clues, snack. Open Envelope 2 when ready.",
+      "duration": "~20 min"
     },
     {
-      "time": "0:40 - 0:55",
-      "title": "Section 3: The Web Tightens (Pre-final)",
-      "duration": "15 minutes",
-      "description": "Call attention briefly, open Envelope 3, let new info circulate.",
-      "phase": "pre-final",
-      "envelope_instruction": "Open Envelope 3",
-      "activities": [
-        "Call attention briefly",
-        "Open Envelope 3",
-        "Let new info circulate"
-      ],
-      "music": "Dark, mysterious Twin Peaks theme (The Bookhouse Boys)",
-      "notes": "Build suspense as the pieces come together."
+      "time": "40 min",
+      "title": "Things Get Interesting",
+      "description": "Open Envelope 3, let the drama unfold.",
+      "duration": "~15 min"
     },
     {
-      "time": "0:55 - 1:10",
-      "title": "Section 4: The Big Burn (Final)",
-      "duration": "15 minutes",
-      "description": "Everyone gathers, opens Envelope 4 before cupcakes, then cupcake reveal ceremony.",
-      "phase": "final",
-      "envelope_instruction": "Open Envelope 4 before cupcakes",
-      "activities": [
-        "Everyone gathers",
-        "Open Envelope 4 before cupcakes",
-        "Cupcake reveal ceremony"
-      ],
-      "music": "Building dramatic music, culminating at reveal",
-      "notes": "Practice the torch method beforehand! Safety first. Envelope 4 must be opened BEFORE cupcakes!"
+      "time": "55 min",
+      "title": "The Big Reveal",
+      "description": "Open Envelope 4, then bring out the cupcakes with messages!",
+      "duration": "~15 min"
     },
     {
-      "time": "1:10 - 1:15",
-      "title": "Section 5: Wrap-up",
-      "duration": "5 minutes",
-      "description": "Very short recap, toast to Marlena, group photo.",
-      "activities": [
-        "Very short recap",
-        "Toast to Marlena",
-        "Group photo"
-      ],
-      "music": "Return to celebratory, upbeat music",
-      "notes": "End on a high note! Make sure Marlena feels special and celebrated."
+      "time": "70 min",
+      "title": "Wrap Up",
+      "description": "Toast to Marlena, group photo, celebrate!",
+      "duration": "~5 min"
     }
   ],
-  "supplies": [
-    "Character cards (one per guest)",
-    "Physical clues in sealed envelopes",
-    "Kitchen torch for cupcake reveal",
-    "Mystery playlist",
-    "Props (magnifying glasses, fake evidence, etc.)",
-    "Prize for winner",
-    "Camera/phone for photos"
+  "quickTips": [
+    "Timing is flexible - go with the vibe",
+    "If people are having fun mingling, let it run longer",
+    "If energy drops, speed it up",
+    "You don't need to explain everything - just hand out packets and call envelope times"
   ],
-  "backupPlans": {
-    "guestsStuck": "Have pre-written 'anonymous tips' ready to drop if no one is making progress",
-    "guestsNotParticipating": "Have co-host or planted guest who's enthusiastic to help draw others in",
-    "runningLong": "Skip or shorten traditional shower activities at beginning",
-    "runningShort": "Have extra games ready or extend investigation phase"
-  },
-  "musicSuggestions": {
-    "scene": [
-      "Laura Palmer's Theme (gentle, ambient)",
-      "Twin Peaks Theme (instrumental)",
-      "Audrey's Dance",
-      "Dance of the Dream Man",
-      "Freshly Squeezed"
-    ],
-    "mystery": [
-      "The Bookhouse Boys (mysterious)",
-      "Dark Mood Woods",
-      "Love Theme (atmospheric)",
-      "Into the Night",
-      "Night Life in Twin Peaks"
-    ]
-  },
-  "momentsToCapture": [
-    "If you feel like taking photos, do. If not, enjoy the vibes.",
-    "The Mystery Begins: Guests with their packets",
-    "First Impressions: Character introductions",
-    "The Investigation: Candid moments of friends playing detective",
-    "The Big Burn: That dramatic cupcake reveal moment",
-    "The Reveal: Reactions when the murderer is caught",
-    "The Residents: A big group photo with everyone in character",
-    "Marlena's Favorites: Opening gifts and favorite group moments"
+  "supplies": [
+    "Mystery packets (1 per guest)",
+    "Cupcakes with messages",
+    "Snacks and drinks",
+    "Twin Peaks playlist (optional)",
+    "Camera for photos"
   ]
 }

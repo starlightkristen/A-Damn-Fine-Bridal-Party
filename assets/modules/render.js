@@ -1122,12 +1122,14 @@ const Render = {
         <p>${block.description}</p>
         ${block.phase ? `<p><strong>Phase:</strong> <span class="badge badge-info">${block.phase}</span></p>` : ''}
         ${block.envelope_instruction ? `<p><strong>Envelope:</strong> <em>${block.envelope_instruction}</em></p>` : ''}
+        ${block.activities && block.activities.length > 0 ? `
         <h4>Activities:</h4>
         <ul>
           ${block.activities.map(activity => `<li>${activity}</li>`).join('')}
         </ul>
-        <p><strong>Music:</strong> ${block.music}</p>
-        <p><em>${block.notes}</em></p>
+        ` : ''}
+        ${block.music ? `<p><strong>Music:</strong> ${block.music}</p>` : ''}
+        ${block.notes ? `<p><em>${block.notes}</em></p>` : ''}
         ${renderEditMetadata(block._metadata, 'badge')}
       </div>
     `).join('');
@@ -1136,6 +1138,7 @@ const Render = {
     
     // Render dynamic sections
     renderScheduleSupplies();
+    renderScheduleQuickTips();
     renderScheduleMusic();
     renderScheduleBackupPlans();
     renderScheduleMoments();
@@ -1656,12 +1659,44 @@ function renderScheduleSupplies() {
   `;
 }
 
+// Helper function to render quick tips
+function renderScheduleQuickTips() {
+  const container = document.getElementById('schedule-supplies');
+  if (!container) return;
+  
+  const quickTips = AppData.schedule.quickTips;
+  
+  // Only render if quickTips exists and has items
+  if (!quickTips || quickTips.length === 0) {
+    return;
+  }
+  
+  const quickTipsHtml = `
+    <div class="card" style="margin-top: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>💡 Quick Tips</h2>
+      </div>
+      <ul class="item-list">
+        ${quickTips.map(tip => `<li>${escapeHtml(tip)}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  
+  container.insertAdjacentHTML('afterend', quickTipsHtml);
+}
+
 // Helper function to render schedule music
 function renderScheduleMusic() {
   const container = document.getElementById('schedule-music');
   if (!container) return;
   
-  const music = AppData.schedule.musicSuggestions || { scene: [], mystery: [] };
+  const music = AppData.schedule.musicSuggestions;
+  
+  // Only render if musicSuggestions exists
+  if (!music || (!music.scene && !music.mystery)) {
+    container.innerHTML = '';
+    return;
+  }
   
   container.innerHTML = `
     <div class="card">
@@ -1695,7 +1730,13 @@ function renderScheduleBackupPlans() {
   const container = document.getElementById('schedule-backup-plans');
   if (!container) return;
   
-  const plans = AppData.schedule.backupPlans || {};
+  const plans = AppData.schedule.backupPlans;
+  
+  // Only render if backupPlans exists
+  if (!plans || Object.keys(plans).length === 0) {
+    container.innerHTML = '';
+    return;
+  }
   
   container.innerHTML = `
     <div class="card">
@@ -1733,60 +1774,17 @@ function renderScheduleMoments() {
   const container = document.getElementById('schedule-moments');
   if (!container) return;
   
-  const moments = AppData.schedule.momentsToCapture || [];
+  const moments = AppData.schedule.momentsToCapture;
+  
+  // Only render if momentsToCapture exists and has items
+  if (!moments || moments.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
   
   container.innerHTML = `
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>📸 Moments We Need to Capture</h2>
-        <button class="btn-sm" onclick="showEditMomentsForm()">✏️ Edit Moments</button>
-      </div>
-      <ul class="item-list">
-        ${moments.map(m => `<li>${escapeHtml(m)}</li>`).join('')}
-      </ul>
-    </div>
-  `;
-}
-
-// Helper function to render backup plans
-function renderScheduleBackupPlans() {
-  const container = document.getElementById('schedule-backup-plans');
-  if (!container) return;
-  
-  const plans = AppData.schedule.backupPlans || {};
-  
-  container.innerHTML = `
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h2>🔄 Being Prepared</h2>
-        <button class="btn-sm" onclick="showEditBackupPlansForm()">✏️ Edit Plans</button>
-      </div>
-      <p>Just in case the investigation takes a turn:</p>
-      
-      <div style="margin-top: 15px;">
-        <h3 style="font-size: 1.1em; color: var(--dark-wood);">If They Get Stuck:</h3>
-        <p>${escapeHtml(plans.guestsStuck || 'No plan set.')}</p>
-        
-        <h3 style="font-size: 1.1em; color: var(--dark-wood); margin-top: 15px;">Keeping the Energy Up:</h3>
-        <p>${escapeHtml(plans.guestsNotParticipating || 'No plan set.')}</p>
-        
-        <h3 style="font-size: 1.1em; color: var(--dark-wood); margin-top: 15px;">Adjusting the Clock:</h3>
-        <p>${escapeHtml(plans.runningLong || 'No plan set.')}</p>
-      </div>
-    </div>
-  `;
-}
-
-// Helper function to render moments to capture
-function renderScheduleMoments() {
-  const container = document.getElementById('schedule-moments');
-  if (!container) return;
-  
-  const moments = AppData.schedule.momentsToCapture || [];
-  
-  container.innerHTML = `
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <h2>📸 Moments We Need to Capture</h2>
         <button class="btn-sm" onclick="showEditMomentsForm()">✏️ Edit Moments</button>
       </div>
